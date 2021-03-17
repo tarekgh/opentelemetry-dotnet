@@ -12,18 +12,18 @@ using OpenTelemetry.Metric.Sdk;
 /*
 BenchmarkDotNet=v0.12.1, OS=Windows 10.0.19042
 Intel Core i7-1065G7 CPU 1.30GHz, 1 CPU, 8 logical and 4 physical cores
-.NET Core SDK=5.0.103
-  [Host]     : .NET Core 5.0.3 (CoreCLR 5.0.321.7212, CoreFX 5.0.321.7212), X64 RyuJIT
-  Job-GMTSFC : .NET Core 5.0.3 (CoreCLR 5.0.321.7212, CoreFX 5.0.321.7212), X64 RyuJIT
+.NET Core SDK=5.0.201
+  [Host]     : .NET Core 5.0.4 (CoreCLR 5.0.421.11614, CoreFX 5.0.421.11614), X64 RyuJIT
+  Job-OFHADH : .NET Core 5.0.4 (CoreCLR 5.0.421.11614, CoreFX 5.0.421.11614), X64 RyuJIT
 
 IterationCount=15  LaunchCount=3  WarmupCount=3
 
-|         Method |     Mean |    Error |   StdDev |   Gen 0 |  Gen 1 | Gen 2 | Allocated |
-|--------------- |---------:|---------:|---------:|--------:|-------:|------:|----------:|
-|     SendMetric | 40.98 us | 0.601 us | 1.113 us |  7.6294 |      - |     - |  31.23 KB |
-|    SendMetric2 | 40.14 us | 0.328 us | 0.592 us |  7.9956 | 0.0610 |     - |   32.8 KB |
-|  ReceiveMetric | 49.04 us | 0.623 us | 1.185 us | 14.2822 | 0.0610 |     - |  58.52 KB |
-| ReceiveMetric2 | 48.42 us | 0.846 us | 1.547 us | 14.6484 |      - |     - |  60.09 KB |
+|         Method |     Mean |     Error |    StdDev |  Gen 0 | Gen 1 | Gen 2 | Allocated |
+|--------------- |---------:|----------:|----------:|-------:|------:|------:|----------:|
+|     SendMetric | 5.578 us | 0.0648 us | 0.1233 us | 1.0681 |     - |     - |   4.39 KB |
+|    SendMetric2 | 5.478 us | 0.0714 us | 0.1324 us | 1.0986 |     - |     - |   4.52 KB |
+|  ReceiveMetric | 5.909 us | 0.0758 us | 0.1424 us | 1.7090 |     - |     - |   7.01 KB |
+| ReceiveMetric2 | 5.983 us | 0.1458 us | 0.2774 us | 1.7395 |     - |     - |   7.13 KB |
 */
 
 namespace MyBenchmark
@@ -42,7 +42,7 @@ namespace MyBenchmark
         {
             var items = new List<ExportItem>();
 
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 1; i++)
             {
                 var item = new ExportItem();
                 item.dt = DateTimeOffset.Parse("2020-01-01T10:12:13Z");

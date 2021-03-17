@@ -58,7 +58,7 @@ namespace Microsoft.OpenTelemetry.Export
                         var metrics = BuildMetric2(item);
                         if (metrics is not null)
                         {
-                            instMetric.Metrics2.AddRange(metrics);
+                            instMetric.Metrics.AddRange(metrics);
                         }
                     }
                 }
@@ -123,22 +123,22 @@ namespace Microsoft.OpenTelemetry.Export
             return metrics.ToArray();
         }
 
-        public Metric2[] BuildMetric2(ExportItem item)
+        public Metric[] BuildMetric2(ExportItem item)
         {
-            var metrics = new List<Metric2>();
+            var metrics = new List<Metric>();
 
             if (item.AggregationConfig is SumAggregation)
             {
                 foreach (var d in item.AggData)
                 {
-                    Metric2 metric = new Metric2();
+                    Metric metric = new Metric();
                     metric.Name = $"{item.MeterName}{{_{d.name}}}";
                     var sum = new Sum();
                     metric.Sum = sum;
                     sum.IsMonotonic = true;
-                    var datapoints = sum.DoubleDataPoints;
+                    var datapoints = sum.DataPoints;
 
-                    var datapoint = new DoubleDataPoint();
+                    var datapoint = new ScalarDataPoint();
                     datapoint.StartTimeUnixNano = (ulong) item.dt.ToUnixTimeMilliseconds() * 100000;
                     datapoint.TimeUnixNano = (ulong) item.dt.ToUnixTimeMilliseconds() * 100000;
 
@@ -150,7 +150,7 @@ namespace Microsoft.OpenTelemetry.Export
                         datapoint.Labels.Add(kv);
                     }
 
-                    datapoint.Value = double.Parse(d.value);
+                    datapoint.DoubleValue = double.Parse(d.value);
                     datapoints.Add(datapoint);
 
                     metrics.Add(metric);
@@ -206,14 +206,30 @@ namespace Microsoft.OpenTelemetry.Export
                             }
                         }
 
-                        foreach (var metric in instMetric.Metrics2)
+                        foreach (var metric in instMetric.Metrics)
                         {
                             if (metric.Sum is not null)
                             {
-                                foreach (var dp in metric.Sum.DoubleDataPoints)
+                                foreach (var dp in metric.Sum.DataPoints)
                                 {
                                     var labels = dp.Labels.Select(k => $"{k.Key}={k.Value}").ToList();
                                     labels.Sort();
+
+                                    string val;
+                                    switch (dp.ValueCase)
+                                    {
+                                        case ScalarDataPoint.ValueOneofCase.DoubleValue:
+                                            val = $"{dp.DoubleValue}";
+                                            break;
+                                            
+                                        case ScalarDataPoint.ValueOneofCase.IntValue:
+                                            val = $"{dp.IntValue}";
+                                            break;
+
+                                        default:
+                                            val = "";
+                                            break;
+                                    }
 
                                     records.Add(new ParseRecord()
                                     {
@@ -223,7 +239,7 @@ namespace Microsoft.OpenTelemetry.Export
                                         name = metric.Name,
                                         label = $"{{{String.Join("|", labels)}}}",
                                         timestamp = dp.TimeUnixNano,
-                                        value = $"{dp.Value}"
+                                        value = val
                                     });
                                 }
                             }

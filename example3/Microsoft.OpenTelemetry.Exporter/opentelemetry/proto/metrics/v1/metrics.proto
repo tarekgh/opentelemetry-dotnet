@@ -43,78 +43,6 @@ message InstrumentationLibraryMetrics {
 
   // A list of metrics that originate from an instrumentation library.
   repeated Metric metrics = 2;
-  repeated Metric2 metrics2 = 3;
-}
-
-message Metric2 {
-  // name of the metric, including its DNS name prefix. It must be unique.
-  string name = 1;
-
-  // description of the metric, which can be used in documentation.
-  string description = 2;
-
-  // unit in which the metric value is reported. Follows the format
-  // described by http://unitsofmeasure.org/ucum.html.
-  string unit = 3;
-
-  // TODO: Decide if support for RawMeasurements (measurements recorded using
-  // the synchronous instruments) is necessary. It can be used to delegate the
-  // aggregation from the application to the agent/collector. See
-  // https://github.com/open-telemetry/opentelemetry-specification/issues/617
-
-  // Data determines the aggregation type (if any) of the metric, what is the
-  // reported value type for the data points, as well as the relatationship to
-  // the time interval over which they are reported.
-  //
-  // TODO: Update table after the decision on:
-  // https://github.com/open-telemetry/opentelemetry-specification/issues/731.
-  // By default, metrics recording using the OpenTelemetry API are exported as
-  // (the table does not include MeasurementValueType to avoid extra rows):
-  //
-  //   Instrument         Type
-  //   ----------------------------------------------
-  //   Counter            Sum(aggregation_temporality=delta;is_monotonic=true)
-  //   UpDownCounter      Sum(aggregation_temporality=delta;is_monotonic=false)
-  //   ValueRecorder      TBD
-  //   SumObserver        Sum(aggregation_temporality=cumulative;is_monotonic=true)
-  //   UpDownSumObserver  Sum(aggregation_temporality=cumulative;is_monotonic=false)
-  //   ValueObserver      Gauge()
-  oneof data {
-    Gauge gauge = 4;
-    Sum sum = 5;
-    Histogram histogram = 6;
-    Summary summary = 7;
-  }
-}
-
-message Gauge {
-  repeated IntDataPoint int_data_points = 1;
-  repeated DoubleDataPoint double_data_points = 2;
-}
-
-message Sum {
-  // aggregation_temporality describes if the aggregator reports delta changes
-  // since last report time, or cumulative changes since a fixed start time.
-  AggregationTemporality aggregation_temporality = 2;
-
-  // If "true" means that the sum is monotonic.
-  bool is_monotonic = 3;
-
-  repeated IntDataPoint int_data_points = 4;
-  repeated DoubleDataPoint double_data_points = 5;
-}
-
-message Histogram {
-  // aggregation_temporality describes if the aggregator reports delta changes
-  // since last report time, or cumulative changes since a fixed start time.
-  AggregationTemporality aggregation_temporality = 2;
-
-  repeated IntDataPoint int_data_points = 3;
-  repeated DoubleDataPoint double_data_points = 4;
-}
-
-message Summary {
-  repeated DoubleDataPoint double_data_points = 1;
 }
 
 // Defines a Metric which has one or more timeseries.
@@ -216,7 +144,89 @@ message Metric {
     IntHistogram int_histogram = 8;
     DoubleHistogram double_histogram = 9;
     DoubleSummary double_summary = 11;
+
+    Gauge gauge = 14;
+    Sum sum = 15;
   }
+}
+
+message Gauge {
+  repeated ScalarDataPoint data_points = 1;
+}
+
+message Sum {
+  repeated ScalarDataPoint data_points = 1;
+
+  // aggregation_temporality describes if the aggregator reports delta changes
+  // since last report time, or cumulative changes since a fixed start time.
+  AggregationTemporality aggregation_temporality = 2;
+
+  // If "true" means that the sum is monotonic.
+  bool is_monotonic = 3;
+}
+
+message ScalarDataPoint {
+  // The set of labels that uniquely identify this timeseries.
+  repeated opentelemetry.proto.common.v1.StringKeyValue labels = 1;
+
+  // start_time_unix_nano is the last time when the aggregation value was reset
+  // to "zero". For some metric types this is ignored, see data types for more
+  // details.
+  //
+  // The aggregation value is over the time interval (start_time_unix_nano,
+  // time_unix_nano].
+  // 
+  // Value is UNIX Epoch time in nanoseconds since 00:00:00 UTC on 1 January
+  // 1970.
+  //
+  // Value of 0 indicates that the timestamp is unspecified. In that case the
+  // timestamp may be decided by the backend.
+  fixed64 start_time_unix_nano = 2;
+
+  // time_unix_nano is the moment when this aggregation value was reported.
+  // 
+  // Value is UNIX Epoch time in nanoseconds since 00:00:00 UTC on 1 January
+  // 1970.
+  fixed64 time_unix_nano = 3;
+
+  // value itself.
+  oneof value {
+    sfixed64 int_value = 4;
+    double double_value = 10;
+  }
+
+  // (Optional) List of exemplars collected from
+  // measurements that were used to form the data point
+  repeated ScalarExemplar exemplars = 5;
+}
+
+message ScalarExemplar {
+  // The set of labels that were filtered out by the aggregator, but recorded
+  // alongside the original measurement. Only labels that were filtered out
+  // by the aggregator should be included
+  repeated opentelemetry.proto.common.v1.StringKeyValue filtered_labels = 1;
+
+  // time_unix_nano is the exact time when this exemplar was recorded
+  //
+  // Value is UNIX Epoch time in nanoseconds since 00:00:00 UTC on 1 January
+  // 1970.
+  fixed64 time_unix_nano = 2;
+
+  // Numerical int value of the measurement that was recorded.
+  oneof value {
+    sfixed64 int_value = 3;
+    double double_value = 10;
+  }
+
+  // (Optional) Span ID of the exemplar trace.
+  // span_id may be missing if the measurement is not recorded inside a trace
+  // or if the trace is not sampled.
+  bytes span_id = 4;
+
+  // (Optional) Trace ID of the exemplar trace.
+  // trace_id may be missing if the measurement is not recorded inside a trace
+  // or if the trace is not sampled.
+  bytes trace_id = 5;
 }
 
 // Gauge represents the type of a int scalar metric that always exports the
