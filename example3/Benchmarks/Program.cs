@@ -26,6 +26,10 @@ namespace MyBenchmark
                     case "proto":
                         var proto = BenchmarkRunner.Run<MetricProtoBench>();
                         break;
+
+                    case "passing":
+                        var passing = BenchmarkRunner.Run<LabelPassingBench>();
+                        break;
                 }
             }
         }
