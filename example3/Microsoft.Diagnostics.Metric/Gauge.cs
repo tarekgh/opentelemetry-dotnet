@@ -6,25 +6,25 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Diagnostics.Metric
 {
-    public class Gauge : Meter
+    public class Gauge : MeterInstrument
     {
-        public Gauge(string name, MetricSource source = null) 
-            : base(source, name, Array.Empty<string>())
+        public Gauge(string name, Meter meter = null) 
+            : base(meter, name, Array.Empty<string>())
         {
         }
 
-        public Gauge(string name, Dictionary<string, string> staticLabels, MetricSource source = null) :
-            base(source, name, staticLabels, Array.Empty<string>())
+        public Gauge(string name, Dictionary<string, string> staticLabels, Meter meter = null) :
+            base(meter, name, staticLabels, Array.Empty<string>())
         {
         }
 
-        public Gauge(string name, string[] labelNames, MetricSource source = null) 
-            : base(source, name, labelNames)
+        public Gauge(string name, string[] labelNames, Meter meter = null) 
+            : base(meter, name, labelNames)
         {
         }
 
-        public Gauge(string name, Dictionary<string,string> staticLabels, string[] labelNames, MetricSource source = null) 
-            : base(source, name, staticLabels, labelNames)
+        public Gauge(string name, Dictionary<string,string> staticLabels, string[] labelNames, Meter meter = null) 
+            : base(meter, name, staticLabels, labelNames)
         {
         }
 

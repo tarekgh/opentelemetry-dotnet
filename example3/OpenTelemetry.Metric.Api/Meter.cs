@@ -28,31 +28,31 @@ namespace OpenTelemetry.Metric.Api
 
     public class DotNetMeter : IMeter
     {
-        MetricSource _source;
+        Meter _meter;
 
         public DotNetMeter(string libname, string libver)
         {
-            _source = new MetricSource(libname, libver);
+            _meter = new Meter(libname, libver);
         }
 
         public Counter CreateCounter(string name)
         {
-            return new Counter(name, _source);
+            return new Counter(name, _meter);
         }
 
         public Counter CreateCounter(string name, params string[] dimNames)
         {
-            return new Counter(name, dimNames, _source);
+            return new Counter(name, dimNames, _meter);
         }
 
         public Counter CreateCounter(string name, Dictionary<string,string> labels)
         {
-            return new Counter(name, labels, _source);
+            return new Counter(name, labels, _meter);
         }
 
         public Counter CreateCounter(string name, Dictionary<string,string> labels, string[] dimNames)
         {
-            return new Counter(name, labels, dimNames, _source);
+            return new Counter(name, labels, dimNames, _meter);
         }
 
         /* Including the dimension eliminates mistakes with wrong number of params but wrong order
@@ -91,22 +91,22 @@ namespace OpenTelemetry.Metric.Api
 
         public Gauge CreateGauge(string name)
         {
-            return new Gauge(name, _source);
+            return new Gauge(name, _meter);
         }
 
         public Gauge CreateGauge(string name, Dictionary<string,string> labels)
         {
-            return new Gauge(name, labels, _source);
+            return new Gauge(name, labels, _meter);
         }
 
         public Gauge CreateGauge(string name, params string[] dimNames)
         {
-            return new Gauge(name, dimNames, _source);
+            return new Gauge(name, dimNames, _meter);
         }
 
         public Gauge CreateGauge(string name, Dictionary<string,string> labels, params string[] dimNames)
         {
-            return new Gauge(name, labels, dimNames, _source);
+            return new Gauge(name, labels, dimNames, _meter);
         }
     }
 

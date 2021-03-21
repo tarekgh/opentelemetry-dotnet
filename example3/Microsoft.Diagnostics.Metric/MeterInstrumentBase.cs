@@ -7,17 +7,17 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Diagnostics.Metric
 {
-    public abstract class MeterBase
+    public abstract class MeterInstrumentBase
     {
         struct ListenerSubscription
         {
-            public MeterListener Listener;
+            public MeterInstrumentListener Listener;
             public object Cookie;
         }
 
         ListenerSubscription[] _subscriptions = Array.Empty<ListenerSubscription>();
 
-        public abstract MetricSource Source { get; }
+        public abstract Meter Meter { get; }
         public abstract string Name { get; }
         public abstract string[] LabelNames { get; }
         public abstract Dictionary<string, string> StaticLabels { get; }
@@ -44,7 +44,7 @@ namespace Microsoft.Diagnostics.Metric
             throw new InvalidOperationException("This meter is not observable");
         }
 
-        internal void AddSubscription(MeterListener listener, object listenerCookie)
+        internal void AddSubscription(MeterInstrumentListener listener, object listenerCookie)
         {
             // only push metrics should have subscriptions
             Debug.Assert(!IsObservable);
@@ -57,7 +57,7 @@ namespace Microsoft.Diagnostics.Metric
             _subscriptions = subs;
         }
 
-        internal object RemoveSubscription(MeterListener listener)
+        internal object RemoveSubscription(MeterInstrumentListener listener)
         {
             // only push metrics should have subscriptions
             Debug.Assert(!IsObservable);

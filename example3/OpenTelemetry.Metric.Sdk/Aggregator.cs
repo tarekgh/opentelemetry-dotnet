@@ -12,21 +12,21 @@ namespace OpenTelemetry.Metric.Sdk
 
     public abstract class AggregatorState
     {
-        public abstract void Update(MeterBase meter, double num);
+        public abstract void Update(MeterInstrumentBase meter, double num);
 
         public abstract (string key, string value)[] Serialize();
     }
 
     public struct AggregatorKey : IEquatable<AggregatorKey>
     {
-        public MetricSource source;
+        public Meter meter;
         public string name;
         public AggregationConfiguration AggregationConfig;
         public MetricLabelSet labels;
 
-        public AggregatorKey(MetricSource source, string name, AggregationConfiguration aggregationConfig, MetricLabelSet labels)
+        public AggregatorKey(Meter meter, string name, AggregationConfiguration aggregationConfig, MetricLabelSet labels)
         {
-            this.source = source;
+            this.meter = meter;
             this.name = name;
             this.AggregationConfig = aggregationConfig;
             this.labels = labels;
@@ -35,7 +35,7 @@ namespace OpenTelemetry.Metric.Sdk
         public bool Equals(AggregatorKey other)
         {
             var ret = this.name.Equals(other.name) &&
-                this.source.Equals(other.source) &&
+                this.meter.Equals(other.meter) &&
                 this.AggregationConfig.Equals(other.AggregationConfig) &&
                 this.labels.Equals(other.labels);
             return ret;
@@ -53,7 +53,7 @@ namespace OpenTelemetry.Metric.Sdk
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(this.name, this.source, this.AggregationConfig, this.labels);
+            return HashCode.Combine(this.name, this.meter, this.AggregationConfig, this.labels);
         }
     }
 }

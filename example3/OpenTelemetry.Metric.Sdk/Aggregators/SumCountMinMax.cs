@@ -12,7 +12,7 @@ namespace OpenTelemetry.Metric.Sdk
         public double max = 0;
         public double min = 0;
 
-        public override void Update(MeterBase meter, double value)
+        public override void Update(MeterInstrumentBase meter, double value)
         {
             count++;
             sum += value;

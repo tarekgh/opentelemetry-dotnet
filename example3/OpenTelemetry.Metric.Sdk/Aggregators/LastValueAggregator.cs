@@ -10,7 +10,7 @@ namespace OpenTelemetry.Metric.Sdk
     {
         private double dvalue = 0.0;
 
-        public override void Update(MeterBase meter, double value)
+        public override void Update(MeterInstrumentBase meter, double value)
         {
             this.dvalue = value;
         }

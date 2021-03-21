@@ -6,25 +6,25 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Diagnostics.Metric
 {
-    public class Counter : Meter
+    public class Counter : MeterInstrument
     {
-        public Counter(string name, MetricSource source = null) :
-            base(source, name, Array.Empty<string>())
+        public Counter(string name, Meter meter = null) :
+            base(meter, name, Array.Empty<string>())
         {
         }
 
-        public Counter(string name, Dictionary<string, string> staticLabels, MetricSource source = null) :
-            base(source, name, staticLabels, Array.Empty<string>())
+        public Counter(string name, Dictionary<string, string> staticLabels, Meter meter = null) :
+            base(meter, name, staticLabels, Array.Empty<string>())
         {
         }
 
-        public Counter(string name, string[] labelNames, MetricSource source = null) :
-            base(source, name, labelNames)
+        public Counter(string name, string[] labelNames, Meter meter = null) :
+            base(meter, name, labelNames)
         {
         }
 
-        public Counter(string name, Dictionary<string, string> staticLabels, string[] labelNames, MetricSource source = null) :
-            base(source, name, staticLabels, labelNames)
+        public Counter(string name, Dictionary<string, string> staticLabels, string[] labelNames, Meter meter = null) :
+            base(meter, name, staticLabels, labelNames)
         {
         }
 
@@ -44,7 +44,7 @@ namespace Microsoft.Diagnostics.Metric
         }
     }
 
-    public class LabeledCounter : LabeledMeter<Counter>
+    public class LabeledCounter : LabeledMeterInstrument<Counter>
     {
         internal LabeledCounter(Counter unlabled, string[] labelValues) : base(unlabled, labelValues) { }
 

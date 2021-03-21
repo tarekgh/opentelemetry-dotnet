@@ -6,29 +6,29 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Diagnostics.Metric
 {
-    public abstract class LabeledMeter : MeterBase
+    public abstract class LabeledMeterInstrument : MeterInstrumentBase
     {
         public string[] LabelValues { get; }
 
-        protected LabeledMeter(string[] labelValues)
+        protected LabeledMeterInstrument(string[] labelValues)
         {
             LabelValues = labelValues;
         }
     }
 
-    public abstract class LabeledMeter<T> : LabeledMeter where T : Meter
+    public abstract class LabeledMeterInstrument<T> : LabeledMeterInstrument where T : MeterInstrument
     {
         public T Unlabeled { get; }
-        public override MetricSource Source => Unlabeled.Source;
+        public override Meter Meter => Unlabeled.Meter;
         public override string Name => Unlabeled.Name;
         public override Dictionary<string, string> StaticLabels => Unlabeled.StaticLabels;
         public override AggregationConfiguration DefaultAggregation => Unlabeled.DefaultAggregation;
         public override string[] LabelNames => Unlabeled.LabelNames;
         
-        protected LabeledMeter(T unlabeledMeter, string[] labelValues) : base(labelValues)
+        protected LabeledMeterInstrument(T unlabeledMeter, string[] labelValues) : base(labelValues)
         {
             Unlabeled = unlabeledMeter;
-            MeterCollection.Instance.AddMetric(this);
+            MeterInstrumentCollection.Instance.AddMetric(this);
         }
     }
 }

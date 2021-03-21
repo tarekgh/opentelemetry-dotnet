@@ -9,7 +9,7 @@ namespace OpenTelemetry.Metric.Sdk
     {
         public Dictionary<string,int> bins = new();
 
-        public override void Update(MeterBase meter, double value)
+        public override void Update(MeterInstrumentBase meter, double value)
         {
             throw new NotImplementedException();
             /*

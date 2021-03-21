@@ -12,10 +12,10 @@ namespace OpenTelemetry.Metric.Sdk
     public class MetricProvider
     {
         private readonly object lockMeters = new();
-        private List<Meter> meters = new();
+        private List<MeterInstrument> meters = new();
 
         private ConcurrentDictionary<AggregatorKey, AggregatorState> aggregateDict = new();
-        private Action<MeterBase, double, AggregatorKey> _updateAggregatorByKeyFunc;
+        private Action<MeterInstrumentBase, double, AggregatorKey> _updateAggregatorByKeyFunc;
 
         private string name;
         private int collectPeriod_ms = 2000;
@@ -32,16 +32,16 @@ namespace OpenTelemetry.Metric.Sdk
         private Task collectTask;
         private Task dequeueTask;
 
-        private MeterListener listener;
+        private MeterInstrumentListener listener;
 
-        private ConcurrentQueue<Tuple<MeterBase,double,string[],object>> incomingQueue = new();
+        private ConcurrentQueue<Tuple<MeterInstrumentBase,double,string[],object>> incomingQueue = new();
         private bool useQueue = false;
 
         public MetricProvider()
         {
-            this.listener = new MeterListener()
+            this.listener = new MeterInstrumentListener()
             {
-                MeterPublished = OnMeterPublished,
+                MeterInstrumentPublished = OnMeterPublished,
                 MeasurementRecorded = OnMeasurementRecorded
             };
             // cache this delegate so we don't keep allocating it
@@ -177,20 +177,20 @@ namespace OpenTelemetry.Metric.Sdk
             }
         }
 
-        private void VisitAggregatorKeys(MeterBase meter, double value, string[] labelValues, Action<MeterBase, double, AggregatorKey> visitor)
+        private void VisitAggregatorKeys(MeterInstrumentBase instrument, double value, string[] labelValues, Action<MeterInstrumentBase, double, AggregatorKey> visitor)
         {
             // Determine how to expand into different aggregates instances
 
             // The SDK can use any logic of configuration it wants to determine that actual
             // aggregation mechanism to use. This is a trivial implementation that uses
             // whatever the library suggested to use.
-            AggregationConfiguration aggConfig = meter.DefaultAggregation;
+            AggregationConfiguration aggConfig = instrument.DefaultAggregation;
 
             // Aggregate for total (dropping all labels)
-            visitor(meter, value, new AggregatorKey(meter.Source, meter.Name, aggConfig, MetricLabelSet.DefaultLabelSet));
+            visitor(instrument, value, new AggregatorKey(instrument.Meter, instrument.Name, aggConfig, MetricLabelSet.DefaultLabelSet));
 
             // Aggregate for identity (preserving all labels)
-            visitor(meter, value, new AggregatorKey(meter.Source, meter.Name, aggConfig, new MetricLabelSet(meter.LabelNames, labelValues)));
+            visitor(instrument, value, new AggregatorKey(instrument.Meter, instrument.Name, aggConfig, new MetricLabelSet(instrument.LabelNames, labelValues)));
 
             /*
             // Aggregate for each configured dimension
@@ -265,11 +265,11 @@ namespace OpenTelemetry.Metric.Sdk
             */
         }
 
-        public void OnMeterPublished(MeterBase meter, MeterSubscribeOptions options)
+        public void OnMeterPublished(MeterInstrumentBase meter, MeterSubscribeOptions options)
         {
-            if(meter is LabeledMeter)
+            if(meter is LabeledMeterInstrument)
             {
-                options.Subscribe(GetLabeledMeterCookie((LabeledMeter)meter));
+                options.Subscribe(GetLabeledMeterCookie((LabeledMeterInstrument)meter));
             }
             else
             {
@@ -277,7 +277,7 @@ namespace OpenTelemetry.Metric.Sdk
             }
         }
 
-        object GetLabeledMeterCookie(LabeledMeter meter)
+        object GetLabeledMeterCookie(LabeledMeterInstrument meter)
         {
             List<AggregatorKey> aggKeys = new List<AggregatorKey>();
             VisitAggregatorKeys(meter, 0, meter.LabelValues, (_, _, key) => aggKeys.Add(key));
@@ -291,7 +291,7 @@ namespace OpenTelemetry.Metric.Sdk
             }
         }
 
-        public void OnMeasurementRecorded(MeterBase meter, double value, string[] labelValues, object cookie)
+        public void OnMeasurementRecorded(MeterInstrumentBase meter, double value, string[] labelValues, object cookie)
         {
             if (useQueue)
             {
@@ -302,7 +302,7 @@ namespace OpenTelemetry.Metric.Sdk
             ProcessRecord(meter, value, labelValues, cookie);
         }
 
-        private void ProcessRecord(MeterBase meter, double value, string[] labelValues, object cookie)
+        private void ProcessRecord(MeterInstrumentBase meter, double value, string[] labelValues, object cookie)
         {
             // TODO: we need to figure out our atomicity guarantees. Right now this function updates
             // potentially multiple aggregators for a single measurement and each aggregator might
@@ -333,7 +333,7 @@ namespace OpenTelemetry.Metric.Sdk
             }
         }
 
-        void UpdateAggregatorByKey(MeterBase meter, double value, AggregatorKey aggKey)
+        void UpdateAggregatorByKey(MeterInstrumentBase meter, double value, AggregatorKey aggKey)
         {
             AggregatorState aggState;
             if (!aggregateDict.TryGetValue(aggKey, out aggState))
@@ -383,8 +383,8 @@ namespace OpenTelemetry.Metric.Sdk
                     item.Labels = kv.Key.labels;
                     item.AggregationConfig = kv.Key.AggregationConfig;
                     item.AggData = kv.Value.Serialize();
-                    item.LibName = kv.Key.source.Name;
-                    item.LibVersion = kv.Key.source.Version;
+                    item.LibName = kv.Key.meter.Name;
+                    item.LibVersion = kv.Key.meter.Version;
                     item.MeterName = kv.Key.name;
                     ret.Add(item);
                 }

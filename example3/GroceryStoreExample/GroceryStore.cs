@@ -25,7 +25,7 @@ namespace GroceryStoreExample
             // Otherwise we'd probably want MetricSource and the counters to be statics and
             // Store should be a dimension on the counters rather than a static label.
 
-            MetricSource source = new MetricSource("GroceryStore", "1.0.0",
+            Meter meter = new Meter("GroceryStore", "1.0.0",
                 new Dictionary<string, string>()
                 {
                     { "Store", store_name }
@@ -34,10 +34,10 @@ namespace GroceryStoreExample
 
             item_counter = new Counter("GroceryStore.item_counter",
                 new string[] { "Item", "Customer" },
-                source);
+                meter);
             cash_counter = new Counter("GroceryStore.cash_counter",
                 new string[] { "Customer" },
-                source);
+                meter);
         }
 
         public void process_order(string customer, params (string name, int qty)[] items)
