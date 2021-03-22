@@ -11,7 +11,26 @@ using OpenTelemetry.Metric.Sdk;
 
 namespace Benchmarks
 {
-    [EtwProfiler]
+    /* BenchmarkDotNet=v0.12.1, OS=Windows 10.0.19042
+        Intel Core i7-9700K CPU 3.60GHz (Coffee Lake), 1 CPU, 8 logical and 8 physical cores
+        .NET Core SDK=5.0.201
+          [Host]     : .NET Core 5.0.4 (CoreCLR 5.0.421.11614, CoreFX 5.0.421.11614), X64 RyuJIT
+          DefaultJob : .NET Core 5.0.4 (CoreCLR 5.0.421.11614, CoreFX 5.0.421.11614), X64 RyuJIT
+
+
+        |                    Method |       Mean |    Error |   StdDev |  Gen 0 | Gen 1 | Gen 2 | Allocated |
+        |-------------------------- |-----------:|---------:|---------:|-------:|------:|------:|----------:|
+        |             Add5xNoLabels |   112.9 ns |  0.21 ns |  0.17 ns |      - |     - |     - |         - |
+        |      Add5xSameLabelNames1 |   150.3 ns |  0.09 ns |  0.08 ns |      - |     - |     - |         - |
+        | Add5xDifferentLabelNames1 |   251.6 ns |  0.27 ns |  0.23 ns |      - |     - |     - |         - |
+        |      Add5xSameLabelNames2 |   206.9 ns |  0.75 ns |  0.67 ns |      - |     - |     - |         - |
+        | Add5xDifferentLabelNames2 |   529.2 ns |  4.88 ns |  4.57 ns |      - |     - |     - |         - |
+        |      Add5xSameLabelNames3 |   743.3 ns |  2.78 ns |  2.60 ns | 0.0954 |     - |     - |     600 B |
+        | Add5xDifferentLabelNames3 | 2,074.9 ns | 17.12 ns | 16.01 ns | 0.1869 |     - |     - |    1176 B |
+        |       Add5xMultiRankSmall |   396.7 ns |  3.42 ns |  3.03 ns |      - |     - |     - |         - |
+        |       Add5xMultiRankLarge | 1,724.5 ns | 14.30 ns | 13.38 ns | 0.1373 |     - |     - |     864 B |
+    */
+
     [MemoryDiagnoser]
     public class CounterBench
     {

@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
-using System.Runtime.InteropServices;
 using System.Threading;
 using Microsoft.Diagnostics.Metric;
 
@@ -16,6 +15,9 @@ namespace OpenTelemetry.Metric.Sdk
     /// will be passed through to the MultiSizeAggregationStore.
     /// Label sets that exactly match the sequence of the original names should be fast, sets that have the same names
     /// but in a different order will need to be resorted which might be much slower.
+    ///
+    /// This class doesn't handle adding/removing/modifying labels as they pass through but I assume we could create
+    /// a modified implementation that did do that. 
     /// </summary>
     /// <typeparam name="TAggregator"></typeparam>
     sealed class CachedLabelNamesAggregationStore<TAggregator> : InstrumentState where TAggregator : Aggregator, new()
@@ -35,73 +37,24 @@ namespace OpenTelemetry.Metric.Sdk
                 int length = _cachedLabelNames.Length;
                 Interlocked.CompareExchange(ref _cachedNamesAggregations, CreateLabelValuesDictionary(length), null);
             }
-            StackStringBuffer stackBuffer = new StackStringBuffer();
-
-            if (!ProcessLabels(labels, ref stackBuffer, out ReadOnlySpan<string> cacheHitValues, out ReadOnlySpan<(string LabelName, string LabelValue)> cacheMissLabels))
-            {
-                _uncachedNamesAggregations.Update(measurement, cacheMissLabels);
-            }
-            if (cacheHitValues.Length == 0)
+            if(labels.Length == 0)
             {
                 UpdateNoLabels(measurement);
             }
-            else if (cacheHitValues.Length == 1)
+            else if(labels.Length == 1)
             {
-                Update1Label(measurement, cacheHitValues[0]);
+                Update1Label(measurement, labels[0]);
             }
-            else if (cacheHitValues.Length == 2)
+            else if(labels.Length == 2)
             {
-                Update2Labels(measurement, cacheHitValues[0], cacheHitValues[1]);
-            }
-            else
-            {
-                UpdateManyLabels(measurement, cacheHitValues);
-            }
-        }
-
-        bool ProcessLabels(ReadOnlySpan<(string LabelName, string LabelValue)> measurementLabels,
-            ref StackStringBuffer buffer,
-            out ReadOnlySpan<string> cacheHitValues,
-            out ReadOnlySpan<(string LabelName, string LabelValue)> cacheMissLabels)
-        {
-            Span<string> values;
-            LabelSelector[] cachedLabelNames = _cachedLabelNames;
-            if (cachedLabelNames.Length <= StackStringBuffer.Size)
-            {
-                values = MemoryMarshal.CreateSpan(ref buffer.Value1, _cachedLabelNames.Length);
+                Update2Labels(measurement, labels[0], labels[1]);
             }
             else
             {
-                values = new string[cachedLabelNames.Length];
-            }
-            for(int i = 0; i < cachedLabelNames.Length; i++)
-            {
-                LabelSelector ls = cachedLabelNames[i];
-                if(measurementLabels[ls.Index].LabelName != ls.Name)
-                {
-                    return ProcessLabelsSlow(measurementLabels, ref buffer, out cacheHitValues, out cacheMissLabels);
-                }
-                else
-                {
-                    values[i] = measurementLabels[ls.Index].LabelValue;
-                    //TODO: we could modify this label if needed
-                }
+                UpdateManyLabels(measurement, labels);
             }
         }
 
-
-        bool ProcessLabelsSlow(ReadOnlySpan<(string LabelName, string LabelValue)> measurementLabels,
-            ref StackStringBuffer buffer,
-            out ReadOnlySpan<string> cacheHitValues,
-            out ReadOnlySpan<(string LabelName, string LabelValue)> cacheMissLabels)
-        {
-            //TODO: handle unsorted cache hit
-            cacheHitValues = new ReadOnlySpan<string>();
-            cacheMissLabels = measurementLabels;
-            return false;
-        }
-
-            /*
         void UpdateNoLabels(double measurement)
         {
             if(_cachedLabelNames.Length == 0)
@@ -213,7 +166,7 @@ namespace OpenTelemetry.Metric.Sdk
             }
             aggregator.Update(measurement);
         }
-            */
+
         /// <summary>
         /// If the labels are in the order corresponding to sort then the label values will be extracted into
         /// a sorted array. If the label names don't match the sort then null is returned.
@@ -365,23 +318,6 @@ namespace OpenTelemetry.Metric.Sdk
         {
             return obj is LabelValues2 && Equals((LabelValues2)obj);
         }
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    struct StackStringBuffer
-    {
-        public string Value1;
-        public string Value2;
-        public string Value3;
-        public string Value4;
-        public string Value5;
-        public string Value6;
-        public string Value7;
-        public string Value8;
-        public string Value9;
-        public string Value10;
-
-        public const int Size = 10;
     }
 
     struct LabelValuesMany : IEquatable<LabelValuesMany>
