@@ -280,6 +280,24 @@ Counter c = new Counter(source, "hats-sold");
 
 ## Should we pre-define dimension names when instruments are first created?
 
+[VL] Proposed answer: No need to pre-define just dimension names. Take list of
+key/value pairs whenever its needed. "Bound" key/value pairs can still be supported
+but no need to make columnar-wise the keys from the values.
+
+[Noah] Proposed answer:  No we probably don't need to require this this as long as:
+- We believe performance critical code paths will reuse the same keys in the same
+  order for any particular counter
+- We are allowed to define that specifying the same label name more than once
+  in the label sequence doesn't guarantee which label value will be used.
+  I think the spec currently says last value always wins but I'm really hoping
+  we don't need to waste time scanning for duplicates to support that.
+
+The current prototype is showing times of ~22ns, ~31ns, ~41ns, ~59ns
+for counter increment operations with 0/1/2/3 labels respectively after applying
+some optimizations. Forcing users to pre-define label names might
+buy us an additional ~5-10ns/op but that perf gain doesn't seem worth it.
+
+
 Is is generally assumed that pre-defining dimension names may lead to better performance
 at different stages. If so, we can make a list below.
 
@@ -292,10 +310,6 @@ dimension names. Thus, potentially neutralizing any previous perf gains.
 
 [VL] I think the cognitive load on developers to match dimension names separately
 from dimension values may be significant and prone to errors.
-
-[VL] Proposed answer: No need to pre-define just dimension names. Take list of
-key/value pairs whenever its needed. "Bound" key/value pairs can still be supported
-but no need to make columnar-wise the keys from the values.
 
 [VL] Proposed Ideas: We can define a named set of immutable collection of KV
 pairs (i.e. Labelset). These can be cached for perf as necessary. The recording
@@ -509,10 +523,9 @@ a combination of generics, and ref.emit/LCG/source generators to implement. It a
 implications for app developers wanting to configure label value replacement functions because they now
 need to know what the type of the label is in addition to its name.
 
-Instead of this pursuing this path I'm now curious to explore if we can optimize a weakly typed API
-that takes an array (or perhaps a Span?) of (name,value) tuples. In theory these patterns require a
-non-performant sorting step but I am optimistic we can build a fast path when devs provide the tuples
-in the same order each time.
+[Update] I explored a weakly typed API that takes 0 or more (name,value) label tuple arguments. I think
+the usage feels fairly straightforward and it possible to do decent optimization as long as users tend
+to use the same label keys each time they record a measurement on a particular counter.
 
 
 ## Can we use double as our sole interchange type when communicating numeric measurements between instrumented code and SDK?

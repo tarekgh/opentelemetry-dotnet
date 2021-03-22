@@ -34,20 +34,34 @@ namespace Microsoft.Diagnostics.Metric
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        struct TwoLabels
+        struct ThreeLabels
         {
             public (string LabelName, string LabelValue) Label1;
             public (string LabelName, string LabelValue) Label2;
+            public (string LabelName, string LabelValue) Label3;
         }
 
         protected void RecordMeasurement(double val,
             (string LabelName, string LabelValue) label1,
             (string LabelName, string LabelValue) label2)
         {
-            TwoLabels twoLabels = new TwoLabels();
-            twoLabels.Label1 = label1;
-            twoLabels.Label2 = label2;
-            ReadOnlySpan<(string LabelName, string LabelValue)> labels = MemoryMarshal.CreateReadOnlySpan(ref twoLabels.Label1, 2);
+            ThreeLabels threeLabels = new ThreeLabels();
+            threeLabels.Label1 = label1;
+            threeLabels.Label2 = label2;
+            ReadOnlySpan<(string LabelName, string LabelValue)> labels = MemoryMarshal.CreateReadOnlySpan(ref threeLabels.Label1, 2);
+            RecordMeasurement(val, labels);
+        }
+
+        protected void RecordMeasurement(double val,
+            (string LabelName, string LabelValue) label1,
+            (string LabelName, string LabelValue) label2,
+            (string LabelName, string LabelValue) label3)
+        {
+            ThreeLabels threeLabels = new ThreeLabels();
+            threeLabels.Label1 = label1;
+            threeLabels.Label2 = label2;
+            threeLabels.Label3 = label3;
+            ReadOnlySpan<(string LabelName, string LabelValue)> labels = MemoryMarshal.CreateReadOnlySpan(ref threeLabels.Label1, 3);
             RecordMeasurement(val, labels);
         }
 

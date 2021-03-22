@@ -26,6 +26,10 @@ namespace Microsoft.Diagnostics.Metric
         public void Add(double measurement,
             (string LabelName, string LabelValue) label1,
             (string LabelName, string LabelValue) label2) => RecordMeasurement(measurement, label1, label2);
+        public void Add(double measurement,
+            (string LabelName, string LabelValue) label1,
+            (string LabelName, string LabelValue) label2,
+            (string LabelName, string LabelValue) label3) => RecordMeasurement(measurement, label1, label2, label3);
         public void Add(double measurement, params (string LabelName, string LabelValue)[] labels) => RecordMeasurement(measurement, labels);
         
 

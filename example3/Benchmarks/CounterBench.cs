@@ -20,15 +20,15 @@ namespace Benchmarks
 
         |                    Method |       Mean |    Error |   StdDev |  Gen 0 | Gen 1 | Gen 2 | Allocated |
         |-------------------------- |-----------:|---------:|---------:|-------:|------:|------:|----------:|
-        |             Add5xNoLabels |   112.9 ns |  0.21 ns |  0.17 ns |      - |     - |     - |         - |
-        |      Add5xSameLabelNames1 |   150.3 ns |  0.09 ns |  0.08 ns |      - |     - |     - |         - |
-        | Add5xDifferentLabelNames1 |   251.6 ns |  0.27 ns |  0.23 ns |      - |     - |     - |         - |
-        |      Add5xSameLabelNames2 |   206.9 ns |  0.75 ns |  0.67 ns |      - |     - |     - |         - |
-        | Add5xDifferentLabelNames2 |   529.2 ns |  4.88 ns |  4.57 ns |      - |     - |     - |         - |
-        |      Add5xSameLabelNames3 |   743.3 ns |  2.78 ns |  2.60 ns | 0.0954 |     - |     - |     600 B |
-        | Add5xDifferentLabelNames3 | 2,074.9 ns | 17.12 ns | 16.01 ns | 0.1869 |     - |     - |    1176 B |
-        |       Add5xMultiRankSmall |   396.7 ns |  3.42 ns |  3.03 ns |      - |     - |     - |         - |
-        |       Add5xMultiRankLarge | 1,724.5 ns | 14.30 ns | 13.38 ns | 0.1373 |     - |     - |     864 B |
+        |             Add5xNoLabels |   113.1 ns |  0.15 ns |  0.14 ns |      - |     - |     - |         - |
+        |      Add5xSameLabelNames1 |   154.0 ns |  0.33 ns |  0.31 ns |      - |     - |     - |         - |
+        | Add5xDifferentLabelNames1 |   268.4 ns |  0.47 ns |  0.40 ns |      - |     - |     - |         - |
+        |      Add5xSameLabelNames2 |   206.5 ns |  0.37 ns |  0.34 ns |      - |     - |     - |         - |
+        | Add5xDifferentLabelNames2 |   490.5 ns |  3.98 ns |  3.53 ns |      - |     - |     - |         - |
+        |      Add5xSameLabelNames3 |   296.4 ns |  0.06 ns |  0.05 ns |      - |     - |     - |         - |
+        | Add5xDifferentLabelNames3 | 1,321.7 ns |  6.71 ns |  6.28 ns | 0.0763 |     - |     - |     480 B |
+        |       Add5xMultiRankSmall |   399.2 ns |  0.77 ns |  0.64 ns |      - |     - |     - |         - |
+        |       Add5xMultiRankLarge | 1,721.5 ns | 17.44 ns | 16.31 ns | 0.1259 |     - |     - |     792 B |
     */
 
     [MemoryDiagnoser]

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Threading;
 using Microsoft.Diagnostics.Metric;
 
@@ -14,10 +15,15 @@ namespace OpenTelemetry.Metric.Sdk
     /// those same label names will be stored in the cache. Label sets that have additional/fewer/different label names
     /// will be passed through to the MultiSizeAggregationStore.
     /// Label sets that exactly match the sequence of the original names should be fast, sets that have the same names
-    /// but in a different order will need to be resorted which might be much slower.
+    /// but in a different order will need to be resorted which is noticably slower.
     ///
-    /// This class doesn't handle adding/removing/modifying labels as they pass through but I assume we could create
-    /// a modified implementation that did do that. 
+    /// This class doesn't handle adding/removing/modifying labels as they pass through but we could create
+    /// a modified implementation that did do that. Likely in order from best to worst performance:
+    /// a) A fixed number of labels needs to be stored that is known at the time the InstrumentationState is created
+    /// b) [This current impl] Number of labels stored = Number of labels provided by Update()
+    /// c) Number of labels stored varies based on the names and values of the incoming labels
+    ///    For example if the SDK had 'add-or-replace' semantics for a label then N incoming labels could
+    ///    produce N or N+1 stored labels depending whether we went down the Add or the Replace path
     /// </summary>
     /// <typeparam name="TAggregator"></typeparam>
     sealed class CachedLabelNamesAggregationStore<TAggregator> : InstrumentState where TAggregator : Aggregator, new()
@@ -37,6 +43,11 @@ namespace OpenTelemetry.Metric.Sdk
                 int length = _cachedLabelNames.Length;
                 Interlocked.CompareExchange(ref _cachedNamesAggregations, CreateLabelValuesDictionary(length), null);
             }
+
+            // These fast paths for 0-2 labels rely on the fact that we won't be adding/removing any labels so the
+            // final number of labels that needs to be stored in the dictionary is predictable. The code path
+            // in Update3OrMore() is closer to what we'd need if the final stored label count isn't guaranteed to be
+            // labels.Length
             if(labels.Length == 0)
             {
                 UpdateNoLabels(measurement);
@@ -51,7 +62,7 @@ namespace OpenTelemetry.Metric.Sdk
             }
             else
             {
-                UpdateManyLabels(measurement, labels);
+                Update3OrMoreLabels(measurement, labels);
             }
         }
 
@@ -123,7 +134,7 @@ namespace OpenTelemetry.Metric.Sdk
             aggregator.Update(measurement);
         }
 
-        void UpdateManyLabels(double measurement, ReadOnlySpan<(string LabelName, string LabelValue)> labels)
+        void Update3OrMoreLabels(double measurement, ReadOnlySpan<(string LabelName, string LabelValue)> labels)
         {
             if (_cachedLabelNames.Length != labels.Length)
             {
@@ -132,31 +143,65 @@ namespace OpenTelemetry.Metric.Sdk
             }
 
             LabelSelector[] cachedLabelNames = _cachedLabelNames;
-            string[] sortedLabelValues = GetSortedLabelValues(cachedLabelNames, labels);
-            if(sortedLabelValues == null)
+            StackStringBuffer buffer = new StackStringBuffer();
+            if(!GetSortedLabelValues(cachedLabelNames, labels, ref buffer, out string[] sortedValuesArray))
             {
                 // is it the same names but re-ordered? This can have slow path performance but regardless
                 // of order any labelset that matches the cached names must get aggregated in the cachedNames
                 // dictionary for correctness.
-                LabelSelector[] labelSort = BuildLabelSort(labels);
-                int i = 0;
-                for(; i < cachedLabelNames.Length; i++)
+                for (int i = 0; i < cachedLabelNames.Length; i++)
                 {
-                    if(labelSort[i].Name != cachedLabelNames[i].Name)
+                    int j = 0;
+                    for(;j < labels.Length; j++)
                     {
-                        break;
+                        if(labels[j].LabelName == cachedLabelNames[i].Name)
+                        {
+                            break;
+                        }
+                    }
+                    if (j == labels.Length)
+                    {
+                        // one of the labels we expected to find isn't there, fallback to the uncached store
+                        _uncachedNamesAggregations.UpdateManyLabelsUnsorted(measurement, labels);
+                        return;
                     }
                 }
-                if(i != cachedLabelNames.Length)
-                {
-                    _uncachedNamesAggregations.UpdateManyLabelsUnsorted(measurement, labels);
-                    return;
-                }
-                sortedLabelValues = GetSortedLabelValues(labelSort, labels);
-            }
-            Debug.Assert(sortedLabelValues != null);
 
-            LabelValuesMany key = new LabelValuesMany(sortedLabelValues);
+                // all the labels are there, just not in the order the cache expected. We could implement
+                // this performantly if needed, but hopefully we can just discourage users from using
+                // variable ordering in performance sensitive code
+                LabelSelector[] labelSort = BuildLabelSort(labels);
+                bool ret = GetSortedLabelValues(labelSort, labels, ref buffer, out sortedValuesArray);
+                Debug.Assert(ret);
+            }
+            
+            if(cachedLabelNames.Length == 3)
+            {
+                Update3Cached(measurement, buffer.Value1, buffer.Value2, buffer.Value3);
+            }
+            else
+            {
+                Debug.Assert(sortedValuesArray != null);
+                UpdateManyCached(measurement, sortedValuesArray);
+            }
+        }
+
+        private void Update3Cached(double measurement, string value1, string value2, string value3)
+        {
+            ConcurrentDictionary<LabelValues3, TAggregator> aggregatorDict =
+                (ConcurrentDictionary<LabelValues3, TAggregator>)_cachedNamesAggregations;
+            LabelValues3 key = new LabelValues3(value1, value2, value3);
+            if (!aggregatorDict.TryGetValue(key, out TAggregator aggregator))
+            {
+                aggregatorDict.TryAdd(key, new TAggregator());
+                aggregator = aggregatorDict[key];
+            }
+            aggregator.Update(measurement);
+        }
+
+        private void UpdateManyCached(double measurement, string[] values)
+        {
+            LabelValuesMany key = new LabelValuesMany(values);
             ConcurrentDictionary<LabelValuesMany, TAggregator> aggregatorDict =
                 (ConcurrentDictionary<LabelValuesMany, TAggregator>)_cachedNamesAggregations;
             if (!aggregatorDict.TryGetValue(key, out TAggregator aggregator))
@@ -169,23 +214,35 @@ namespace OpenTelemetry.Metric.Sdk
 
         /// <summary>
         /// If the labels are in the order corresponding to sort then the label values will be extracted into
-        /// a sorted array. If the label names don't match the sort then null is returned.
+        /// a sorted array. If the label names don't match the sort then false is returned.
         /// </summary>
-        string[] GetSortedLabelValues(LabelSelector[] sort, ReadOnlySpan<(string LabelName, string LabelValue)> labels)
+        bool GetSortedLabelValues(
+            LabelSelector[] sort,
+            ReadOnlySpan<(string LabelName, string LabelValue)> labels,
+            ref StackStringBuffer buffer,
+            out string[] sortedValuesArray)
         {
+            Span<string> values;
+            if(sort.Length <= StackStringBuffer.Size)
+            {
+                values = MemoryMarshal.CreateSpan(ref buffer.Value1, sort.Length);
+                sortedValuesArray = null;
+            }
+            else
+            {
+                sortedValuesArray = new string[sort.Length];
+                values = sortedValuesArray.AsSpan();
+            }
             for (int i = 0; i < sort.Length; i++)
             {
-                if (sort[i].Name != labels[sort[i].Index].LabelName)
+                LabelSelector ls = sort[i];
+                if (ls.Name != labels[ls.Index].LabelName)
                 {
-                    return null;
+                    return false;
                 }
+                values[i] = labels[ls.Index].LabelValue;
             }
-            string[] ret = new string[sort.Length];
-            for (int i = 0; i < sort.Length; i++)
-            {
-                ret[i] = labels[sort[i].Index].LabelValue;
-            }
-            return ret;
+            return true;
         }
 
         LabelSelector[] BuildLabelSort(ReadOnlySpan<(string LabelName, string LabelValue)> labels)
@@ -213,6 +270,10 @@ namespace OpenTelemetry.Metric.Sdk
             else if(labelNamesLength == 2)
             {
                 return new ConcurrentDictionary<LabelValues2, TAggregator>();
+            }
+            else if (labelNamesLength == 3)
+            {
+                return new ConcurrentDictionary<LabelValues3, TAggregator>();
             }
             else
             {
@@ -278,6 +339,16 @@ namespace OpenTelemetry.Metric.Sdk
                           (_cachedLabelNames[1].Name, kv.Key.Value2)));
                 }
             }
+            else if (cachedNamesAggregations is ConcurrentDictionary<LabelValues3, TAggregator> aggs3)
+            {
+                foreach (var kv in aggs3)
+                {
+                    visitFunc(new LabeledAggregationStatistics(kv.Value.Collect(),
+                          (_cachedLabelNames[0].Name, kv.Key.Value1),
+                          (_cachedLabelNames[1].Name, kv.Key.Value2),
+                          (_cachedLabelNames[2].Name, kv.Key.Value3)));
+                }
+            }
             else if (cachedNamesAggregations is ConcurrentDictionary<LabelValuesMany, TAggregator> aggsMany)
             {
                 foreach (KeyValuePair<LabelValuesMany,TAggregator> kv in aggsMany)
@@ -294,6 +365,14 @@ namespace OpenTelemetry.Metric.Sdk
     {
         public string Name;
         public int Index;
+    }
+
+    struct StackStringBuffer
+    {
+        public string Value1;
+        public string Value2;
+        public string Value3;
+        public const int Size = 3;
     }
 
     struct LabelValues2 : IEquatable<LabelValues2>
@@ -317,6 +396,32 @@ namespace OpenTelemetry.Metric.Sdk
         public override bool Equals(object obj)
         {
             return obj is LabelValues2 && Equals((LabelValues2)obj);
+        }
+    }
+
+    struct LabelValues3 : IEquatable<LabelValues3>
+    {
+        public string Value1;
+        public string Value2;
+        public string Value3;
+
+        public LabelValues3(string value1, string value2, string value3)
+        {
+            Value1 = value1;
+            Value2 = value2;
+            Value3 = value3;
+        }
+
+        public override int GetHashCode() => HashCode.Combine(Value1.GetHashCode(), Value2.GetHashCode(), Value3.GetHashCode());
+
+        public bool Equals(LabelValues3 other)
+        {
+            return Value1 == other.Value1 && Value2 == other.Value2 && Value3 == other.Value3;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is LabelValues3 && Equals((LabelValues3)obj);
         }
     }
 
