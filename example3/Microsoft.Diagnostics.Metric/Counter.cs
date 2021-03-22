@@ -9,48 +9,39 @@ namespace Microsoft.Diagnostics.Metric
     public class Counter : MeterInstrument
     {
         public Counter(string name, Meter meter = null) :
-            base(meter, name, Array.Empty<string>())
+            base(meter, name)
         {
         }
 
         public Counter(string name, Dictionary<string, string> staticLabels, Meter meter = null) :
-            base(meter, name, staticLabels, Array.Empty<string>())
-        {
-        }
-
-        public Counter(string name, string[] labelNames, Meter meter = null) :
-            base(meter, name, labelNames)
-        {
-        }
-
-        public Counter(string name, Dictionary<string, string> staticLabels, string[] labelNames, Meter meter = null) :
-            base(meter, name, staticLabels, labelNames)
+            base(meter, name, staticLabels)
         {
         }
 
         public override AggregationConfiguration DefaultAggregation => AggregationConfigurations.Sum;
 
-        public void Add(double d) => Add(d, Array.Empty<string>());
+        public void Add(double measurement) => RecordMeasurement(measurement);
+        public void Add(double measurement,
+            (string LabelName, string LabelValue) label1) => RecordMeasurement(measurement, label1);
+        public void Add(double measurement,
+            (string LabelName, string LabelValue) label1,
+            (string LabelName, string LabelValue) label2) => RecordMeasurement(measurement, label1, label2);
+        public void Add(double measurement, params (string LabelName, string LabelValue)[] labels) => RecordMeasurement(measurement, labels);
+        
 
-        public void Add(double d, params string[] labelValues)
+        public LabeledCounter WithLabels(params (string LabelName, string LabelValue)[] labels)
         {
-            base.RecordMeasurement(d, labelValues);
-        }
-
-        public LabeledCounter WithLabels(params string[] labelValues)
-        {
-            //TODO: we should probably memoize this
-            return new LabeledCounter(this, labelValues);
+            return new LabeledCounter(this, labels);
         }
     }
 
     public class LabeledCounter : LabeledMeterInstrument<Counter>
     {
-        internal LabeledCounter(Counter unlabled, string[] labelValues) : base(unlabled, labelValues) { }
+        internal LabeledCounter(Counter unlabled, (string LabelName, string LabelValue)[] labels) : base(unlabled, labels) { }
 
         public void Add(double d)
         {
-            base.RecordMeasurement(d, LabelValues);
+            base.RecordMeasurement(d, Labels);
         }
     }
 }

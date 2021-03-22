@@ -6,21 +6,20 @@ using OpenTelemetry.Metric.Sdk;
 
 namespace OpenTelemetry.Metric.Sdk
 {
-    public class LastValueState : AggregatorState
+    internal class LastValue : Aggregator
     {
-        private double dvalue = 0.0;
+        private double _lastValue;
 
-        public override void Update(MeterInstrumentBase meter, double value)
+        public void Init() { }
+
+        public override void Update(double value)
         {
-            this.dvalue = value;
+            this._lastValue = value;
         }
 
-        public override (string key, string value)[] Serialize()
+        public override AggregationStatistics Collect()
         {
-            return new (string key, string value)[]
-            {
-                ( "last", dvalue.ToString() ),
-            };
+            return new AggregationStatistics("last", _lastValue.ToString());
         }
     }
 }

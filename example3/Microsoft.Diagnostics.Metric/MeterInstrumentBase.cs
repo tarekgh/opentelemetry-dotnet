@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,19 +20,45 @@ namespace Microsoft.Diagnostics.Metric
 
         public abstract Meter Meter { get; }
         public abstract string Name { get; }
-        public abstract string[] LabelNames { get; }
         public abstract Dictionary<string, string> StaticLabels { get; }
         public abstract AggregationConfiguration DefaultAggregation { get; }
         public bool Enabled => _subscriptions.Length > 0 || IsObservable;
 
-        protected void RecordMeasurement(double val, string[] labelValues)
+        protected void RecordMeasurement(double val) =>
+            RecordMeasurement(val, Array.Empty<(string LabelName, string LabelValue)>());
+
+        protected void RecordMeasurement(double val, (string LabelName, string LabelValue) label)
+        {
+            ReadOnlySpan<(string LabelName, string LabelValue)> labels = MemoryMarshal.CreateReadOnlySpan(ref label, 1);
+            RecordMeasurement(val, labels);
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        struct TwoLabels
+        {
+            public (string LabelName, string LabelValue) Label1;
+            public (string LabelName, string LabelValue) Label2;
+        }
+
+        protected void RecordMeasurement(double val,
+            (string LabelName, string LabelValue) label1,
+            (string LabelName, string LabelValue) label2)
+        {
+            TwoLabels twoLabels = new TwoLabels();
+            twoLabels.Label1 = label1;
+            twoLabels.Label2 = label2;
+            ReadOnlySpan<(string LabelName, string LabelValue)> labels = MemoryMarshal.CreateReadOnlySpan(ref twoLabels.Label1, 2);
+            RecordMeasurement(val, labels);
+        }
+
+        protected void RecordMeasurement(double val, ReadOnlySpan<(string LabelName, string LabelValue)> labels)
         {
             // this captures a snapshot, _subscriptions array could be replaced while
             // we are invoking callbacks
             ListenerSubscription[] subscriptions = _subscriptions;
             for (int i = 0; i < subscriptions.Length; i++)
             {
-                subscriptions[i].Listener.MeasurementRecorded(this, val, labelValues, subscriptions[i].Cookie);
+                subscriptions[i].Listener.MeasurementRecorded(this, val, labels, subscriptions[i].Cookie);
             }
         }
 

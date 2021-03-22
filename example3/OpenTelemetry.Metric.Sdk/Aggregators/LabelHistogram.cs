@@ -5,11 +5,11 @@ using OpenTelemetry.Metric.Sdk;
 
 namespace OpenTelemetry.Metric.Sdk
 {
-    public class LabelHistogramState : AggregatorState
+    class LabelHistogramState : Aggregator
     {
-        public Dictionary<string,int> bins = new();
+        public Dictionary<string, int> bins = new();
 
-        public override void Update(MeterInstrumentBase meter, double value)
+        public override void Update(double value)
         {
             throw new NotImplementedException();
             /*
@@ -46,7 +46,7 @@ namespace OpenTelemetry.Metric.Sdk
             }*/
         }
 
-        public override (string key, string value)[] Serialize()
+        public override AggregationStatistics Collect()
         {
             var ret = new List<(string, string)>();
             foreach (var bin in bins)
@@ -54,7 +54,7 @@ namespace OpenTelemetry.Metric.Sdk
                 ret.Add((bin.Key, $"{bin.Value}"));
             }
 
-            return ret.ToArray();
+            return new AggregationStatistics(ret);
         }
     }
 }

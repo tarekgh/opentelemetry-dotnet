@@ -11,11 +11,10 @@ namespace SimpleExamples
     {
         ObservableCounter _hatsSoldCounter = new ObservableCounter(
             name: "HatCo.ColoredHatsSold",
-            labelNames: new string[] { "Color" },
             observeValues: o =>
             {
-                o.Observe(ColoredHatStoreData.GetTotalHatsSold("Yellow"), "Yellow");
-                o.Observe(ColoredHatStoreData.GetTotalHatsSold("Red"), "Red");
+                o.Observe(ColoredHatStoreData.GetTotalHatsSold("Yellow"), ("Color","Yellow"));
+                o.Observe(ColoredHatStoreData.GetTotalHatsSold("Red"), ("Color","Red"));
             });
     }
 

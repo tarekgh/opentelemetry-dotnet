@@ -9,15 +9,17 @@ namespace SimpleExamples
 {
     class ObservableCounter_CachedDynamicLabels_Example
     {
-        ObservableCounter _hatsSoldCounter = new ObservableCounter("HatCo.ColoredHatsSold.Cached", new string[] { "Color" });
+        ObservableCounter _hatsSoldCounter = new ObservableCounter("HatCo.ColoredHatsSold.Cached");
 
         LabeledObservableCounter _yellowHatsSoldCounter;
         LabeledObservableCounter _redHatsSoldCounter;
 
         public ObservableCounter_CachedDynamicLabels_Example()
         {
-            _yellowHatsSoldCounter = _hatsSoldCounter.WithLabels(() => ColoredHatStoreData.GetTotalHatsSold("Yellow"), "Yellow");
-            _redHatsSoldCounter = _hatsSoldCounter.WithLabels(() => ColoredHatStoreData.GetTotalHatsSold("Red"), "Red");
+            _yellowHatsSoldCounter = _hatsSoldCounter.WithLabels(
+                () => ColoredHatStoreData.GetTotalHatsSold("Yellow"), ("Color", "Yellow"));
+            _redHatsSoldCounter = _hatsSoldCounter.WithLabels(
+                () => ColoredHatStoreData.GetTotalHatsSold("Red"), ("Color", "Red"));
         }
     }
 }

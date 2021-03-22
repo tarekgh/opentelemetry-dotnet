@@ -9,7 +9,7 @@ namespace SimpleExamples
 {
     class ObservableCounter_Example
     {
-        ObservableCounter _hatsSoldCounter = new ObservableCounter("SimpleExamples", "1.0.0", "HatCo.HatsSold", () => HatStoreData.GetTotalHatsSold());
+        ObservableCounter _hatsSoldCounter = new ObservableCounter("HatCo.HatsSold", () => HatStoreData.GetTotalHatsSold());
     }
 
 

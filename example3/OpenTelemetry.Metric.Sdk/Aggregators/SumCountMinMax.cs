@@ -5,14 +5,14 @@ using OpenTelemetry.Metric.Sdk;
 
 namespace OpenTelemetry.Metric.Sdk
 {
-    public class SumCountMinMaxState : AggregatorState
+    internal class SumCountMinMax : Aggregator
     {
         public long count = 0;
         public double sum = 0;
         public double max = 0;
         public double min = 0;
 
-        public override void Update(MeterInstrumentBase meter, double value)
+        public override void Update(double value)
         {
             count++;
             sum += value;
@@ -28,15 +28,13 @@ namespace OpenTelemetry.Metric.Sdk
             }
         }
 
-        public override (string key, string value)[] Serialize()
+        public override AggregationStatistics Collect()
         {
-            return new (string key, string value)[]
-            {
-                ( "count", $"{count}" ),
-                ( "sum", $"{sum}" ),
-                ( "min", $"{min}" ),
-                ( "max", $"{max}" )
-            };
+            return new AggregationStatistics(
+                ("count", $"{count}"),
+                ("sum", $"{sum}"),
+                ("min", $"{min}"),
+                ("max", $"{max}"));
         }
     }
 }

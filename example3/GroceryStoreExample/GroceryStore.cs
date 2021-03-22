@@ -33,10 +33,8 @@ namespace GroceryStoreExample
 
 
             item_counter = new Counter("GroceryStore.item_counter",
-                new string[] { "Item", "Customer" },
                 meter);
             cash_counter = new Counter("GroceryStore.cash_counter",
-                new string[] { "Customer" },
                 meter);
         }
 
@@ -49,11 +47,11 @@ namespace GroceryStoreExample
                 total_price += item.qty * price_list[item.name];
 
                 // Record Metric
-                item_counter.Add(item.qty, item.name, customer);
+                item_counter.Add(item.qty, ("Item", item.name), ("Customer", customer));
             }
 
             // Record Metric
-            cash_counter.Add(total_price, customer);
+            cash_counter.Add(total_price, ("Customer", customer));
         }
     }
 }

@@ -9,7 +9,7 @@ namespace MyLibrary
     public class Library
     {
 
-        static Counter s_c1 = new Counter("c1", new string[] { "Label1", "Label2" });
+        static Counter s_c1 = new Counter("c1");
 
         LabeledCounter _c1;
         Counter counter_request;
@@ -20,7 +20,7 @@ namespace MyLibrary
 
         public Library(string name, CancellationToken token)
         {
-            _c1 = s_c1.WithLabels(name, "Tomato");
+            _c1 = s_c1.WithLabels(("Label1",name), ("Label2", "Tomato"));
 
             var staticLabels = new Dictionary<string, string>()
             {
@@ -35,12 +35,10 @@ namespace MyLibrary
             //TODO: make this async
             counter_request3 = new Counter("request3");
 
-            counter_request2 = new Counter("requests", staticLabels,
-                new string[] { "OperNum" });
+            counter_request2 = new Counter("requests", staticLabels);
 
-            var counter_registered = new Counter("registered",
-                labelNames: new string[] { "Program", "LibraryInstanceName" });
-            counter_registered.Add(1, "test", name);
+            var counter_registered = new Counter("registered");
+            counter_registered.Add(1, ("Program","test"), ("LibraryInstanceName", name));
         }
 
         public void DoOperation()
@@ -57,7 +55,7 @@ namespace MyLibrary
             
             counter_request2.Add(1);
 
-            counter_request2.Add(0.15, $"{opernum}");
+            counter_request2.Add(0.15, ("OpenNum", opernum.ToString()));
 
             //counter_request3.Observe();
 

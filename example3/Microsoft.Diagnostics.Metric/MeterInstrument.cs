@@ -13,21 +13,18 @@ namespace Microsoft.Diagnostics.Metric
         public override Meter Meter { get; }
         public override string Name { get; }
 
-        public override string[] LabelNames { get; }
-
         public override Dictionary<string, string> StaticLabels { get; }
 
-        protected MeterInstrument(Meter meter, string name, string[] labelNames) 
-            : this(meter, name, EmptyStaticLabels, labelNames)
+        protected MeterInstrument(Meter meter, string name) 
+            : this(meter, name, EmptyStaticLabels)
         {
         }
 
-        protected MeterInstrument(Meter meter, string name, Dictionary<string,string> staticLabels, string[] labelNames)
+        protected MeterInstrument(Meter meter, string name, Dictionary<string,string> staticLabels)
         {
             Meter = meter;
             Name = name;
             StaticLabels = staticLabels;
-            LabelNames = labelNames;
             MeterInstrumentCollection.Instance.AddMetric(this);
         }
 

@@ -29,7 +29,7 @@ namespace Microsoft.OpenTelemetry.Export
         public byte[] Send(ExportItem[] items, bool isMetric = false)
         {
             var groups = items.GroupBy(
-                k => (k.LibName, k.LibVersion),
+                k => (k.MeterName, k.MeterVersion),
                 item => item,
                 (k,items) => (k, items));
 
@@ -39,8 +39,8 @@ namespace Microsoft.OpenTelemetry.Export
                 var instMetric = new InstrumentationLibraryMetrics();
                 instMetric.InstrumentationLibrary = new InstrumentationLibrary();
                 var lib = instMetric.InstrumentationLibrary;
-                lib.Name = group.k.LibName;
-                lib.Version = group.k.LibVersion;
+                lib.Name = group.k.MeterName;
+                lib.Version = group.k.MeterVersion;
 
                 // Add all the ExportItems...
                 foreach (var item in group.items)
@@ -95,7 +95,7 @@ namespace Microsoft.OpenTelemetry.Export
                 foreach (var d in item.AggData)
                 {
                     Metric metric = new Metric();
-                    metric.Name = $"{item.MeterName}{{_{d.name}}}";
+                    metric.Name = $"{item.InstrumentName}{{_{d.name}}}";
                     var sum = new DoubleSum();
                     metric.DoubleSum = sum;
                     sum.IsMonotonic = true;
@@ -132,7 +132,7 @@ namespace Microsoft.OpenTelemetry.Export
                 foreach (var d in item.AggData)
                 {
                     Metric metric = new Metric();
-                    metric.Name = $"{item.MeterName}{{_{d.name}}}";
+                    metric.Name = $"{item.InstrumentName}{{_{d.name}}}";
                     var sum = new Sum();
                     metric.Sum = sum;
                     sum.IsMonotonic = true;

@@ -25,9 +25,9 @@ namespace UnitTest
             {
                 var item = new ExportItem();
                 item.dt = DateTimeOffset.Parse("2020-01-01T10:12:13Z");
-                item.LibName = "Test";
-                item.LibVersion = "0.0.1";
-                item.MeterName = $"MyTest.request_{n}";
+                item.MeterName = "Test";
+                item.MeterVersion = "0.0.1";
+                item.InstrumentName = $"MyTest.request_{n}";
                 item.Labels = new MetricLabelSet(("Host", "Test"), ("Mode", "Test"));
                 item.AggregationConfig = new SumAggregation();
                 item.AggData = new (string,string)[] {
@@ -60,10 +60,10 @@ namespace UnitTest
                 .Build();
 
             var meter = MeterProvider.Global.GetMeter<UnitTest1>();
-            var counter = meter.CreateCounter("request", "name", "value");
+            var counter = meter.CreateCounter("request");
 
-            counter.Add(10, "nameValue", "typeValue");
-            counter.Add(100, "nameValue2", "typeValue2");
+            counter.Add(10, ("name", "nameValue"), ("value","typeValue"));
+            counter.Add(100, ("name", "nameValue2"), ("value", "typeValue2"));
 
             provider.Stop();
         }
@@ -72,21 +72,21 @@ namespace UnitTest
         public void OTelBasic2()
         {
             var meter = MeterProvider.Global.GetMeter<UnitTest1>();
-            var counter = meter.CreateCounter("request", "name", "value");
+            var counter = meter.CreateCounter("request");
 
             var provider1 = new MetricProvider()
                 .AddExporter(new ConsoleExporter("Test", 1000))
                 .Build();
 
-            counter.Add(50, "noop", "noop");
+            counter.Add(50, ("name", "noop"), ("value", "noop"));
 
             var provider2 = new MetricProvider()
                 .AddExporter(new ConsoleExporter("Test", 1000))
                 .Build();
             //MeterProvider.SetMeterProvider(new MeterProvider());
 
-            counter.Add(10, "nameValue", "typeValue");
-            counter.Add(100, "nameValue2", "typeValue2");
+            counter.Add(10, ("name", "nameValue"), ("value", "typeValue"));
+            counter.Add(100, ("name", "nameValue2"), ("value", "typeValue2"));
 
             provider1.Stop();
             provider2.Stop();
@@ -147,9 +147,9 @@ namespace UnitTest
             {
                 logger.LogInformation("Started...");
 
-                var counter = meter.CreateCounter("request", "Dim1", "Dim2");
+                var counter = meter.CreateCounter("request");
 
-                counter.Add(10, "nameValue", "typeValue");
+                counter.Add(10, ("Dim1", "nameValue"), ("Dim2","typeValue"));
 
                 while (!cts.Token.IsCancellationRequested)
                 {
@@ -157,7 +157,7 @@ namespace UnitTest
                     await Task.Delay(400);
                 }
 
-                counter.Add(100, "DimVal1", "DimVal2");
+                counter.Add(100, ("Dim1","DimVal1"), ("Dim2","DimVal2"));
 
                 logger.LogInformation("Stopped...");
             }
@@ -179,11 +179,11 @@ namespace UnitTest
                 using (var scope = serviceProvider.CreateScope())
                 {
                     var meter = scope.ServiceProvider.GetService<IMeter>();
-                    var counter = meter.CreateCounter("request", "dim1");
+                    var counter = meter.CreateCounter("request");
 
                     for (int n = 0; n < 5; n++)
                     {
-                        counter.Add(10, "dimval1");
+                        counter.Add(10, ("dim1","dimval1"));
                         await Task.Delay(200);
                     }
                 }

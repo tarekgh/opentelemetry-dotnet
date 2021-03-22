@@ -46,9 +46,9 @@ namespace MyBenchmark
             {
                 var item = new ExportItem();
                 item.dt = DateTimeOffset.Parse("2020-01-01T10:12:13Z");
-                item.LibName = "Test";
-                item.LibVersion = "0.0.1";
-                item.MeterName = $"MyTest.request_{i}";
+                item.MeterName = "Test";
+                item.MeterVersion = "0.0.1";
+                item.InstrumentName = $"MyTest.request_{i}";
                 item.Labels = new MetricLabelSet(("Host", "Test"), ("Mode", "Test"));
                 item.AggregationConfig = new SumAggregation();
                 item.AggData = new (string,string)[] {

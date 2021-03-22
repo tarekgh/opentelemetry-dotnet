@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Threading;
@@ -63,7 +63,7 @@ namespace OpenTelemetry.Metric.Sdk
 
             var que = Interlocked.Exchange(ref queue, new ConcurrentQueue<ExportItem>());
 
-            var sortedGroups = que.GroupBy(k => $"{k.LibName} | {k.LibVersion} | {k.MeterName}").OrderBy(g => g.Key);
+            var sortedGroups = que.GroupBy(k => $"{k.MeterName} | {k.MeterVersion} | {k.InstrumentName}").OrderBy(g => g.Key);
 
             foreach (var group in sortedGroups)
             {

@@ -1,59 +1,67 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Diagnostics.Metric;
 using OpenTelemetry.Metric.Sdk;
 
 namespace OpenTelemetry.Metric.Sdk
 {
-    public abstract class Aggregator
+
+    internal abstract class Aggregator
     {
-        public abstract AggregatorState CreateState();
+
+        // This can be called concurrently with Collect()
+        public abstract void Update(double num);
+
+        // This can be called concurrently with Update()
+        public abstract AggregationStatistics Collect();
     }
 
-    public abstract class AggregatorState
+    struct AggregationStatistics
     {
-        public abstract void Update(MeterInstrumentBase meter, double num);
+        IEnumerable<(string Key, string Value)> _statistics;
 
-        public abstract (string key, string value)[] Serialize();
+        public AggregationStatistics(IEnumerable<(string Key, string Value)> data)
+        {
+            _statistics = data;
+        }
+
+        public AggregationStatistics(params (string Key, string Value)[] statistics)
+        {
+            _statistics = statistics;
+        }
+
+        public AggregationStatistics(string key, string value)
+        {
+            _statistics = new (string Key, string Value)[] { (key, value) };
+        }
+
+        public IEnumerable<(string Key, string Value)> Statistics => _statistics;
     }
 
-    public struct AggregatorKey : IEquatable<AggregatorKey>
+    class LabeledAggregationStatistics
     {
-        public Meter meter;
-        public string name;
-        public AggregationConfiguration AggregationConfig;
-        public MetricLabelSet labels;
+        AggregationStatistics _aggStats;
+        IEnumerable<(string LabelName, string LabelValue)> _labels;
 
-        public AggregatorKey(Meter meter, string name, AggregationConfiguration aggregationConfig, MetricLabelSet labels)
+        public LabeledAggregationStatistics(AggregationStatistics stats, params (string LabelName, string LabelValue)[] labels)
         {
-            this.meter = meter;
-            this.name = name;
-            this.AggregationConfig = aggregationConfig;
-            this.labels = labels;
+            _aggStats = stats;
+            _labels = labels;
         }
 
-        public bool Equals(AggregatorKey other)
+        public LabeledAggregationStatistics(AggregationStatistics stats, IEnumerable<(string LabelName, string LabelValue)> labels)
         {
-            var ret = this.name.Equals(other.name) &&
-                this.meter.Equals(other.meter) &&
-                this.AggregationConfig.Equals(other.AggregationConfig) &&
-                this.labels.Equals(other.labels);
-            return ret;
+            _aggStats = stats;
+            _labels = labels;
         }
 
-        public override bool Equals(Object obj)
+        public LabeledAggregationStatistics WithLabels(IEnumerable<KeyValuePair<string,string>> labels)
         {
-            if (obj is AggregatorKey other)
-            {
-                return this.Equals(other);
-            }
-
-            return false;
+            return new LabeledAggregationStatistics(_aggStats, Labels.Concat(labels.Select(kv => (kv.Key,kv.Value))));
         }
 
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(this.name, this.meter, this.AggregationConfig, this.labels);
-        }
+        public IEnumerable<(string LabelName, string LabelValue)> Labels => _labels;
+        public IEnumerable<(string Key, string Value)> Statistics => _aggStats.Statistics;
     }
 }

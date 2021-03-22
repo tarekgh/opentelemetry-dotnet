@@ -9,32 +9,25 @@ namespace Microsoft.Diagnostics.Metric
     public class Gauge : MeterInstrument
     {
         public Gauge(string name, Meter meter = null) 
-            : base(meter, name, Array.Empty<string>())
+            : base(meter, name)
         {
         }
 
         public Gauge(string name, Dictionary<string, string> staticLabels, Meter meter = null) :
-            base(meter, name, staticLabels, Array.Empty<string>())
-        {
-        }
-
-        public Gauge(string name, string[] labelNames, Meter meter = null) 
-            : base(meter, name, labelNames)
-        {
-        }
-
-        public Gauge(string name, Dictionary<string,string> staticLabels, string[] labelNames, Meter meter = null) 
-            : base(meter, name, staticLabels, labelNames)
+            base(meter, name, staticLabels)
         {
         }
 
         public override AggregationConfiguration DefaultAggregation => AggregationConfigurations.LastValue;
 
-        public void Set(double d) => Set(d, Array.Empty<string>());
-
-        public void Set(double d, params string[] labelValues)
+        public void Set(double d)
         {
-            RecordMeasurement(d, labelValues);
+            RecordMeasurement(d);
+        }
+
+        public void Set(double d, params (string LabelName, string LabelValue)[] labels)
+        {
+            RecordMeasurement(d, labels);
         }
     }
 }

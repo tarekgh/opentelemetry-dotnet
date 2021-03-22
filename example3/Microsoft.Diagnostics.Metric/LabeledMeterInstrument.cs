@@ -8,11 +8,11 @@ namespace Microsoft.Diagnostics.Metric
 {
     public abstract class LabeledMeterInstrument : MeterInstrumentBase
     {
-        public string[] LabelValues { get; }
+        public ValueTuple<string,string>[] Labels { get; }
 
-        protected LabeledMeterInstrument(string[] labelValues)
+        protected LabeledMeterInstrument(ValueTuple<string, string>[] labels)
         {
-            LabelValues = labelValues;
+            Labels = labels;
         }
     }
 
@@ -23,9 +23,8 @@ namespace Microsoft.Diagnostics.Metric
         public override string Name => Unlabeled.Name;
         public override Dictionary<string, string> StaticLabels => Unlabeled.StaticLabels;
         public override AggregationConfiguration DefaultAggregation => Unlabeled.DefaultAggregation;
-        public override string[] LabelNames => Unlabeled.LabelNames;
         
-        protected LabeledMeterInstrument(T unlabeledMeter, string[] labelValues) : base(labelValues)
+        protected LabeledMeterInstrument(T unlabeledMeter, ValueTuple<string, string>[] labels) : base(labels)
         {
             Unlabeled = unlabeledMeter;
             MeterInstrumentCollection.Instance.AddMetric(this);

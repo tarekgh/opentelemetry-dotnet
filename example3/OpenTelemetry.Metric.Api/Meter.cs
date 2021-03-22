@@ -6,9 +6,7 @@ namespace OpenTelemetry.Metric.Api
     public interface IMeter
     {
         Counter CreateCounter(string name);
-        Counter CreateCounter(string name, params string[] dimNames);
         Counter CreateCounter(string name, Dictionary<string,string> labels);
-        Counter CreateCounter(string name, Dictionary<string,string> labels, params string[] dimNames);
 
         /*
         Counter1D<T> CreateCounter<T>(string name, string dn1);
@@ -22,8 +20,6 @@ namespace OpenTelemetry.Metric.Api
         */
         Gauge CreateGauge(string name);
         Gauge CreateGauge(string name, Dictionary<string,string> labels);
-        Gauge CreateGauge(string name, params string[] dimNames);
-        Gauge CreateGauge(string name, Dictionary<string,string> labels, params string[] dimNames);
     }
 
     public class DotNetMeter : IMeter
@@ -40,19 +36,9 @@ namespace OpenTelemetry.Metric.Api
             return new Counter(name, _meter);
         }
 
-        public Counter CreateCounter(string name, params string[] dimNames)
-        {
-            return new Counter(name, dimNames, _meter);
-        }
-
         public Counter CreateCounter(string name, Dictionary<string,string> labels)
         {
             return new Counter(name, labels, _meter);
-        }
-
-        public Counter CreateCounter(string name, Dictionary<string,string> labels, string[] dimNames)
-        {
-            return new Counter(name, labels, dimNames, _meter);
         }
 
         /* Including the dimension eliminates mistakes with wrong number of params but wrong order
@@ -97,16 +83,6 @@ namespace OpenTelemetry.Metric.Api
         public Gauge CreateGauge(string name, Dictionary<string,string> labels)
         {
             return new Gauge(name, labels, _meter);
-        }
-
-        public Gauge CreateGauge(string name, params string[] dimNames)
-        {
-            return new Gauge(name, dimNames, _meter);
-        }
-
-        public Gauge CreateGauge(string name, Dictionary<string,string> labels, params string[] dimNames)
-        {
-            return new Gauge(name, labels, dimNames, _meter);
         }
     }
 

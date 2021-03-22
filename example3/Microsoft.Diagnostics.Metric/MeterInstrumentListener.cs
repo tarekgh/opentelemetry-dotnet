@@ -1,8 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Microsoft.Diagnostics.Metric
 {
+
+    public delegate void MeasurementRecorded(MeterInstrumentBase instrument, double value, ReadOnlySpan<ValueTuple<string, string>> labels, object cookie);
 
     public class MeterInstrumentListener
     {
@@ -10,7 +14,7 @@ namespace Microsoft.Diagnostics.Metric
         Dictionary<MeterInstrumentBase, object> _subscribedObservableMeters = new Dictionary<MeterInstrumentBase, object>();
 
         public Action<MeterInstrumentBase, MeterSubscribeOptions> MeterInstrumentPublished;
-        public Action<MeterInstrumentBase, double, string[], object> MeasurementRecorded;
+        public MeasurementRecorded MeasurementRecorded;
         public Action<MeterInstrumentBase, object> MeterInstrumentUnpublished;
 
         public void Start()
@@ -29,9 +33,9 @@ namespace Microsoft.Diagnostics.Metric
             MeasurementObserver observer = new MeasurementObserver(this);
             foreach (KeyValuePair<MeterInstrumentBase, object> kv in _subscribedObservableMeters)
             {
-                observer.CurrentMeter = kv.Key;
+                observer.CurrentInstrument = kv.Key;
                 observer.CurrentCookie = kv.Value;
-                observer.CurrentMeter.Observe(observer);
+                observer.CurrentInstrument.Observe(observer);
             }
         }
 
@@ -59,17 +63,23 @@ namespace Microsoft.Diagnostics.Metric
             Listener = listener;
         }
         internal MeterInstrumentListener Listener { get; private set; }
-        internal MeterInstrumentBase CurrentMeter { get; set; }
+        internal MeterInstrumentBase CurrentInstrument { get; set; }
         internal object CurrentCookie { get; set; }
 
         public void Observe(double value)
         {
-            Listener.MeasurementRecorded(CurrentMeter, value, Array.Empty<string>(), CurrentCookie);
+            Listener.MeasurementRecorded(CurrentInstrument, value, Array.Empty<ValueTuple<string,string>>().AsSpan(), CurrentCookie);
         }
 
-        public void Observe(double value, params string[] labelValues)
+        public void Observe(double value, ValueTuple<string, string> label)
         {
-            Listener.MeasurementRecorded(CurrentMeter, value, labelValues, CurrentCookie);
+            ReadOnlySpan<(string LabelName, string LabelValue)> labels = MemoryMarshal.CreateReadOnlySpan(ref label, 1);
+            Listener.MeasurementRecorded(CurrentInstrument, value, labels, CurrentCookie);
+        }
+
+        public void Observe(double value, ReadOnlySpan<ValueTuple<string,string>> labels)
+        {
+            Listener.MeasurementRecorded(CurrentInstrument, value, labels, CurrentCookie);
         }
     }
 
