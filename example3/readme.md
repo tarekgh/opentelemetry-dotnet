@@ -659,6 +659,9 @@ Given pass experiences, handling and management of LabelSet will be a hot topic 
         );
     ```
 
+## How should we manage the lifetime of instruments/meters?
+
+We probably want to clean them up as some point so we should figure out when that happens. Does Meter or Instrument implement IDisposable?
 
 # SDK questions
 
