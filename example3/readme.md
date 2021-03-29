@@ -179,7 +179,8 @@ to be performance critical so there is no reason for us to potentially worsen pe
 
 ## Do users create a new Metric directly with 'new' or is the creation indirected through a factory (or both)? 
 
-Proposed answer: Use 'new' (and maybe also have a factory option purely to harmonize with the OT spec?)
+Proposed answer: Use a factory solely to harmonize with the OT spec and optionally have 'new' on the
+MeterInstrument base type if we decide extensibility is important.
 
 #### 'new' option
 ````C#
@@ -231,7 +232,7 @@ Guage g = new Gauge("temperature");
    (but that doesn't mean it trumps any other concern)
 - Its hard to determine if we should use a factory until we determine what value are we trying to get from
    the factory. I'm going to iterate through each potential reason we might want a factory and explain why
-   I don't believe any of them are sufficient justification.
+   I don't believe most of them are sufficient justification.
   - I don't think we should be using the factory to do what OTel uses its 'Provider' types for, allowing
     a 3rd party to replace the core implementation of metric. .NET has an interest in ensuring that multiple
     data consumers each have access to measurement data which means there needs to be a .NET provided impl
@@ -275,7 +276,11 @@ Counter c = new Counter(source, "hats-sold");
     shape. I'm still hesitant to eliminate the 'new' option if we did this as well because we'd lose extensibility
     to derive from a metric and we'd lose the nice one-liner construction options for users that don't care about
     defining their instrumentation library name. For 3rd party libraries the name is probably useful but for an app
-    developer putting metrics directly into an app they fully control it probably has little value.
+    developer putting metrics directly into an app they fully control it probably has little value. A nice middle
+    ground is having a public constructor on the base type MeterInstrument while making all the concrete types have
+    non-public constructors. This leaves an option for extensibility while exactly matching OT for the well-known
+    instrument types. If we decide extensibility doesn't matter then we can make the base type constructor protected
+    instead.
 
 
 ## Should we pre-define dimension names when instruments are first created?
@@ -536,7 +541,8 @@ SDK as a method parameter, then stored by the SDK. Each step of this might need 
 or provide different options for the data type. For simplicity sake it would be easiest to use just one
 interchange type in the API. Alternatives to using double only would be using a discriminated union type
 (MetricValue struct), using a generic type parameter, or defining multiple overloads that take different
-parameter types.
+parameter types. To be clear, our choice of interchange type does not force us to store it that way in the
+SDK, though it might require some other hint so the SDK knows it is safe to do a lossy conversion.
 
 Proposed answer: Yes, we can standardize on double as our interchange type for numeric measurements.
 
@@ -583,6 +589,10 @@ is ~13ns per measurement regardless of the data type conversions.
 
 If the SDK had to implement an a listener pattern where the MeasurementRecorded function
 uses a generic T type parameter for the measured value, how easy/hard is that to implement?
+
+I did an example implementation using a generic T for measurement type in the branch
+design_experiment_generic_measurement. It shows a 7-10ns overhead per measurement
+but I haven't profiled it so maybe it is solvable.
 
 [VL]
 Difficulties of using Generics depends on how deeply we want to carry it through
@@ -662,6 +672,8 @@ Given pass experiences, handling and management of LabelSet will be a hot topic 
 ## How should we manage the lifetime of instruments/meters?
 
 We probably want to clean them up as some point so we should figure out when that happens. Does Meter or Instrument implement IDisposable?
+
+Proposed answer: Meter implements IDisposable. All instruments associated with it get unpublished when the Meter is disposed.
 
 # SDK questions
 
