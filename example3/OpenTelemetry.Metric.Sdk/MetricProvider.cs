@@ -34,14 +34,23 @@ namespace OpenTelemetry.Metric.Sdk
         private ConcurrentQueue<Tuple<MeterInstrument,double,(string LabelName,string LabelValue)[],object>> incomingQueue = new();
         private bool useQueue = false;
 
+        class SdkInstrumentListener : MeterInstrumentListener
+        {
+            MetricProvider _owner;
+            public SdkInstrumentListener(MetricProvider owner) { _owner = owner; }
+            protected override void MeasurementRecorded(MeterInstrument instrument, double value, ReadOnlySpan<(string, string)> labels, object cookie) =>
+                _owner.OnMeasurementRecorded(instrument, value, labels, cookie);
+
+            protected override void MeterInstrumentPublished(MeterInstrument instrument, MeterSubscribeOptions subscribeOptions) =>
+                subscribeOptions.Subscribe(_owner.GetInstrumentState(instrument));
+
+            protected override void MeterInstrumentUnpublished(MeterInstrument instrument, object cookie) =>
+                _owner.RemoveInstrumentState(instrument, (InstrumentState)cookie);
+        }
+
         public MetricProvider()
         {
-            this.listener = new MeterInstrumentListener()
-            {
-                MeterInstrumentPublished = (instrument, options) => options.Subscribe(GetInstrumentState(instrument)),
-                MeterInstrumentUnpublished = (instrument, cookie) => RemoveInstrumentState(instrument, (InstrumentState)cookie),
-                MeasurementRecorded = OnMeasurementRecorded
-            };
+            this.listener = new SdkInstrumentListener(this);
         }
 
         public MetricProvider Name(string name)

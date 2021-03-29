@@ -5,17 +5,10 @@ using System.Runtime.InteropServices;
 
 namespace Microsoft.Diagnostics.Metric
 {
-
-    public delegate void MeasurementRecorded(MeterInstrument instrument, double value, ReadOnlySpan<ValueTuple<string, string>> labels, object cookie);
-
     public class MeterInstrumentListener : IDisposable
     {
         // this dictionary is synchronized by the MetricCollection.s_lock
         Dictionary<MeterInstrument, object> _subscribedObservableMeters = new Dictionary<MeterInstrument, object>();
-
-        public Action<MeterInstrument, MeterSubscribeOptions> MeterInstrumentPublished;
-        public MeasurementRecorded MeasurementRecorded;
-        public Action<MeterInstrument, object> MeterInstrumentUnpublished;
 
         public void Start()
         {
@@ -53,6 +46,15 @@ namespace Microsoft.Diagnostics.Metric
         {
             return _subscribedObservableMeters.Remove(instrument, out cookie);
         }
+
+        internal protected virtual void MeterInstrumentPublished(MeterInstrument instrument, MeterSubscribeOptions subscribeOptions)
+        { }
+
+        internal protected virtual void MeasurementRecorded(MeterInstrument instrument, double value, ReadOnlySpan<ValueTuple<string, string>> labels, object cookie)
+        { }
+
+        internal protected virtual void MeterInstrumentUnpublished(MeterInstrument instrument, object cookie)
+        { }
     }
 
     public class MeasurementObserver

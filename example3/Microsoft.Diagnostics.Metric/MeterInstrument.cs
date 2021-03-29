@@ -81,7 +81,7 @@ namespace Microsoft.Diagnostics.Metric
             ListenerSubscription[] subscriptions = _subscriptions;
             for (int i = 0; i < subscriptions.Length; i++)
             {
-                subscriptions[i].Listener.MeasurementRecorded?.Invoke(this, val, labels, subscriptions[i].Cookie);
+                subscriptions[i].Listener.MeasurementRecorded(this, val, labels, subscriptions[i].Cookie);
             }
         }
 

@@ -95,7 +95,7 @@ namespace Microsoft.Diagnostics.Metric
         void NotifyListenerInstrumentAdd(MeterInstrumentListener listener, MeterInstrument instrument)
         {
             _subscribeOptions.Reset();
-            listener.MeterInstrumentPublished?.Invoke(instrument, _subscribeOptions);
+            listener.MeterInstrumentPublished(instrument, _subscribeOptions);
             if (_subscribeOptions.IsSubscribed)
             {
                 if (!instrument.IsObservable)
@@ -123,7 +123,7 @@ namespace Microsoft.Diagnostics.Metric
             }
             if (wasSubscribed)
             {
-                listener.MeterInstrumentUnpublished?.Invoke(instrument, cookie);
+                listener.MeterInstrumentUnpublished(instrument, cookie);
             }
         }
     }
