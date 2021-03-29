@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Diagnostics.Metric
 {
-    public class ObservableCounter : MeterInstrument
+    public class ObservableCounter : UnboundMeterInstrument
     {
         // This is either a Func<double> or an Action<MeasurementObserver>
         object _observeValueFunc;

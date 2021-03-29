@@ -12,7 +12,7 @@ namespace OpenTelemetry.Metric.Sdk
 {
     public class MetricProvider
     {
-        private List<MeterInstrument> meters = new();
+        private List<UnboundMeterInstrument> meters = new();
 
         private ConcurrentDictionary<MeterInstrumentBase, InstrumentState> _instrumentStates = new ConcurrentDictionary<MeterInstrumentBase, InstrumentState>();
 

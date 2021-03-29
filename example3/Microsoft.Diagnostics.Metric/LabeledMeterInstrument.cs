@@ -16,7 +16,7 @@ namespace Microsoft.Diagnostics.Metric
         }
     }
 
-    public abstract class LabeledMeterInstrument<T> : LabeledMeterInstrument where T : MeterInstrument
+    public abstract class LabeledMeterInstrument<T> : LabeledMeterInstrument where T : UnboundMeterInstrument
     {
         public T Unlabeled { get; }
         public override Meter Meter => Unlabeled.Meter;

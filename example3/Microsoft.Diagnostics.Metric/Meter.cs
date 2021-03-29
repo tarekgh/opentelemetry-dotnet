@@ -8,7 +8,7 @@ namespace Microsoft.Diagnostics.Metric
 {
     public class Meter
     {
-        public Meter(string name, string version = "") : this(name, version, MeterInstrument.EmptyStaticLabels) { }
+        public Meter(string name, string version = "") : this(name, version, UnboundMeterInstrument.EmptyStaticLabels) { }
 
         public Meter(string name, string version, Dictionary<string,string> staticLabels)
         {

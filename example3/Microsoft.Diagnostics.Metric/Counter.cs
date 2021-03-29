@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Diagnostics.Metric
 {
-    public class Counter : MeterInstrument
+    public class Counter : UnboundMeterInstrument
     {
         public Counter(string name, Meter meter = null) :
             base(meter, name)

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Diagnostics.Metric
 {
-    public class Gauge : MeterInstrument
+    public class Gauge : UnboundMeterInstrument
     {
         public Gauge(string name, Meter meter = null) 
             : base(meter, name)

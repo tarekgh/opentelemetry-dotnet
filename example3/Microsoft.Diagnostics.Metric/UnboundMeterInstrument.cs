@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Microsoft.Diagnostics.Metric
 {
-    public abstract class MeterInstrument : MeterInstrumentBase
+    public abstract class UnboundMeterInstrument : MeterInstrumentBase
     {
         public static Dictionary<string, string> EmptyStaticLabels { get; } = new Dictionary<string, string>();
 
@@ -15,12 +15,12 @@ namespace Microsoft.Diagnostics.Metric
 
         public override Dictionary<string, string> StaticLabels { get; }
 
-        protected MeterInstrument(Meter meter, string name) 
+        protected UnboundMeterInstrument(Meter meter, string name) 
             : this(meter, name, EmptyStaticLabels)
         {
         }
 
-        protected MeterInstrument(Meter meter, string name, Dictionary<string,string> staticLabels)
+        protected UnboundMeterInstrument(Meter meter, string name, Dictionary<string,string> staticLabels)
         {
             Meter = meter;
             Name = name;
