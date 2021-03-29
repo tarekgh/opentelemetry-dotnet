@@ -8,8 +8,8 @@ namespace MyLibrary
 {
     public class Library
     {
-
-        static Counter s_c1 = new Counter("c1");
+        static Meter s_meter = new Meter("Library");
+        static Counter s_c1 = s_meter.CreateCounter("c1");
 
         Counter counter_request;
         Counter counter_request2;
@@ -28,16 +28,16 @@ namespace MyLibrary
                 { "LibraryInstanceName", name }
             };
 
-            counter_request = new Counter("request2", staticLabels);
+            counter_request = s_meter.CreateCounter("request2", staticLabels);
 
-            gauge_qsize = new Gauge("queue_size");
+            gauge_qsize = s_meter.CreateGauge("queue_size");
 
             //TODO: make this async
-            counter_request3 = new Counter("request3");
+            counter_request3 = s_meter.CreateCounter("request3");
 
-            counter_request2 = new Counter("requests", staticLabels);
+            counter_request2 = s_meter.CreateCounter("requests", staticLabels);
 
-            var counter_registered = new Counter("registered");
+            var counter_registered = s_meter.CreateCounter("registered");
             counter_registered.Add(1, ("Program","test"), ("LibraryInstanceName", name));
         }
 

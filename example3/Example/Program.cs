@@ -93,8 +93,9 @@ namespace Example
             }));
 
             taskList.Add(Task.Run(async () => {
-                var sum = new Counter("Program.Test3.Sum");
-                var lastvalue = new Gauge("Program.Test3.Last");
+                Meter m = new Meter("Program.Test3");
+                var sum = m.CreateCounter("Sum");
+                var lastvalue = m.CreateGauge("Last");
 
                 while (!token.IsCancellationRequested)
                 {

@@ -1,12 +1,13 @@
 using System;
 using System.Reflection;
+using Microsoft.Diagnostics.Metric;
 
 namespace OpenTelemetry.Metric.Api
 {
     public interface IMeterProvider
     {
-        IMeter GetMeter(string name, string version);
-        IMeter GetMeter<T>();
+        Meter GetMeter(string name, string version);
+        Meter GetMeter<T>();
     }
 
     public class MeterProvider : IMeterProvider
@@ -24,12 +25,12 @@ namespace OpenTelemetry.Metric.Api
         {
         }
 
-        public IMeter GetMeter(string name, string version)
+        public Meter GetMeter(string name, string version)
         {
-            return new DotNetMeter(name, version);
+            return new Meter(name, version);
         }
 
-        public IMeter GetMeter<T>()
+        public Meter GetMeter<T>()
         {
             var clazzType = typeof(T);
             Assembly asm = clazzType.Assembly;
@@ -41,7 +42,7 @@ namespace OpenTelemetry.Metric.Api
 
             var version = productVersion ?? asmVersion ?? fileVersion ?? "";
 
-            return new DotNetMeter(name, version);
+            return new Meter(name, version);
         }
     }
 }

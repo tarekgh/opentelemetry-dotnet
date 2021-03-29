@@ -20,7 +20,7 @@ namespace UnitTest
                 .Include("CounterNoLabels")
                 .Build();
             Meter m = new Meter("CounterNoLabels");
-            Counter c = new Counter("C", m);
+            Counter c = m.CreateCounter("C");
 
             c.Add(3);
             AssertCounterSum(provider, c, 3);
@@ -37,7 +37,7 @@ namespace UnitTest
                 .Include("Counter1Label")
                 .Build();
             Meter m = new Meter("Counter1Label");
-            Counter c = new Counter("C", m);
+            Counter c = m.CreateCounter("C");
 
             c.Add(3, ("Color", "Red"));
             AssertCounterSum(provider, c, 3, ("Color", "Red"));
@@ -54,7 +54,7 @@ namespace UnitTest
                 .Include("Counter1LabelMultiValue")
                 .Build();
             Meter m = new Meter("Counter1LabelMultiValue");
-            Counter c = new Counter("C", m);
+            Counter c = m.CreateCounter("C");
 
             c.Add(3, ("Color", "Red"));
             AssertCounterSum(provider, c, 3, ("Color", "Red"));
@@ -81,7 +81,7 @@ namespace UnitTest
                 .Include("Counter1LabelMultiName")
                 .Build();
             Meter m = new Meter("Counter1LabelMultiName");
-            Counter c = new Counter("C", m);
+            Counter c = m.CreateCounter("C");
 
             c.Add(3, ("Color", "Red"));
             AssertCounterSum(provider, c, 3, ("Color", "Red"));
@@ -108,7 +108,7 @@ namespace UnitTest
                 .Include("Counter2Label")
                 .Build();
             Meter m = new Meter("Counter2Label");
-            Counter c = new Counter("C", m);
+            Counter c = m.CreateCounter("C");
 
             c.Add(3, ("Color", "Red"), ("Size", "1"));
             AssertCounterSum(provider, c, 3, ("Color", "Red"), ("Size", "1"));
@@ -125,7 +125,7 @@ namespace UnitTest
                 .Include("Counter2LabelMultiValue")
                 .Build();
             Meter m = new Meter("Counter2LabelMultiValue");
-            Counter c = new Counter("C", m);
+            Counter c = m.CreateCounter("C");
 
             c.Add(3, ("Color", "Red"), ("Size", "1"));
             AssertCounterSum(provider, c, 3, ("Color", "Red"), ("Size", "1"));
@@ -159,7 +159,7 @@ namespace UnitTest
                 .Include("Counter2LabelMultiName")
                 .Build();
             Meter m = new Meter("Counter2LabelMultiName");
-            Counter c = new Counter("C", m);
+            Counter c = m.CreateCounter("C");
 
             c.Add(3, ("Color", "Red"), ("Size", "1"));
             AssertCounterSum(provider, c, 3, ("Color", "Red"), ("Size", "1"));
@@ -193,7 +193,7 @@ namespace UnitTest
                 .Include("Counter2LabelSortOrder")
                 .Build();
             Meter m = new Meter("Counter2LabelSortOrder");
-            Counter c = new Counter("C", m);
+            Counter c = m.CreateCounter("C");
 
             c.Add(3, ("Color", "Red"), ("Size", "1"));
             AssertCounterSum(provider, c, 3, ("Color", "Red"), ("Size", "1"));
@@ -208,7 +208,7 @@ namespace UnitTest
                 .Include("Counter3Label")
                 .Build();
             Meter m = new Meter("Counter3Label");
-            Counter c = new Counter("C", m);
+            Counter c = m.CreateCounter("C");
 
             c.Add(3, ("Color", "Red"), ("Size", "1"), ("Zoo", "True"));
             AssertCounterSum(provider, c, 3, ("Color", "Red"), ("Size", "1"), ("Zoo", "True"));
@@ -225,7 +225,7 @@ namespace UnitTest
                 .Include("Counter3LabelMultiValue")
                 .Build();
             Meter m = new Meter("Counter3LabelMultiValue");
-            Counter c = new Counter("C", m);
+            Counter c = m.CreateCounter("C");
 
             c.Add(3, ("Color", "Red"), ("Size", "1"), ("Zoo", "True"));
             AssertCounterSum(provider, c, 3, ("Color", "Red"), ("Size", "1"), ("Zoo", "True"));
@@ -259,7 +259,7 @@ namespace UnitTest
                 .Include("Counter3LabelMultiName")
                 .Build();
             Meter m = new Meter("Counter3LabelMultiName");
-            Counter c = new Counter("C", m);
+            Counter c = m.CreateCounter("C");
 
             c.Add(3, ("Color", "Red"), ("Size", "1"), ("Zoo", "True"));
             AssertCounterSum(provider, c, 3, ("Color", "Red"), ("Size", "1"), ("Zoo", "True"));
@@ -293,7 +293,7 @@ namespace UnitTest
                 .Include("Counter3LabelSortOrder")
                 .Build();
             Meter m = new Meter("Counter2LabelSortOrder");
-            Counter c = new Counter("C", m);
+            Counter c = m.CreateCounter("C");
 
             c.Add(1, ("Color", "Red"), ("Size", "1"), ("Zoo", "True"));
             AssertCounterSum(provider, c, 1, ("Color", "Red"), ("Size", "1"), ("Zoo", "True"));
@@ -316,7 +316,7 @@ namespace UnitTest
                 .Include("CounterMultiRank0Start")
                 .Build();
             Meter m = new Meter("CounterMultiRank0Start");
-            Counter c = new Counter("C", m);
+            Counter c = m.CreateCounter("C");
 
             c.Add(3);
             AssertCounterSum(provider, c, 3);
@@ -336,7 +336,7 @@ namespace UnitTest
                 .Include("CounterMultiRank1Start")
                 .Build();
             Meter m = new Meter("CounterMultiRank1Start");
-            Counter c = new Counter("C", m);
+            Counter c = m.CreateCounter("C");
 
             c.Add(3, ("Color", "Red"));
             AssertCounterSum(provider, c, 3, ("Color", "Red"));
@@ -356,7 +356,7 @@ namespace UnitTest
                 .Include("CounterMultiRank2Start")
                 .Build();
             Meter m = new Meter("CounterMultiRank2Start");
-            Counter c = new Counter("C", m);
+            Counter c = m.CreateCounter("C");
 
             c.Add(3, ("Color", "Red"), ("Size", "1"));
             AssertCounterSum(provider, c, 3, ("Color", "Red"), ("Size", "1"));
@@ -376,7 +376,7 @@ namespace UnitTest
                 .Include("CounterMultiRank3Start")
                 .Build();
             Meter m = new Meter("CounterMultiRank3Start");
-            Counter c = new Counter("C", m);
+            Counter c = m.CreateCounter("C");
 
             c.Add(3, ("Color", "Red"), ("Size", "1"), ("Zoo", "True"));
             AssertCounterSum(provider, c, 3, ("Color", "Red"), ("Size", "1"), ("Zoo", "True"));
@@ -396,7 +396,7 @@ namespace UnitTest
                 .Include("CounterMergeStaticLabels")
                 .Build();
             Meter m = new Meter("CounterMergeStaticLabels");
-            Counter c = new Counter("C", new Dictionary<string,string>() { { "StaticL1", "1" } }, m);
+            Counter c = m.CreateCounter("C", new Dictionary<string,string>() { { "StaticL1", "1" } });
 
             c.Add(3, ("Color", "Red"));
             AssertCounterSum(provider, c, 3, ("Color", "Red"), ("StaticL1", "1"));

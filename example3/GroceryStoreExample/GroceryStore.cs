@@ -22,7 +22,7 @@ namespace GroceryStoreExample
             this.store_name = store_name;
 
             // TODO: Is GroceryStore a singleton? This example is only good guidance if it is.
-            // Otherwise we'd probably want MetricSource and the counters to be statics and
+            // Otherwise we'd probably want Meter and the counters to be statics and
             // Store should be a dimension on the counters rather than a static label.
 
             Meter meter = new Meter("GroceryStore", "1.0.0",
@@ -32,10 +32,8 @@ namespace GroceryStoreExample
                 });
 
 
-            item_counter = new Counter("GroceryStore.item_counter",
-                meter);
-            cash_counter = new Counter("GroceryStore.cash_counter",
-                meter);
+            item_counter = meter.CreateCounter("item_counter");
+            cash_counter = meter.CreateCounter("cash_counter");
         }
 
         public void process_order(string customer, params (string name, int qty)[] items)

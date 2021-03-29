@@ -9,7 +9,8 @@ namespace SimpleExamples
 {
     class ObservableCounter_Example
     {
-        ObservableCounter _hatsSoldCounter = new ObservableCounter("HatCo.HatsSold", () => HatStoreData.GetTotalHatsSold());
+        static Meter hatCo = new Meter("HatCo");
+        static ObservableCounter _hatsSoldCounter = hatCo.CreateObservableCounter("HatCo.HatsSold", () => HatStoreData.GetTotalHatsSold());
     }
 
 

@@ -98,7 +98,7 @@ namespace UnitTest
             var host = Host.CreateDefaultBuilder()
                 .ConfigureServices((hostContext, services) =>
                 {
-                    services.AddScoped<IMeter>((srvprov) => {
+                    services.AddScoped<Meter>((srvprov) => {
                         return MeterProvider.Global.GetMeter<UnitTest1>();
                     });
                     services.AddHostedService<MyService>();
@@ -121,11 +121,11 @@ namespace UnitTest
         public class MyService : IHostedService
         {
             ILogger logger;
-            IMeter meter;
+            Meter meter;
             Task task;
             CancellationTokenSource cts = new();
 
-            public MyService(ILogger<MyService> logger, IMeter meter)
+            public MyService(ILogger<MyService> logger, Meter meter)
             {
                 this.logger = logger;
                 this.meter = meter;
@@ -167,7 +167,7 @@ namespace UnitTest
         public void OTelSimpleDI()
         {
             var services = new ServiceCollection();
-            services.AddScoped<IMeter>((srvprov) => {
+            services.AddScoped<Meter>((srvprov) => {
                 return MeterProvider.Global.GetMeter<UnitTest1>();
             });
             var serviceProvider = services.BuildServiceProvider();
@@ -178,7 +178,7 @@ namespace UnitTest
 
                 using (var scope = serviceProvider.CreateScope())
                 {
-                    var meter = scope.ServiceProvider.GetService<IMeter>();
+                    var meter = scope.ServiceProvider.GetService<Meter>();
                     var counter = meter.CreateCounter("request");
 
                     for (int n = 0; n < 5; n++)

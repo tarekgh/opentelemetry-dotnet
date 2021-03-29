@@ -35,15 +35,15 @@ namespace Benchmarks
     public class CounterBench
     {
         static Meter m = new Meter("GroceryStoreExample");
-        static Counter noLabels = new Counter("NoLabels", m);
-        static Counter sameNames3 = new Counter("SameNames3", m);
-        static Counter labels3 = new Counter("Labels3", m);
-        static Counter sameNames2 = new Counter("SameNames2", m);
-        static Counter labels2 = new Counter("Labels2", m);
-        static Counter sameNames1 = new Counter("SameNames1", m);
-        static Counter labels1 = new Counter("Labels1", m);
-        static Counter multiRankSmall = new Counter("MultiRankSmall", m);
-        static Counter multiRankLarge = new Counter("MultiRankLarge", m);
+        static Counter noLabels = m.CreateCounter("NoLabels");
+        static Counter sameNames3 = m.CreateCounter("SameNames3");
+        static Counter labels3 = m.CreateCounter("Labels3");
+        static Counter sameNames2 = m.CreateCounter("SameNames2");
+        static Counter labels2 = m.CreateCounter("Labels2");
+        static Counter sameNames1 = m.CreateCounter("SameNames1");
+        static Counter labels1 = m.CreateCounter("Labels1");
+        static Counter multiRankSmall = m.CreateCounter("MultiRankSmall");
+        static Counter multiRankLarge = m.CreateCounter("MultiRankLarge");
         static MetricProvider _provider = new MetricProvider()
                 .Name("OrderPipeline1")
                 .Include("GroceryStoreExample")

@@ -11,23 +11,13 @@ namespace Microsoft.Diagnostics.Metric
         // This is either a Func<double> or an Action<MeasurementObserver>
         object _observeValueFunc;
 
-        public ObservableCounter(string name, Func<double> observeValue = null, Meter meter = null) :
-            this(name, EmptyStaticLabels, observeValue, meter)
-        {
-        }
-
-        public ObservableCounter(string name, Action<MeasurementObserver> observeValues, Meter meter = null) :
-            this(name, EmptyStaticLabels, observeValues, meter)
-        {
-        }
-
-        public ObservableCounter(string name, Dictionary<string, string> staticLabels, Func<double> observeValue = null, Meter meter = null) :
+        public ObservableCounter(Meter meter, string name, Dictionary<string, string> staticLabels, Func<double> observeValue) :
             base(meter, name, staticLabels)
         {
             _observeValueFunc = observeValue;
         }
 
-        public ObservableCounter(string name, Dictionary<string, string> staticLabels, Action<MeasurementObserver> observeValues, Meter meter = null) :
+        public ObservableCounter(Meter meter, string name, Dictionary<string, string> staticLabels, Action<MeasurementObserver> observeValues) :
             base(meter, name, staticLabels)
         {
             _observeValueFunc = observeValues;

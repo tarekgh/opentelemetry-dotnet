@@ -9,7 +9,8 @@ namespace SimpleExamples
 {
     class ObservableCounter_DynamicLabels_Example
     {
-        ObservableCounter _hatsSoldCounter = new ObservableCounter(
+        static Meter hatCo = new Meter("HatCo");
+        ObservableCounter _hatsSoldCounter = hatCo.CreateObservableCounter(
             name: "HatCo.ColoredHatsSold",
             observeValues: o =>
             {
