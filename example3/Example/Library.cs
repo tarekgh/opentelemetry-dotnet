@@ -11,16 +11,16 @@ namespace MyLibrary
 
         static Counter s_c1 = new Counter("c1");
 
-        LabeledCounter _c1;
         Counter counter_request;
         Counter counter_request2;
         Counter counter_request3;
         Gauge gauge_qsize;
         int count = 0;
+        string _name;
 
         public Library(string name, CancellationToken token)
         {
-            _c1 = s_c1.WithLabels(("Label1",name), ("Label2", "Tomato"));
+            _name = name;
 
             var staticLabels = new Dictionary<string, string>()
             {
@@ -44,7 +44,7 @@ namespace MyLibrary
         public void DoOperation()
         {
 
-            _c1.Add(5);
+            s_c1.Add(5, ("Label1", _name), ("Label2", "Tomato"));
 
             // Example of recording 1 measurment
 

@@ -23,7 +23,6 @@ namespace SimpleExamples
         {
             new ObservableCounter_Example();
             new ObservableCounter_DynamicLabels_Example();
-            new ObservableCounter_CachedDynamicLabels_Example();
 
             //Allow some time for metrics to do their thing
             Thread.Sleep(TimeSpan.FromSeconds(5));

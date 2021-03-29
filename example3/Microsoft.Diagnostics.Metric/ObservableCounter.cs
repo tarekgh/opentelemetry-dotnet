@@ -48,31 +48,5 @@ namespace Microsoft.Diagnostics.Metric
                 ((Action<MeasurementObserver>)_observeValueFunc)(observer);
             }
         }
-
-        public LabeledObservableCounter WithLabels(Func<double> observeValue, params (string LabelName, string LabelValue)[] labels)
-        {
-            //TODO: we should probably memoize this
-            return new LabeledObservableCounter(this, labels, observeValue);
-        }
-    }
-
-    public class LabeledObservableCounter : LabeledMeterInstrument<ObservableCounter>
-    {
-        Func<double> _observeValueFunc;
-
-        internal LabeledObservableCounter(ObservableCounter parent, (string LabelName, string LabelValue)[] labels, Func<double> observeValue)
-            : base(parent, labels)
-        {
-            _observeValueFunc = observeValue;
-        }
-
-        public override AggregationConfiguration DefaultAggregation => AggregationConfigurations.Sum;
-
-        protected internal override bool IsObservable => true;
-
-        protected internal override void Observe(MeasurementObserver observer)
-        {
-            observer.Observe(_observeValueFunc(), Labels);
-        }
     }
 }

@@ -31,21 +31,5 @@ namespace Microsoft.Diagnostics.Metric
             (string LabelName, string LabelValue) label2,
             (string LabelName, string LabelValue) label3) => RecordMeasurement(measurement, label1, label2, label3);
         public void Add(double measurement, params (string LabelName, string LabelValue)[] labels) => RecordMeasurement(measurement, labels);
-        
-
-        public LabeledCounter WithLabels(params (string LabelName, string LabelValue)[] labels)
-        {
-            return new LabeledCounter(this, labels);
-        }
-    }
-
-    public class LabeledCounter : LabeledMeterInstrument<Counter>
-    {
-        internal LabeledCounter(Counter unlabled, (string LabelName, string LabelValue)[] labels) : base(unlabled, labels) { }
-
-        public void Add(double d)
-        {
-            base.RecordMeasurement(d, Labels);
-        }
     }
 }
