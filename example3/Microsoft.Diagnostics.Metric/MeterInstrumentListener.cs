@@ -44,14 +44,14 @@ namespace Microsoft.Diagnostics.Metric
             MeterInstrumentCollection.Instance.RemoveListener(this);
         }
 
-        internal void SubscribeObservableMeter(MeterInstrumentBase meter, object listenerCookie)
+        internal void SubscribeObservableInstrument(MeterInstrumentBase instrument, object listenerCookie)
         {
-            _subscribedObservableMeters[meter] = listenerCookie;
+            _subscribedObservableMeters[instrument] = listenerCookie;
         }
 
-        internal object UnsubscribeObservableMeter(MeterInstrumentBase meter)
+        internal object UnsubscribeObservableInstrument(MeterInstrumentBase instrument)
         {
-            _subscribedObservableMeters.Remove(meter, out object cookie);
+            _subscribedObservableMeters.Remove(instrument, out object cookie);
             return cookie;
         }
     }

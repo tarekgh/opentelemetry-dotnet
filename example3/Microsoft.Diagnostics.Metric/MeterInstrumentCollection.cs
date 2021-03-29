@@ -16,30 +16,30 @@ namespace Microsoft.Diagnostics.Metric
         // needs to remain global (or metric subscription lists need to be changed)
         static internal object Lock = new object();
 
-        List<MeterInstrumentBase> _meters = new List<MeterInstrumentBase>();
+        List<MeterInstrumentBase> _instruments = new List<MeterInstrumentBase>();
         List<MeterInstrumentListener> _listeners = new List<MeterInstrumentListener>();
         MeterSubscribeOptions _subscribeOptions = new MeterSubscribeOptions();
 
-        public void AddMetric(MeterInstrumentBase meter)
+        public void AddMetric(MeterInstrumentBase instrument)
         {
             lock(Lock)
             {
-                _meters.Add(meter);
+                _instruments.Add(instrument);
                 foreach(MeterInstrumentListener listener in _listeners)
                 {
-                    NotifyListenerMetricAdd(listener, meter);
+                    NotifyListenerMetricAdd(listener, instrument);
                 }
             }
         }
 
-        public void RemoveMetric(MeterInstrumentBase meter)
+        public void RemoveMetric(MeterInstrumentBase instrument)
         {
             lock (Lock)
             {
-                _meters.Remove(meter);
+                _instruments.Remove(instrument);
                 foreach (MeterInstrumentListener listener in _listeners)
                 {
-                    NotifyListenerMetricRemove(listener, meter);
+                    NotifyListenerMetricRemove(listener, instrument);
                 }
             }
         }
@@ -49,9 +49,9 @@ namespace Microsoft.Diagnostics.Metric
             lock(Lock)
             {
                 _listeners.Add(listener);
-                foreach(MeterInstrumentBase meter in _meters)
+                foreach(MeterInstrumentBase instrument in _instruments)
                 {
-                    NotifyListenerMetricAdd(listener, meter);
+                    NotifyListenerMetricAdd(listener, instrument);
                 }
             }
         }
@@ -61,42 +61,42 @@ namespace Microsoft.Diagnostics.Metric
             lock (Lock)
             {
                 _listeners.Remove(listener);
-                foreach (MeterInstrumentBase meter in _meters)
+                foreach (MeterInstrumentBase instrument in _instruments)
                 {
-                    NotifyListenerMetricRemove(listener, meter);
+                    NotifyListenerMetricRemove(listener, instrument);
                 }
             }
         }
 
-        void NotifyListenerMetricAdd(MeterInstrumentListener listener, MeterInstrumentBase meter)
+        void NotifyListenerMetricAdd(MeterInstrumentListener listener, MeterInstrumentBase instrument)
         {
             _subscribeOptions.Reset();
-            listener.MeterInstrumentPublished?.Invoke(meter, _subscribeOptions);
+            listener.MeterInstrumentPublished?.Invoke(instrument, _subscribeOptions);
             if (_subscribeOptions.IsSubscribed)
             {
-                if (!meter.IsObservable)
+                if (!instrument.IsObservable)
                 {
-                    meter.AddSubscription(listener, _subscribeOptions.Cookie);
+                    instrument.AddSubscription(listener, _subscribeOptions.Cookie);
                 }
                 else
                 {
-                    listener.SubscribeObservableMeter(meter, _subscribeOptions.Cookie);
+                    listener.SubscribeObservableInstrument(instrument, _subscribeOptions.Cookie);
                 }
             }
         }
 
-        void NotifyListenerMetricRemove(MeterInstrumentListener listener, MeterInstrumentBase meter)
+        void NotifyListenerMetricRemove(MeterInstrumentListener listener, MeterInstrumentBase instrument)
         {
             object cookie = null;
-            if (!meter.IsObservable)
+            if (!instrument.IsObservable)
             {
-                 cookie = meter.RemoveSubscription(listener);
+                 cookie = instrument.RemoveSubscription(listener);
             }
             else
             {
-                cookie = listener.UnsubscribeObservableMeter(meter);
+                cookie = listener.UnsubscribeObservableInstrument(instrument);
             }
-            listener.MeterInstrumentUnpublished?.Invoke(meter, cookie);
+            listener.MeterInstrumentUnpublished?.Invoke(instrument, cookie);
         }
     }
 
