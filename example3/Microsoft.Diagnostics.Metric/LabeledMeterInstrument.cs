@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Diagnostics.Metric
 {
-    public abstract class LabeledMeterInstrument : MeterInstrumentBase
+    public abstract class LabeledMeterInstrument : MeterInstrument
     {
         public ValueTuple<string,string>[] Labels { get; }
 

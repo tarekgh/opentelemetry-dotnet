@@ -11,7 +11,7 @@ namespace OpenTelemetry.Metric.Sdk
 {
     abstract class InstrumentState
     {
-        public static InstrumentState Create(MeterInstrumentBase instrument)
+        public static InstrumentState Create(MeterInstrument instrument)
         {
             AggregationConfiguration config = instrument.DefaultAggregation;
             Type instrumentStateType = typeof(CachedLabelNamesAggregationStore<>).MakeGenericType(GetAggregatorType(config));
@@ -40,7 +40,7 @@ namespace OpenTelemetry.Metric.Sdk
         public abstract void Update(double measurement, ReadOnlySpan<(string LabelName, string LabelValue)> labels);
 
         // This can be called concurrently with Update()
-        public abstract void Collect(MeterInstrumentBase instrument, Action<LabeledAggregationStatistics> aggregationVisitFunc);
+        public abstract void Collect(MeterInstrument instrument, Action<LabeledAggregationStatistics> aggregationVisitFunc);
     }
 
 

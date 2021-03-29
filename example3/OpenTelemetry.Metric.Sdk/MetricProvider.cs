@@ -14,7 +14,7 @@ namespace OpenTelemetry.Metric.Sdk
     {
         private List<UnboundMeterInstrument> meters = new();
 
-        private ConcurrentDictionary<MeterInstrumentBase, InstrumentState> _instrumentStates = new ConcurrentDictionary<MeterInstrumentBase, InstrumentState>();
+        private ConcurrentDictionary<MeterInstrument, InstrumentState> _instrumentStates = new ConcurrentDictionary<MeterInstrument, InstrumentState>();
 
         private string name;
         private int collectPeriod_ms = 2000;
@@ -31,7 +31,7 @@ namespace OpenTelemetry.Metric.Sdk
 
         private MeterInstrumentListener listener;
 
-        private ConcurrentQueue<Tuple<MeterInstrumentBase,double,(string LabelName,string LabelValue)[],object>> incomingQueue = new();
+        private ConcurrentQueue<Tuple<MeterInstrument,double,(string LabelName,string LabelValue)[],object>> incomingQueue = new();
         private bool useQueue = false;
 
         public MetricProvider()
@@ -175,12 +175,12 @@ namespace OpenTelemetry.Metric.Sdk
             }
         }
 
-        void RemoveInstrumentState(MeterInstrumentBase instrument, InstrumentState state)
+        void RemoveInstrumentState(MeterInstrument instrument, InstrumentState state)
         {
             _instrumentStates.TryRemove(KeyValuePair.Create(instrument, state));
         }
 
-        InstrumentState GetInstrumentState(MeterInstrumentBase instrument)
+        InstrumentState GetInstrumentState(MeterInstrument instrument)
         {
             if (!_instrumentStates.TryGetValue(instrument, out InstrumentState instrumentState))
             {
@@ -190,7 +190,7 @@ namespace OpenTelemetry.Metric.Sdk
             return instrumentState;
         }
 
-        public void OnMeasurementRecorded(MeterInstrumentBase instrument, double value, ReadOnlySpan<(string LabelName, string LabelValue)> labels, object cookie)
+        public void OnMeasurementRecorded(MeterInstrument instrument, double value, ReadOnlySpan<(string LabelName, string LabelValue)> labels, object cookie)
         {
             if (useQueue)
             {
@@ -203,7 +203,7 @@ namespace OpenTelemetry.Metric.Sdk
             ProcessRecord(instrument, value, labels, cookie);
         }
 
-        private void ProcessRecord(MeterInstrumentBase instrument, double value, ReadOnlySpan<(string LabelName, string LabelValue)> labels, object cookie)
+        private void ProcessRecord(MeterInstrument instrument, double value, ReadOnlySpan<(string LabelName, string LabelValue)> labels, object cookie)
         {
             // TODO: we need to figure out our atomicity guarantees. Right now this function updates
             // potentially multiple aggregators for a single measurement and each aggregator might
@@ -226,7 +226,7 @@ namespace OpenTelemetry.Metric.Sdk
                 DateTimeOffset collectionTime = DateTimeOffset.UtcNow;
                 listener.RecordObservableMeters();
 
-                foreach (KeyValuePair<MeterInstrumentBase, InstrumentState> kv in _instrumentStates)
+                foreach (KeyValuePair<MeterInstrument, InstrumentState> kv in _instrumentStates)
                 {
                     kv.Value.Collect(kv.Key, (LabeledAggregationStatistics labeledAggStats) =>
                     {

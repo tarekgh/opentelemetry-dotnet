@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Microsoft.Diagnostics.Metric
 {
-    public abstract class UnboundMeterInstrument : MeterInstrumentBase
+    public abstract class UnboundMeterInstrument : MeterInstrument
     {
         public static Dictionary<string, string> EmptyStaticLabels { get; } = new Dictionary<string, string>();
 

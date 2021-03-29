@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Diagnostics.Metric
 {
-    public abstract class MeterInstrumentBase
+    public abstract class MeterInstrument
     {
         struct ListenerSubscription
         {

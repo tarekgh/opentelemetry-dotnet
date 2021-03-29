@@ -281,7 +281,7 @@ namespace OpenTelemetry.Metric.Sdk
             }
         }
 
-        LabeledAggregationStatistics MergeStaticLabels(MeterInstrumentBase instrument, LabeledAggregationStatistics aggStats)
+        LabeledAggregationStatistics MergeStaticLabels(MeterInstrument instrument, LabeledAggregationStatistics aggStats)
         {
             foreach(KeyValuePair<string,string> kv in instrument.StaticLabels)
             {
@@ -297,7 +297,7 @@ namespace OpenTelemetry.Metric.Sdk
             return aggStats.WithLabels(instrument.StaticLabels);
         }
 
-        public override void Collect(MeterInstrumentBase instrument, Action<LabeledAggregationStatistics> visitFunc)
+        public override void Collect(MeterInstrument instrument, Action<LabeledAggregationStatistics> visitFunc)
         {
             // post-process labels to merge the static labels onto the dynamic labels we've been tracking
             Action<LabeledAggregationStatistics> visitAndMergeFunc = (aggStats) =>
@@ -316,7 +316,7 @@ namespace OpenTelemetry.Metric.Sdk
             CollectUnmerged(instrument, visitAndMergeFunc);
         }
 
-        void CollectUnmerged(MeterInstrumentBase instrument, Action<LabeledAggregationStatistics> visitFunc)
+        void CollectUnmerged(MeterInstrument instrument, Action<LabeledAggregationStatistics> visitFunc)
         {
             object cachedNamesAggregations = _cachedNamesAggregations;
             if (cachedNamesAggregations is TAggregator agg)

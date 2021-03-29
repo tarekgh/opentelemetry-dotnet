@@ -16,11 +16,11 @@ namespace Microsoft.Diagnostics.Metric
         // needs to remain global (or metric subscription lists need to be changed)
         static internal object Lock = new object();
 
-        List<MeterInstrumentBase> _instruments = new List<MeterInstrumentBase>();
+        List<MeterInstrument> _instruments = new List<MeterInstrument>();
         List<MeterInstrumentListener> _listeners = new List<MeterInstrumentListener>();
         MeterSubscribeOptions _subscribeOptions = new MeterSubscribeOptions();
 
-        public void AddMetric(MeterInstrumentBase instrument)
+        public void AddMetric(MeterInstrument instrument)
         {
             lock(Lock)
             {
@@ -32,7 +32,7 @@ namespace Microsoft.Diagnostics.Metric
             }
         }
 
-        public void RemoveMetric(MeterInstrumentBase instrument)
+        public void RemoveMetric(MeterInstrument instrument)
         {
             lock (Lock)
             {
@@ -49,7 +49,7 @@ namespace Microsoft.Diagnostics.Metric
             lock(Lock)
             {
                 _listeners.Add(listener);
-                foreach(MeterInstrumentBase instrument in _instruments)
+                foreach(MeterInstrument instrument in _instruments)
                 {
                     NotifyListenerMetricAdd(listener, instrument);
                 }
@@ -61,14 +61,14 @@ namespace Microsoft.Diagnostics.Metric
             lock (Lock)
             {
                 _listeners.Remove(listener);
-                foreach (MeterInstrumentBase instrument in _instruments)
+                foreach (MeterInstrument instrument in _instruments)
                 {
                     NotifyListenerMetricRemove(listener, instrument);
                 }
             }
         }
 
-        void NotifyListenerMetricAdd(MeterInstrumentListener listener, MeterInstrumentBase instrument)
+        void NotifyListenerMetricAdd(MeterInstrumentListener listener, MeterInstrument instrument)
         {
             _subscribeOptions.Reset();
             listener.MeterInstrumentPublished?.Invoke(instrument, _subscribeOptions);
@@ -85,7 +85,7 @@ namespace Microsoft.Diagnostics.Metric
             }
         }
 
-        void NotifyListenerMetricRemove(MeterInstrumentListener listener, MeterInstrumentBase instrument)
+        void NotifyListenerMetricRemove(MeterInstrumentListener listener, MeterInstrument instrument)
         {
             object cookie = null;
             if (!instrument.IsObservable)

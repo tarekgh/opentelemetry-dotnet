@@ -6,16 +6,16 @@ using System.Runtime.InteropServices;
 namespace Microsoft.Diagnostics.Metric
 {
 
-    public delegate void MeasurementRecorded(MeterInstrumentBase instrument, double value, ReadOnlySpan<ValueTuple<string, string>> labels, object cookie);
+    public delegate void MeasurementRecorded(MeterInstrument instrument, double value, ReadOnlySpan<ValueTuple<string, string>> labels, object cookie);
 
     public class MeterInstrumentListener
     {
         // this dictionary is synchronized by the MetricCollection.s_lock
-        Dictionary<MeterInstrumentBase, object> _subscribedObservableMeters = new Dictionary<MeterInstrumentBase, object>();
+        Dictionary<MeterInstrument, object> _subscribedObservableMeters = new Dictionary<MeterInstrument, object>();
 
-        public Action<MeterInstrumentBase, MeterSubscribeOptions> MeterInstrumentPublished;
+        public Action<MeterInstrument, MeterSubscribeOptions> MeterInstrumentPublished;
         public MeasurementRecorded MeasurementRecorded;
-        public Action<MeterInstrumentBase, object> MeterInstrumentUnpublished;
+        public Action<MeterInstrument, object> MeterInstrumentUnpublished;
 
         public void Start()
         {
@@ -28,10 +28,10 @@ namespace Microsoft.Diagnostics.Metric
             // list. The Observe callback could still be concurrent with Dispose().
             lock (MeterInstrumentCollection.Lock)
             {
-                Dictionary<MeterInstrumentBase, object> subscriptionCopy = new(_subscribedObservableMeters);
+                Dictionary<MeterInstrument, object> subscriptionCopy = new(_subscribedObservableMeters);
             }
             MeasurementObserver observer = new MeasurementObserver(this);
-            foreach (KeyValuePair<MeterInstrumentBase, object> kv in _subscribedObservableMeters)
+            foreach (KeyValuePair<MeterInstrument, object> kv in _subscribedObservableMeters)
             {
                 observer.CurrentInstrument = kv.Key;
                 observer.CurrentCookie = kv.Value;
@@ -44,12 +44,12 @@ namespace Microsoft.Diagnostics.Metric
             MeterInstrumentCollection.Instance.RemoveListener(this);
         }
 
-        internal void SubscribeObservableInstrument(MeterInstrumentBase instrument, object listenerCookie)
+        internal void SubscribeObservableInstrument(MeterInstrument instrument, object listenerCookie)
         {
             _subscribedObservableMeters[instrument] = listenerCookie;
         }
 
-        internal object UnsubscribeObservableInstrument(MeterInstrumentBase instrument)
+        internal object UnsubscribeObservableInstrument(MeterInstrument instrument)
         {
             _subscribedObservableMeters.Remove(instrument, out object cookie);
             return cookie;
@@ -63,7 +63,7 @@ namespace Microsoft.Diagnostics.Metric
             Listener = listener;
         }
         internal MeterInstrumentListener Listener { get; private set; }
-        internal MeterInstrumentBase CurrentInstrument { get; set; }
+        internal MeterInstrument CurrentInstrument { get; set; }
         internal object CurrentCookie { get; set; }
 
         public void Observe(double value)
