@@ -8,7 +8,7 @@ namespace Microsoft.Diagnostics.Metric
 
     public delegate void MeasurementRecorded(MeterInstrument instrument, double value, ReadOnlySpan<ValueTuple<string, string>> labels, object cookie);
 
-    public class MeterInstrumentListener
+    public class MeterInstrumentListener : IDisposable
     {
         // this dictionary is synchronized by the MetricCollection.s_lock
         Dictionary<MeterInstrument, object> _subscribedObservableMeters = new Dictionary<MeterInstrument, object>();
@@ -49,10 +49,9 @@ namespace Microsoft.Diagnostics.Metric
             _subscribedObservableMeters[instrument] = listenerCookie;
         }
 
-        internal object UnsubscribeObservableInstrument(MeterInstrument instrument)
+        internal bool UnsubscribeObservableInstrument(MeterInstrument instrument, out object cookie)
         {
-            _subscribedObservableMeters.Remove(instrument, out object cookie);
-            return cookie;
+            return _subscribedObservableMeters.Remove(instrument, out cookie);
         }
     }
 

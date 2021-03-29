@@ -11,6 +11,7 @@ namespace Microsoft.Diagnostics.Metric
         internal Gauge(Meter meter, string name, Dictionary<string, string> staticLabels) :
             base(meter, name, staticLabels)
         {
+            Publish();
         }
 
         public override AggregationConfiguration DefaultAggregation => AggregationConfigurations.LastValue;

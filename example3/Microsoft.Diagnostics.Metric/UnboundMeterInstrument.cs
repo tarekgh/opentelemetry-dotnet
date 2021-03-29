@@ -18,7 +18,6 @@ namespace Microsoft.Diagnostics.Metric
             Meter = meter;
             Name = name;
             StaticLabels = staticLabels ?? EmptyStaticLabels;
-            MeterInstrumentCollection.Instance.AddMetric(this);
         }
 
         

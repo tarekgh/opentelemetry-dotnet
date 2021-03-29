@@ -24,6 +24,15 @@ namespace Microsoft.Diagnostics.Metric
         public abstract AggregationConfiguration DefaultAggregation { get; }
         public bool Enabled => _subscriptions.Length > 0 || IsObservable;
 
+        /// <summary>
+        /// Adds the instrument to the list maintained on Meter which in turn
+        /// makes it visible to listeners.
+        /// </summary>
+        protected void Publish()
+        {
+            Meter.PublishInstrument(this);
+        }
+
         protected void RecordMeasurement(double val) =>
             RecordMeasurement(val, Array.Empty<(string LabelName, string LabelValue)>());
 
@@ -72,7 +81,7 @@ namespace Microsoft.Diagnostics.Metric
             ListenerSubscription[] subscriptions = _subscriptions;
             for (int i = 0; i < subscriptions.Length; i++)
             {
-                subscriptions[i].Listener.MeasurementRecorded(this, val, labels, subscriptions[i].Cookie);
+                subscriptions[i].Listener.MeasurementRecorded?.Invoke(this, val, labels, subscriptions[i].Cookie);
             }
         }
 
@@ -89,6 +98,7 @@ namespace Microsoft.Diagnostics.Metric
         {
             // only push metrics should have subscriptions
             Debug.Assert(!IsObservable);
+            Debug.Assert(listener != null);
 
             // this should only be called under the metric collection lock
             ListenerSubscription[] subs = new ListenerSubscription[_subscriptions.Length + 1];
@@ -98,7 +108,13 @@ namespace Microsoft.Diagnostics.Metric
             _subscriptions = subs;
         }
 
-        internal object RemoveSubscription(MeterInstrumentListener listener)
+        /// <summary>
+        /// Returns true if the listener was previously subscribed
+        /// </summary>
+        /// <param name="listener"></param>
+        /// <param name="cookie"></param>
+        /// <returns></returns>
+        internal bool RemoveSubscription(MeterInstrumentListener listener, out object cookie)
         {
             // only push metrics should have subscriptions
             Debug.Assert(!IsObservable);
@@ -108,15 +124,16 @@ namespace Microsoft.Diagnostics.Metric
             {
                 if (_subscriptions[i].Listener == listener)
                 {
-                    object cookie = _subscriptions[i].Cookie;
+                    cookie = _subscriptions[i].Cookie;
                     ListenerSubscription[] subs = new ListenerSubscription[_subscriptions.Length - 1];
                     Array.Copy(_subscriptions, subs, i);
                     Array.Copy(_subscriptions, i + 1, subs, i, _subscriptions.Length - i - 1);
                     _subscriptions = subs;
-                    return cookie;
+                    return true;
                 }
             }
-            return null;
+            cookie = null;
+            return false;
         }
     }
 }

@@ -15,12 +15,14 @@ namespace Microsoft.Diagnostics.Metric
             base(meter, name, staticLabels)
         {
             _observeValueFunc = observeValue;
+            Publish();
         }
 
         public ObservableCounter(Meter meter, string name, Dictionary<string, string> staticLabels, Action<MeasurementObserver> observeValues) :
             base(meter, name, staticLabels)
         {
             _observeValueFunc = observeValues;
+            Publish();
         }
 
         public override AggregationConfiguration DefaultAggregation => AggregationConfigurations.Sum;

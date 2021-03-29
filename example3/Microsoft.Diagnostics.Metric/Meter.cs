@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Diagnostics.Metric
 {
-    public class Meter
+    public class Meter : IDisposable
     {
+        List<MeterInstrument> _instruments = new List<MeterInstrument>();
+
         public Meter(string name, string version = "") : this(name, version, UnboundMeterInstrument.EmptyStaticLabels) { }
 
         public Meter(string name, string version, Dictionary<string,string> staticLabels)
@@ -15,6 +17,10 @@ namespace Microsoft.Diagnostics.Metric
             Name = name;
             Version = version;
             StaticLabels = staticLabels;
+            lock (MeterInstrumentCollection.Lock)
+            {
+                MeterInstrumentCollection.Instance.AddMeter(this);
+            }
         }
 
         public Counter CreateCounter(string name)
@@ -60,5 +66,27 @@ namespace Microsoft.Diagnostics.Metric
         public string Name { get; }
         public string Version { get; }
         public IReadOnlyDictionary<string,string> StaticLabels { get; }
+
+
+        internal void PublishInstrument(MeterInstrument instrument)
+        {
+            lock (MeterInstrumentCollection.Lock)
+            {
+                _instruments.Add(instrument);
+                MeterInstrumentCollection.Instance.PublishInstrument(instrument);
+            }
+        }
+
+        public void Dispose()
+        {
+            lock(MeterInstrumentCollection.Lock)
+            {
+                MeterInstrumentCollection.Instance.RemoveMeter(this);
+                _instruments = null;
+            }
+        }
+
+        internal IEnumerable<MeterInstrument> Instruments =>
+            (IEnumerable<MeterInstrument>)_instruments ?? Array.Empty<MeterInstrument>();
     }
 }
