@@ -125,7 +125,9 @@ time intervals then addition would probably be the recommended aggregation funct
 decide if and how we wanted to represent that on the synchronous instruments.
 
 
-## Is batching needed?
+## Is batching API needed?
+
+Proposed answer: No
 
 I don't recall seeing a batching capability on any of the other metric APIs I looked at. What scenario justifies
 including it in OpenTelemetry?
@@ -176,6 +178,11 @@ create via the 'new' operator. Largely this is to minimize the number of concept
 to understand to use the API. For performance calls through interfaces are harder for compilers to devirtualize and
 inline which can create small (nanosecond scale) penalties for using an interface. Some metric scenarios are expected
 to be performance critical so there is no reason for us to potentially worsen performance if we get no benefit from it.
+
+
+## Should we have a custom namespace for metrics functionality?
+
+
 
 ## Do users create a new Metric directly with 'new' or is the creation indirected through a factory (or both)? 
 
