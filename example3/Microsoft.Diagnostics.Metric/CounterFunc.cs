@@ -6,19 +6,19 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Diagnostics.Metric
 {
-    public class ObservableCounter : UnboundMeterInstrument
+    public class CounterFunc : UnboundMeterInstrument
     {
         // This is either a Func<double> or an Action<MeasurementObserver>
         object _observeValueFunc;
 
-        public ObservableCounter(Meter meter, string name, Func<double> observeValue) :
+        public CounterFunc(Meter meter, string name, Func<double> observeValue) :
             base(meter, name)
         {
             _observeValueFunc = observeValue;
             Publish();
         }
 
-        public ObservableCounter(Meter meter, string name, Action<MeasurementObserver> observeValues) :
+        public CounterFunc(Meter meter, string name, Action<MeasurementObserver> observeValues) :
             base(meter, name)
         {
             _observeValueFunc = observeValues;

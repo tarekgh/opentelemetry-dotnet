@@ -21,8 +21,8 @@ namespace SimpleExamples
 
         static void RunExamples()
         {
-            new ObservableCounter_Example();
-            new ObservableCounter_DynamicLabels_Example();
+            new CounterFunc_Example();
+            new CounterFunc_DynamicLabels_Example();
 
             //Allow some time for metrics to do their thing
             Thread.Sleep(TimeSpan.FromSeconds(5));

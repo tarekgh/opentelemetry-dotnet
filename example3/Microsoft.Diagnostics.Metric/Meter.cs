@@ -27,14 +27,14 @@ namespace Microsoft.Diagnostics.Metric
             return new Counter(this, name);
         }
 
-        public ObservableCounter CreateObservableCounter(string name, Func<double> observeValue)
+        public CounterFunc CreateCounterFunc(string name, Func<double> observeValue)
         {
-            return new ObservableCounter(this, name, observeValue);
+            return new CounterFunc(this, name, observeValue);
         }
 
-        public ObservableCounter CreateObservableCounter(string name, Action<MeasurementObserver> observeValues)
+        public CounterFunc CreateCounterFunc(string name, Action<MeasurementObserver> observeValues)
         {
-            return new ObservableCounter(this, name, observeValues);
+            return new CounterFunc(this, name, observeValues);
         }
 
         public Gauge CreateGauge(string name)

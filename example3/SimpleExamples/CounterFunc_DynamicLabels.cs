@@ -7,10 +7,10 @@ using Microsoft.Diagnostics.Metric;
 
 namespace SimpleExamples
 {
-    class ObservableCounter_DynamicLabels_Example
+    class CounterFunc_DynamicLabels_Example
     {
         static Meter hatCo = new Meter("HatCo");
-        ObservableCounter _hatsSoldCounter = hatCo.CreateObservableCounter(
+        CounterFunc _hatsSoldCounter = hatCo.CreateCounterFunc(
             name: "HatCo.ColoredHatsSold",
             observeValues: o =>
             {

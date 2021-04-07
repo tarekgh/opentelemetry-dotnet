@@ -7,10 +7,10 @@ using Microsoft.Diagnostics.Metric;
 
 namespace SimpleExamples
 {
-    class ObservableCounter_Example
+    class CounterFunc_Example
     {
         static Meter hatCo = new Meter("HatCo");
-        static ObservableCounter _hatsSoldCounter = hatCo.CreateObservableCounter("HatCo.HatsSold", () => HatStoreData.GetTotalHatsSold());
+        static CounterFunc _hatsSoldCounter = hatCo.CreateCounterFunc("HatCo.HatsSold", () => HatStoreData.GetTotalHatsSold());
     }
 
 
