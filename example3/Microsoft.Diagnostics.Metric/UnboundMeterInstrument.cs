@@ -8,16 +8,13 @@ namespace Microsoft.Diagnostics.Metric
 {
     public abstract class UnboundMeterInstrument : MeterInstrument
     {
-        internal static Dictionary<string, string> EmptyStaticLabels { get; } = new Dictionary<string, string>();
         public override Meter Meter { get; }
         public override string Name { get; }
-        public override Dictionary<string, string> StaticLabels { get; }
 
-        protected UnboundMeterInstrument(Meter meter, string name, Dictionary<string,string> staticLabels)
+        protected UnboundMeterInstrument(Meter meter, string name)
         {
             Meter = meter;
             Name = name;
-            StaticLabels = staticLabels ?? EmptyStaticLabels;
         }
 
         

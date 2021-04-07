@@ -41,10 +41,10 @@ namespace GroceryStoreExample
 
 
             var store = new GroceryStore("Portland");
-            store.process_order("CustomerA", ("potato", 2), ("tomato", 3));
-            store.process_order("CustomerB", ("tomato", 10));
-            store.process_order("CustomerC", ("potato", 2));
-            store.process_order("CustomerA", ("tomato", 1));
+            store.ProcessOrder("CustomerA", ("potato", 2), ("tomato", 3));
+            store.ProcessOrder("CustomerB", ("tomato", 10));
+            store.ProcessOrder("CustomerC", ("potato", 2));
+            store.ProcessOrder("CustomerA", ("tomato", 1));
 
 
             // Shutdown Metric Pipeline

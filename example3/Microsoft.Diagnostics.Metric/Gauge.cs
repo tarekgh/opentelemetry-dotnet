@@ -8,8 +8,8 @@ namespace Microsoft.Diagnostics.Metric
 {
     public class Gauge : UnboundMeterInstrument
     {
-        internal Gauge(Meter meter, string name, Dictionary<string, string> staticLabels) :
-            base(meter, name, staticLabels)
+        internal Gauge(Meter meter, string name) :
+            base(meter, name)
         {
             Publish();
         }

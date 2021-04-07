@@ -389,32 +389,6 @@ namespace UnitTest
             AssertCounterSum(provider, c, 9);
         }
 
-        [Fact]
-        public void CounterMergeStaticLabels()
-        {
-            var provider = new MetricProvider()
-                .Include("CounterMergeStaticLabels")
-                .Build();
-            Meter m = new Meter("CounterMergeStaticLabels");
-            Counter c = m.CreateCounter("C", new Dictionary<string,string>() { { "StaticL1", "1" } });
-
-            c.Add(3, ("Color", "Red"));
-            AssertCounterSum(provider, c, 3, ("Color", "Red"), ("StaticL1", "1"));
-            c.Add(4, ("Color", "Red"));
-            AssertCounterSum(provider, c, 7, ("Color", "Red"), ("StaticL1", "1"));
-            c.Add(4, ("Color", "Red"));
-            AssertCounterSum(provider, c, 11, ("Color", "Red"), ("StaticL1", "1"));
-            c.Add(1);
-            AssertCounterSum(provider, c, 1, ("StaticL1", "1"));
-            c.Add(1, ("Color", "Blue"));
-            AssertCounterSum(provider, c, 1, ("Color", "Blue"), ("StaticL1", "1"));
-            c.Add(1, ("Color", "Blue"), ("Size","2"));
-            AssertCounterSum(provider, c, 1, ("Color", "Blue"), ("Size", "2"), ("StaticL1", "1"));
-            c.Add(1, ("Color", "Blue"), ("Size", "2"), ("Zoo", "Yeah"));
-            // do we care about the sort order of dynamic vs. static? (alphabetical, dynamic before static, undefined?)
-            AssertCounterSum(provider, c, 1, ("Color", "Blue"), ("Size", "2"), ("Zoo", "Yeah"), ("StaticL1", "1"));
-        }
-
 
         static void AssertCounterSum(MetricProvider provider, Counter c, double expectedSum, params (string LabelName, string LabelValue)[] labels)
         {

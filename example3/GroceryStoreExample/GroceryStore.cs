@@ -6,50 +6,37 @@ namespace GroceryStoreExample
 {
     public class GroceryStore
     {
-        private static Dictionary<string,double> price_list = new()
+        private static Dictionary<string,double> s_priceList = new()
         {
             { "potato", 1.10 },
             { "tomato", 3.00 },
         };
 
-        private string store_name;
+        static Meter s_meter = new Meter("GroceryStore", "1.0.0");
+        static private Counter s_itemCounter = s_meter.CreateCounter("item_counter");
+        static private Counter s_cashCounter = s_meter.CreateCounter("cash_counter");
 
-        private Counter item_counter;
-        private Counter cash_counter;
+        private string _storeName;
 
-        public GroceryStore(string store_name)
+        public GroceryStore(string storeName)
         {
-            this.store_name = store_name;
-
-            // TODO: Is GroceryStore a singleton? This example is only good guidance if it is.
-            // Otherwise we'd probably want Meter and the counters to be statics and
-            // Store should be a dimension on the counters rather than a static label.
-
-            Meter meter = new Meter("GroceryStore", "1.0.0",
-                new Dictionary<string, string>()
-                {
-                    { "Store", store_name }
-                });
-
-
-            item_counter = meter.CreateCounter("item_counter");
-            cash_counter = meter.CreateCounter("cash_counter");
+            this._storeName = storeName;
         }
 
-        public void process_order(string customer, params (string name, int qty)[] items)
+        public void ProcessOrder(string customer, params (string name, int qty)[] items)
         {
-            double total_price = 0;
+            double totalPrice = 0;
 
             foreach (var item in items)
             {
-                total_price += item.qty * price_list[item.name];
+                totalPrice += item.qty * s_priceList[item.name];
 
                 // Record Metric
-                item_counter.Add(item.qty, ("Item", item.name), ("Customer", customer));
+                s_itemCounter.Add(item.qty, ("StoreName", _storeName), ("Item", item.name), ("Customer", customer));
             }
 
             // Record Metric
-            cash_counter.Add(total_price, ("Customer", customer));
+            s_cashCounter.Add(totalPrice, ("StoreName", _storeName), ("Customer", customer));
         }
     }
 }

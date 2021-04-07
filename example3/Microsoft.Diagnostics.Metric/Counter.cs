@@ -8,8 +8,8 @@ namespace Microsoft.Diagnostics.Metric
 {
     public class Counter : UnboundMeterInstrument
     {
-        internal Counter(Meter meter, string name, Dictionary<string, string> staticLabels) :
-            base(meter, name, staticLabels)
+        internal Counter(Meter meter, string name) :
+            base(meter, name)
         {
             Publish();
         }

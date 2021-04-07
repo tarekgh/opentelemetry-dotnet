@@ -281,42 +281,7 @@ namespace OpenTelemetry.Metric.Sdk
             }
         }
 
-        LabeledAggregationStatistics MergeStaticLabels(MeterInstrument instrument, LabeledAggregationStatistics aggStats)
-        {
-            foreach(KeyValuePair<string,string> kv in instrument.StaticLabels)
-            {
-                foreach((string Name, string Value) label in aggStats.Labels)
-                {
-                    if(label.Name == kv.Key)
-                    {
-                        // dynamic label name collided with static name which is not allowed
-                        return null;
-                    }
-                }
-            }
-            return aggStats.WithLabels(instrument.StaticLabels);
-        }
-
-        public override void Collect(MeterInstrument instrument, Action<LabeledAggregationStatistics> visitFunc)
-        {
-            // post-process labels to merge the static labels onto the dynamic labels we've been tracking
-            Action<LabeledAggregationStatistics> visitAndMergeFunc = (aggStats) =>
-            {
-                LabeledAggregationStatistics mergedLabelStats = MergeStaticLabels(instrument, aggStats);
-                if (mergedLabelStats != null)
-                {
-                    visitFunc(mergedLabelStats);
-                }
-                else
-                {
-                    // aggregation has been dropped because the dynamic labels collided with a static label
-                    // we should figure out how the SDK wants to log errors because this should probably be one
-                }
-            };
-            CollectUnmerged(instrument, visitAndMergeFunc);
-        }
-
-        void CollectUnmerged(MeterInstrument instrument, Action<LabeledAggregationStatistics> visitFunc)
+        override public void Collect(MeterInstrument instrument, Action<LabeledAggregationStatistics> visitFunc)
         {
             object cachedNamesAggregations = _cachedNamesAggregations;
             if (cachedNamesAggregations is TAggregator agg)
