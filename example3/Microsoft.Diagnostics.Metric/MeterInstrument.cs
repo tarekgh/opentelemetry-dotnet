@@ -20,7 +20,6 @@ namespace Microsoft.Diagnostics.Metric
 
         public abstract Meter Meter { get; }
         public abstract string Name { get; }
-        public abstract AggregationConfiguration DefaultAggregation { get; }
         public bool Enabled => _subscriptions.Length > 0 || IsObservable;
 
         /// <summary>

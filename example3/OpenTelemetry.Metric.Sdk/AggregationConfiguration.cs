@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Microsoft.Diagnostics.Metric
+namespace OpenTelemetry.Metric.Sdk
 {
     public static class AggregationConfigurations
     {

@@ -14,8 +14,6 @@ namespace Microsoft.Diagnostics.Metric
             Publish();
         }
 
-        public override AggregationConfiguration DefaultAggregation => AggregationConfigurations.Sum;
-
         public void Add(double measurement) => RecordMeasurement(measurement);
         public void Add(double measurement,
             (string LabelName, string LabelValue) label1) => RecordMeasurement(measurement, label1);

@@ -25,8 +25,6 @@ namespace Microsoft.Diagnostics.Metric
             Publish();
         }
 
-        public override AggregationConfiguration DefaultAggregation => AggregationConfigurations.Sum;
-
         protected internal override bool IsObservable => true;
 
         protected internal override void Observe(MeasurementObserver observer)

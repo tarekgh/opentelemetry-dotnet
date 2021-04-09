@@ -14,8 +14,6 @@ namespace Microsoft.Diagnostics.Metric
             Publish();
         }
 
-        public override AggregationConfiguration DefaultAggregation => AggregationConfigurations.LastValue;
-
         public void Set(double d)
         {
             RecordMeasurement(d);

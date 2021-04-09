@@ -13,9 +13,36 @@ namespace OpenTelemetry.Metric.Sdk
     {
         public static InstrumentState Create(MeterInstrument instrument)
         {
-            AggregationConfiguration config = instrument.DefaultAggregation;
+            AggregationConfiguration config = GetDefaultAggregation(instrument);
             Type instrumentStateType = typeof(CachedLabelNamesAggregationStore<>).MakeGenericType(GetAggregatorType(config));
             return (InstrumentState) Activator.CreateInstance(instrumentStateType);
+        }
+
+
+        public static AggregationConfiguration GetDefaultAggregation(MeterInstrument instrument)
+        {
+            // In the future instruments will likely have a more explicit default aggregation configuration API
+            // but for now the type of the instrument implies the config
+            //
+            if(instrument is Counter)
+            {
+                return AggregationConfigurations.Sum;
+            }
+            else if (instrument is CounterFunc)
+            {
+                return AggregationConfigurations.Sum;
+            }
+            else if(instrument is Gauge)
+            {
+                return AggregationConfigurations.LastValue;
+            }
+            else
+            {
+                // TODO: decide how to handle unknown instrument types
+                // This could be an error, drop the data silently, or handle it
+                // in some default way
+                return null;
+            }
         }
 
         static Type GetAggregatorType(AggregationConfiguration config)
