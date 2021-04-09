@@ -9,17 +9,17 @@ namespace OpenTelemetry.Metric.Api2
         {
             public override void Record<T>(Instrument instrument, T value, (string name, object value)[] attributes)
             {
-                var msg = base.ToString(instrument, 0, 1, value, attributes);
+                var msg = base.ToString(instrument, value, attributes);
                 Console.WriteLine($"HappyPath: {msg}");
             }
 
             public override void Record<T>(Instrument instrument, (T value, (string name, object value)[] attributes)[] measurements)
             {
-                int c = 0;
+                int c = 1;
                 foreach (var m in measurements)
                 {
-                    var msg = base.ToString(instrument, c, measurements.Length, m.value, m.attributes);
-                    Console.WriteLine($"HappyPath: {msg}");
+                    var msg = base.ToString(instrument, m.value, m.attributes);
+                    Console.WriteLine($"HappyPath [{c}/{measurements.Length}]: {msg}");
                     c++;
                 }
             }
@@ -30,7 +30,7 @@ namespace OpenTelemetry.Metric.Api2
         {
             var provider = MeterProvider.Default;
 
-            var meter = provider.GetMeter("test");
+            var meter = provider.GetMeter("mylib.test", "1.0.0");
 
             var basicMeter = meter as BasicMeter;
 
@@ -43,7 +43,7 @@ namespace OpenTelemetry.Metric.Api2
             var counter = meter.CreateCounter("counter");
             counter.Add(10, ("location", "here"), ("id", 100));
 
-            var intcounter = meter.CreateCounter<int>("intcounter");
+            var intcounter = meter.CreateCounter<int>("intcounter", "desc of counter", "bytes");
             intcounter.Add(20);
 
             var longcounter = meter.CreateCounter<long>("longcounter");
@@ -52,7 +52,7 @@ namespace OpenTelemetry.Metric.Api2
             var counterfunc = meter.CreateCounterFunc("counterfunc", (obv, arg) => {
                 obv.Observe(10.1);
                 obv.Observe((double)arg);
-                obv.Observe(10.3);
+                obv.Observe(10.3, ("location", "inhere"), ("id", 10));
             }, (double) 100.2);
 
             Func<int> funcAsArg = () => {
@@ -66,7 +66,7 @@ namespace OpenTelemetry.Metric.Api2
                     if (arg is Func<int> func)
                     {
                         var val = func();
-                        observer.Observe(val, ("location", "tere"), ("id", 221));
+                        observer.Observe(val, ("location", "there"), ("id", 221));
                     }
                     observer.Observe(22);
                 }, 
