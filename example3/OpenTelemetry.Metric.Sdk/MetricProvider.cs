@@ -34,12 +34,15 @@ namespace OpenTelemetry.Metric.Sdk
         private ConcurrentQueue<Tuple<MeterInstrument,double,(string LabelName,string LabelValue)[],object>> incomingQueue = new();
         private bool useQueue = false;
 
-        class SdkInstrumentListener : MeterInstrumentListener
+        sealed class SdkInstrumentListener : MeterInstrumentListener
         {
             MetricProvider _owner;
             public SdkInstrumentListener(MetricProvider owner) { _owner = owner; }
-            protected override void MeasurementRecorded(MeterInstrument instrument, double value, ReadOnlySpan<(string, string)> labels, object cookie) =>
-                _owner.OnMeasurementRecorded(instrument, value, labels, cookie);
+            protected override void MeasurementRecorded(MeterInstrument instrument, double value, ReadOnlySpan<(string, string)> labels, object cookie)
+            {
+                InstrumentState state = (InstrumentState)cookie;
+                state.Update(value, labels);
+            }
 
             protected override void MeterInstrumentPublished(MeterInstrument instrument, MeterSubscribeOptions subscribeOptions) =>
                 subscribeOptions.Subscribe(_owner.GetInstrumentState(instrument));
@@ -214,10 +217,6 @@ namespace OpenTelemetry.Metric.Sdk
 
         private void ProcessRecord(MeterInstrument instrument, double value, ReadOnlySpan<(string LabelName, string LabelValue)> labels, object cookie)
         {
-            // TODO: we need to figure out our atomicity guarantees. Right now this function updates
-            // potentially multiple aggregators for a single measurement and each aggregator might
-            // have state spread across multiple fields. Other threads might be updating or reading
-            // those values concurrently. At present this code is not thread-safe.
 
             if (isBuilt)
             {

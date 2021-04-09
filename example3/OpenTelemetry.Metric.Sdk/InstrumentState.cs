@@ -14,10 +14,20 @@ namespace OpenTelemetry.Metric.Sdk
         public static InstrumentState Create(MeterInstrument instrument)
         {
             AggregationConfiguration config = GetDefaultAggregation(instrument);
-            Type instrumentStateType = typeof(CachedLabelNamesAggregationStore<>).MakeGenericType(GetAggregatorType(config));
-            return (InstrumentState) Activator.CreateInstance(instrumentStateType);
+            Type instrumentStateType = typeof(InstrumentState<>).MakeGenericType(GetAggregatorType(config));
+            return (InstrumentState) Activator.CreateInstance(instrumentStateType, GetLabelProcessingConfiguration(instrument));
         }
 
+        public static LabelProcessingConfiguration GetLabelProcessingConfiguration(MeterInstrument instrument)
+        {
+            // TODO: Once we have an SDK view/hint API we would use that information to create the
+            // label handling rules for particular instruments. Right now I am just doing a trivial
+            // identity function that preserves all labels specified at the callsite.
+            return new LabelProcessingConfiguration()
+            {
+                IncludeAllCallsiteLabels = true
+            };
+        }
 
         public static AggregationConfiguration GetDefaultAggregation(MeterInstrument instrument)
         {
@@ -70,5 +80,32 @@ namespace OpenTelemetry.Metric.Sdk
         public abstract void Collect(MeterInstrument instrument, Action<LabeledAggregationStatistics> aggregationVisitFunc);
     }
 
+
+    sealed class InstrumentState<TAggregator> : InstrumentState
+        where TAggregator : Aggregator, new()
+    {
+        AggregatorStore<TAggregator> _aggregatorStore;
+
+        public InstrumentState(LabelProcessingConfiguration labelConfig)
+        {
+            _aggregatorStore = new AggregatorStore<TAggregator>(labelConfig);
+        }
+
+        public override void Collect(MeterInstrument instrument, Action<LabeledAggregationStatistics> aggregationVisitFunc)
+        {
+            _aggregatorStore.Collect(aggregationVisitFunc);
+        }
+
+        public override void Update(double measurement, ReadOnlySpan<(string LabelName, string LabelValue)> labels)
+        {
+            // TODO: we need to figure out our atomicity guarantees. If this function updates
+            // multiple aggregators for a single measurement or any aggregator
+            // has state spread across multiple fields then we could see torn state. Other threads
+            // might be updating or reading those values concurrently. At present this code is not
+            // thread-safe.
+            TAggregator aggregator = _aggregatorStore.GetAggregator(labels);
+            aggregator?.Update(measurement);
+        }
+    }
 
 }

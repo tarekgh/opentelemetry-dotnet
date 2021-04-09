@@ -11,31 +11,34 @@ using OpenTelemetry.Metric.Sdk;
 
 namespace Benchmarks
 {
-    /* BenchmarkDotNet=v0.12.1, OS=Windows 10.0.19042
+    /*  BenchmarkDotNet=v0.12.1, OS=Windows 10.0.19042
         Intel Core i7-9700K CPU 3.60GHz (Coffee Lake), 1 CPU, 8 logical and 8 physical cores
         .NET Core SDK=5.0.201
           [Host]     : .NET Core 5.0.4 (CoreCLR 5.0.421.11614, CoreFX 5.0.421.11614), X64 RyuJIT
           DefaultJob : .NET Core 5.0.4 (CoreCLR 5.0.421.11614, CoreFX 5.0.421.11614), X64 RyuJIT
 
 
-        |                    Method |       Mean |    Error |   StdDev |  Gen 0 | Gen 1 | Gen 2 | Allocated |
-        |-------------------------- |-----------:|---------:|---------:|-------:|------:|------:|----------:|
-        |             Add5xNoLabels |   113.1 ns |  0.15 ns |  0.14 ns |      - |     - |     - |         - |
-        |      Add5xSameLabelNames1 |   154.0 ns |  0.33 ns |  0.31 ns |      - |     - |     - |         - |
-        | Add5xDifferentLabelNames1 |   268.4 ns |  0.47 ns |  0.40 ns |      - |     - |     - |         - |
-        |      Add5xSameLabelNames2 |   206.5 ns |  0.37 ns |  0.34 ns |      - |     - |     - |         - |
-        | Add5xDifferentLabelNames2 |   490.5 ns |  3.98 ns |  3.53 ns |      - |     - |     - |         - |
-        |      Add5xSameLabelNames3 |   296.4 ns |  0.06 ns |  0.05 ns |      - |     - |     - |         - |
-        | Add5xDifferentLabelNames3 | 1,321.7 ns |  6.71 ns |  6.28 ns | 0.0763 |     - |     - |     480 B |
-        |       Add5xMultiRankSmall |   399.2 ns |  0.77 ns |  0.64 ns |      - |     - |     - |         - |
-        |       Add5xMultiRankLarge | 1,721.5 ns | 17.44 ns | 16.31 ns | 0.1259 |     - |     - |     792 B |
+        |                    Method |        Mean |     Error |   StdDev |  Gen 0 | Gen 1 | Gen 2 | Allocated |
+        |-------------------------- |------------:|----------:|---------:|-------:|------:|------:|----------:|
+        |             Add5xNoLabels |    80.61 ns |  0.339 ns | 0.301 ns |      - |     - |     - |         - |
+        |      Add5xSameLabelNames1 |   174.02 ns |  0.688 ns | 0.610 ns |      - |     - |     - |         - |
+        | Add5xDifferentLabelNames1 | 1,226.38 ns |  8.048 ns | 7.528 ns | 0.2155 |     - |     - |    1360 B |
+        |      Add5xSameLabelNames2 |   227.96 ns |  1.329 ns | 1.243 ns |      - |     - |     - |         - |
+        | Add5xDifferentLabelNames2 | 1,666.12 ns |  5.898 ns | 4.925 ns | 0.2346 |     - |     - |    1480 B |
+        |      Add5xSameLabelNames3 |   283.36 ns |  0.570 ns | 0.533 ns |      - |     - |     - |         - |
+        |      Add5xSameLabelNames4 |   493.46 ns |  1.989 ns | 1.661 ns | 0.1144 |     - |     - |     720 B |
+        | Add5xDifferentLabelNames3 | 2,235.50 ns |  5.835 ns | 4.873 ns | 0.2518 |     - |     - |    1600 B |
+        |       Add5xMultiRankSmall |   914.56 ns |  7.647 ns | 7.153 ns | 0.1297 |     - |     - |     816 B |
+        |       Add5xMultiRankLarge | 1,611.73 ns | 10.248 ns | 9.586 ns | 0.2346 |     - |     - |    1472 B |
     */
 
     [MemoryDiagnoser]
+    [EtwProfiler]
     public class CounterBench
     {
         static Meter m = new Meter("GroceryStoreExample");
         static Counter noLabels = m.CreateCounter("NoLabels");
+        static Counter sameNames4 = m.CreateCounter("SameNames4");
         static Counter sameNames3 = m.CreateCounter("SameNames3");
         static Counter labels3 = m.CreateCounter("Labels3");
         static Counter sameNames2 = m.CreateCounter("SameNames2");
@@ -49,6 +52,7 @@ namespace Benchmarks
                 .Include("GroceryStoreExample")
                 .Build();
 
+        
         [Benchmark]
         public void Add5xNoLabels()
         {
@@ -69,6 +73,7 @@ namespace Benchmarks
             sameNames1.Add(1, ("Color", "Yellow"));
         }
 
+        
         [Benchmark]
         public void Add5xDifferentLabelNames1()
         {
@@ -89,6 +94,7 @@ namespace Benchmarks
             sameNames2.Add(1, ("Color", "Yellow"), ("Size", "1"));
         }
 
+        
         [Benchmark]
         public void Add5xDifferentLabelNames2()
         {
@@ -109,6 +115,17 @@ namespace Benchmarks
             sameNames3.Add(1, ("Color", "Yellow"), ("Size", "1"), ("Zoo", "True"));
         }
 
+        [Benchmark]
+        public void Add5xSameLabelNames4()
+        {
+            sameNames4.Add(1, ("Color", "Red"), ("Size", "1"), ("Zoo", "True"), ("Zoo2", "True"));
+            sameNames4.Add(1, ("Color", "Blue"), ("Size", "1"), ("Zoo", "True"), ("Zoo2", "True"));
+            sameNames4.Add(1, ("Color", "Green"), ("Size", "1"), ("Zoo", "True"), ("Zoo2", "True"));
+            sameNames4.Add(1, ("Color", "Orange"), ("Size", "1"), ("Zoo", "True"), ("Zoo2", "True"));
+            sameNames4.Add(1, ("Color", "Yellow"), ("Size", "1"), ("Zoo", "True"), ("Zoo2", "True"));
+        }
+
+        
         [Benchmark]
         public void Add5xDifferentLabelNames3()
         {

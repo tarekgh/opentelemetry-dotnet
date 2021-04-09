@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,12 +32,34 @@ namespace Microsoft.Diagnostics.Metric
             Meter.PublishInstrument(this);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void RecordMeasurement(double val) =>
             RecordMeasurement(val, Array.Empty<(string LabelName, string LabelValue)>());
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void RecordMeasurement(double val, (string LabelName, string LabelValue) label)
         {
             ReadOnlySpan<(string LabelName, string LabelValue)> labels = MemoryMarshal.CreateReadOnlySpan(ref label, 1);
+            RecordMeasurement(val, labels);
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        struct TwoLabels
+        {
+            public (string LabelName, string LabelValue) Label1;
+            public (string LabelName, string LabelValue) Label2;
+        }
+
+        [SkipLocalsInit]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void RecordMeasurement(double val,
+            (string LabelName, string LabelValue) label1,
+            (string LabelName, string LabelValue) label2)
+        {
+            TwoLabels twoLabels = new TwoLabels();
+            twoLabels.Label1 = label1;
+            twoLabels.Label2 = label2;
+            ReadOnlySpan<(string LabelName, string LabelValue)> labels = MemoryMarshal.CreateReadOnlySpan(ref twoLabels.Label1, 2);
             RecordMeasurement(val, labels);
         }
 
@@ -48,17 +71,8 @@ namespace Microsoft.Diagnostics.Metric
             public (string LabelName, string LabelValue) Label3;
         }
 
-        protected void RecordMeasurement(double val,
-            (string LabelName, string LabelValue) label1,
-            (string LabelName, string LabelValue) label2)
-        {
-            ThreeLabels threeLabels = new ThreeLabels();
-            threeLabels.Label1 = label1;
-            threeLabels.Label2 = label2;
-            ReadOnlySpan<(string LabelName, string LabelValue)> labels = MemoryMarshal.CreateReadOnlySpan(ref threeLabels.Label1, 2);
-            RecordMeasurement(val, labels);
-        }
-
+        [SkipLocalsInit]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void RecordMeasurement(double val,
             (string LabelName, string LabelValue) label1,
             (string LabelName, string LabelValue) label2,
@@ -72,6 +86,7 @@ namespace Microsoft.Diagnostics.Metric
             RecordMeasurement(val, labels);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void RecordMeasurement(double val, ReadOnlySpan<(string LabelName, string LabelValue)> labels)
         {
             // this captures a snapshot, _subscriptions array could be replaced while
