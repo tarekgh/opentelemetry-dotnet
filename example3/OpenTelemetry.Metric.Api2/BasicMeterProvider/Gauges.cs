@@ -30,7 +30,7 @@ namespace OpenTelemetry.Metric.Api2
 
     public class GaugeFunc : ObservableInstrument<double>, IGaugeFunc
     {
-        internal GaugeFunc(BasicMeter meter, string name, Action<Observer, object> callback, object state, string description, string unit)
+        internal GaugeFunc(BasicMeter meter, string name, Action<Observer<double>, object> callback, object state, string description, string unit)
             : base(meter, name, callback, state, description, unit)
         {
         }
@@ -38,7 +38,7 @@ namespace OpenTelemetry.Metric.Api2
 
     public class GaugeFunc<T> : ObservableInstrument<T>, IGaugeFunc<T>
     {
-        internal GaugeFunc(BasicMeter meter, string name, Action<Observer, object> callback, object state, string description, string unit)
+        internal GaugeFunc(BasicMeter meter, string name, Action<Observer<T>, object> callback, object state, string description, string unit)
             : base(meter, name, callback, state, description, unit)
         {
         }

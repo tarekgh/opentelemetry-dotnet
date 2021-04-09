@@ -51,7 +51,7 @@ namespace OpenTelemetry.Metric.Api2
             return (ICounter<T>) instrument;
         }
 
-        public ICounterFunc CreateCounterFunc(string name, Action<Observer, object> callback, object state, string description = null, string unit = null)
+        public ICounterFunc CreateCounterFunc(string name, Action<Observer<double>, object> callback, object state, string description = null, string unit = null)
         {
             bool isNew = false;
 
@@ -68,7 +68,7 @@ namespace OpenTelemetry.Metric.Api2
             return (ICounterFunc) instrument;
         }
 
-        public ICounterFunc<T> CreateCounterFunc<T>(string name, Action<Observer, object> callback, object state, string description = null, string unit = null)
+        public ICounterFunc<T> CreateCounterFunc<T>(string name, Action<Observer<T>, object> callback, object state, string description = null, string unit = null)
         {
             bool isNew = false;
 
@@ -119,7 +119,7 @@ namespace OpenTelemetry.Metric.Api2
             return (IGauge<T>) instrument;
         }
 
-        public IGaugeFunc CreateGaugeFunc(string name, Action<Observer, object> callback, object state, string description = null, string unit = null)
+        public IGaugeFunc CreateGaugeFunc(string name, Action<Observer<double>, object> callback, object state, string description = null, string unit = null)
         {
             bool isNew = false;
 
@@ -136,7 +136,7 @@ namespace OpenTelemetry.Metric.Api2
             return (IGaugeFunc) instrument;
         }
 
-        public IGaugeFunc<T> CreateGaugeFunc<T>(string name, Action<Observer, object> callback, object state, string description = null, string unit = null)
+        public IGaugeFunc<T> CreateGaugeFunc<T>(string name, Action<Observer<T>, object> callback, object state, string description = null, string unit = null)
         {
             bool isNew = false;
 

@@ -30,7 +30,7 @@ namespace OpenTelemetry.Metric.Api2
 
     public class CounterFunc : ObservableInstrument<double>, ICounterFunc
     {
-        internal CounterFunc(BasicMeter meter, string name, Action<Observer, object> callback, object state, string description, string unit)
+        internal CounterFunc(BasicMeter meter, string name, Action<Observer<double>, object> callback, object state, string description, string unit)
             : base(meter, name, callback, state, description, unit)
         {
         }
@@ -38,7 +38,7 @@ namespace OpenTelemetry.Metric.Api2
 
     public class CounterFunc<T> : ObservableInstrument<T>, ICounterFunc<T>
     {
-        internal CounterFunc(BasicMeter meter, string name, Action<Observer, object> callback, object state, string description, string unit)
+        internal CounterFunc(BasicMeter meter, string name, Action<Observer<T>, object> callback, object state, string description, string unit)
             : base(meter, name, callback, state, description, unit)
         {
         }

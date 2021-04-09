@@ -12,6 +12,10 @@ namespace OpenTelemetry.Metric.Api2
 
             var meter = provider.GetMeter("test");
 
+            var basicMeter = meter as BasicMeter;
+
+            // Counters
+
             var counter = meter.CreateCounter("counter");
             counter.Add(10, ("location", "here"), ("id", 100));
 
@@ -44,14 +48,18 @@ namespace OpenTelemetry.Metric.Api2
                 }, 
                 state: funcAsArg);
 
-            if (meter is BasicMeter basicMeter)
-            {
-                basicMeter.Observe();
-            }
+            // Gauges
 
+            var intgauge = meter.CreateGauge<int>("intgauge");
+            intgauge.Set(400);
 
-            var longgauge = meter.CreateGauge<long>("longgauge");
-            longgauge.Set(20);
+            var longgaugefunc = meter.CreateGaugeFunc<long>("longgaugefunc", (obv, arg) => {
+                obv.Observe(410);
+                obv.Observe((long)arg);
+                obv.Observe(430);
+            }, 420L);
+
+            basicMeter.Observe();
         }
 
         [Fact]

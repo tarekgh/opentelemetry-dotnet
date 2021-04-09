@@ -24,7 +24,7 @@ namespace OpenTelemetry.Metric.Api2
             foreach (var m in measurements)
             {
                 var attr = string.Join(",", m.attributes.Select(k => $"{k.name}={k.value}"));
-                Console.WriteLine($"Record [{c+1}/{measurements.Length}]: {Name}[{attr}] = {m.value.GetType().Name}/{m.value}");
+                Console.WriteLine($"Report [{c+1}/{measurements.Length}]: {Name}[{attr}] = {this.GetType().Name}/{m.value.GetType().Name}/{m.value}");
                 c++;
             }
         }
@@ -32,7 +32,7 @@ namespace OpenTelemetry.Metric.Api2
         internal void Record<T>(T value, (string name, object value)[] attributes)
         {
             var attr = string.Join(",", attributes.Select(k => $"{k.name}={k.value}"));
-            Console.WriteLine($"Record: {Name}[{attr}] = {value.GetType().Name}/{value}");
+            Console.WriteLine($"Report: {Name}[{attr}] = {this.GetType().Name}/{value.GetType().Name}/{value}");
         }
     }
 }
