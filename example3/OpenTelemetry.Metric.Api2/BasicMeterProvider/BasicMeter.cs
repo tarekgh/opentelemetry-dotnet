@@ -6,13 +6,13 @@ namespace OpenTelemetry.Metric.Api2
     public class BasicMeter : IMeter
     {
         public ConcurrentDictionary<string, Instrument> Instruments { get; } = new();
-        public BasicMeterProvider Provider { get; init; }
+        public BasicMeterProvider MyProvider { get; init; }
         public string Name { get; init; }
         public string Version { get; init; }
 
         internal BasicMeter(BasicMeterProvider provider, string name, string version)
         {
-            this.Provider = provider;
+            this.MyProvider = provider;
             this.Name = name;
             this.Version = version;
         }

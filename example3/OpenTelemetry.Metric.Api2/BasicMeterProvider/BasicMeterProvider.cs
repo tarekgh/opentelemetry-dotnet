@@ -1,31 +1,22 @@
 ﻿using System.Collections.Concurrent;
+using System.Linq;
 
 namespace OpenTelemetry.Metric.Api2
 {
     public class BasicMeterProvider : IMeterProvider
     {
-        private ConcurrentDictionary<(string name, string version), BasicMeter> meters = new ();
+        public BasicMeterProviderListener ProviderListener { get; set; }
+
+        private ConcurrentBag<BasicMeter> meters = new ();
+
+        public BasicMeterProvider()
+        {
+        }
 
         public virtual IMeter GetMeter(string name, string version = null)
         {
-            BasicMeter meter = null;
-            BasicMeter newMeter = null;
-
-            while (meter is null)
-            {
-                if (!meters.TryGetValue((name, version), out meter))
-                {
-                    if (newMeter is null)
-                    {
-                        newMeter = new BasicMeter(this, name, version);
-                    }
-
-                    if (meters.TryAdd((name, version), newMeter))
-                    {
-                        meter = newMeter;
-                    }
-                }
-            }
+            var meter = new BasicMeter(this, name, version);
+            meters.Add(meter);
 
             return meter;
         }

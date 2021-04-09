@@ -5,6 +5,26 @@ namespace OpenTelemetry.Metric.Api2
 {
     public class ApiTest
     {
+        public class TestListener : BasicMeterProviderListener
+        {
+            public override void Record<T>(Instrument instrument, T value, (string name, object value)[] attributes)
+            {
+                var msg = base.ToString(instrument, 0, 1, value, attributes);
+                Console.WriteLine($"HappyPath: {msg}");
+            }
+
+            public override void Record<T>(Instrument instrument, (T value, (string name, object value)[] attributes)[] measurements)
+            {
+                int c = 0;
+                foreach (var m in measurements)
+                {
+                    var msg = base.ToString(instrument, c, measurements.Length, m.value, m.attributes);
+                    Console.WriteLine($"HappyPath: {msg}");
+                    c++;
+                }
+            }
+        }
+
         [Fact]
         public void HappyPath()
         {
@@ -13,6 +33,10 @@ namespace OpenTelemetry.Metric.Api2
             var meter = provider.GetMeter("test");
 
             var basicMeter = meter as BasicMeter;
+
+            var basicProvider = provider as BasicMeterProvider;
+
+            basicProvider.ProviderListener = new TestListener();
 
             // Counters
 
@@ -69,7 +93,7 @@ namespace OpenTelemetry.Metric.Api2
 
             var provider = MeterProvider.Default;
 
-            var meter = provider.GetMeter("test2");
+            var meter = provider.GetMeter("test");
 
             try
             {
@@ -110,6 +134,20 @@ namespace OpenTelemetry.Metric.Api2
             }
 
             Assert.Equal(2, numExceptions);
+        }
+
+        [Fact]
+        public void DistinctGetMeterTest()
+        {
+            var provider = MeterProvider.Default;
+
+            var meter1 = provider.GetMeter("test");
+
+            var meter2 = provider.GetMeter("test");
+
+            var counter1 = meter1.CreateCounter("counter");
+
+            var counter2 = meter2.CreateCounter("counter");
         }
     }
 }

@@ -1,36 +1,24 @@
-using System.Threading;
-
 namespace OpenTelemetry.Metric.Api2
 {
     public class MeterProvider : IMeterProvider
     {
-        private static IMeterProvider defaultProvider = new BasicMeterProvider();
+        public static IMeterProvider Default { get; set; } = new BasicMeterProvider();
+
+        private IMeterProvider provider;
 
         public MeterProvider()
         {
+            this.provider = new BasicMeterProvider();
         }
 
-        public static IMeterProvider Default
+        public MeterProvider(IMeterProvider provider)
         {
-            get
-            {
-                return MeterProvider.defaultProvider;
-            }
-
-            set
-            {
-                MeterProvider.defaultProvider = value;
-            }
-        }
-
-        public static IMeterProvider SetDefaultProvider(IMeterProvider meterProvider)
-        {
-            return Interlocked.Exchange(ref MeterProvider.defaultProvider, meterProvider);
+            this.provider = provider;
         }
 
         public IMeter GetMeter(string name, string version = null)
         {
-            return defaultProvider.GetMeter(name, version);
+            return this.provider.GetMeter(name, version);
         }
     }
 }

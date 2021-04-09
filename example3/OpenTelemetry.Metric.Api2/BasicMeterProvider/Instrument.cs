@@ -20,19 +20,20 @@ namespace OpenTelemetry.Metric.Api2
 
         internal void Record<T>((T value, (string name, object value)[] attributes)[] measurements)
         {
-            int c = 0;
-            foreach (var m in measurements)
+            var listener = MyMeter.MyProvider.ProviderListener;
+            if (listener is not null)
             {
-                var attr = string.Join(",", m.attributes.Select(k => $"{k.name}={k.value}"));
-                Console.WriteLine($"Report [{c+1}/{measurements.Length}]: {Name}[{attr}] = {this.GetType().Name}/{m.value.GetType().Name}/{m.value}");
-                c++;
+                listener.Record(this, measurements);
             }
         }
 
         internal void Record<T>(T value, (string name, object value)[] attributes)
         {
-            var attr = string.Join(",", attributes.Select(k => $"{k.name}={k.value}"));
-            Console.WriteLine($"Report: {Name}[{attr}] = {this.GetType().Name}/{value.GetType().Name}/{value}");
+            var listener = MyMeter.MyProvider.ProviderListener;
+            if (listener is not null)
+            {
+                listener.Record(this, value, attributes);
+            }
         }
     }
 }
