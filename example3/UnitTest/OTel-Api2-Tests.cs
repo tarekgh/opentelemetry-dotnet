@@ -69,7 +69,7 @@ namespace OpenTelemetry.Metric.Api2
 
             var provider = MeterProvider.Default;
 
-            var meter = provider.GetMeter("test");
+            var meter = provider.GetMeter("test2");
 
             try
             {
