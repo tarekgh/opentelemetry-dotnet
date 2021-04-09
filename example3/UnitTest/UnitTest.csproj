@@ -29,6 +29,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\OpenTelemetry.Metric.Api\OpenTelemetry.Metric.Api.csproj" />
+    <ProjectReference Include="..\OpenTelemetry.Metric.Api2\OpenTelemetry.Metric.Api2.csproj" />
     <ProjectReference Include="..\OpenTelemetry.Metric.Sdk\OpenTelemetry.Metric.Sdk.csproj" />
     <ProjectReference Include="..\Microsoft.Diagnostics.Metric\Microsoft.Diagnostics.Metric.csproj" />
     <ProjectReference Include="..\Microsoft.OpenTelemetry.Exporter\Microsoft.OpenTelemetry.Exporter.csproj" />
