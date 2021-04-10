@@ -2,7 +2,7 @@ using System;
 
 namespace OpenTelemetry.Metric.Api2
 {
-    public interface IMeter
+    public interface IMeter : IDisposable
     {
         ICounter CreateCounter(string name, string description = null, string unit = null);
         ICounter<T> CreateCounter<T>(string name, string description = null, string unit = null);

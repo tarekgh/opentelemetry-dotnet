@@ -144,5 +144,71 @@ namespace OpenTelemetry.Metric.Api2
 
             var counter2 = meter2.CreateCounter("counter");
         }
+
+        [Fact]
+        public void ExtensionTest()
+        {
+            var provider = new MeterProvider();
+
+            var basicProvider = provider.Provider as BasicMeterProvider;
+            basicProvider.ProviderListener = new TestListener();
+
+            var meter1 = basicProvider.GetMeter(typeof(ApiTest));
+
+            var meter2 = basicProvider.GetMeter(typeof(ApiTest));
+
+            var counter = meter1.CreateCounter("counter");
+            counter.Add(100, ("location", "local1"));
+
+            var counterfunc = meter1.CreateCounterFunc("counterfunc", (observer, arg) => {
+                observer.Observe(100, ("location", "func1"));
+            });
+
+            var counter2 = meter2.CreateCounter("counter");
+            counter2.Add(200, ("location", "local2"));
+
+            var counterfunc2 = meter2.CreateCounterFunc("counterfunc", (observer, arg) => {
+                observer.Observe(200, ("location", "func2"));
+            });
+
+            basicProvider.Observe();
+        }
+
+        [Fact]
+        public void DisposeTest()
+        {
+            var provider = new MeterProvider();
+
+            var basicProvider = provider.Provider as BasicMeterProvider;
+            basicProvider.ProviderListener = new TestListener();
+
+            using (var meter1 = basicProvider.GetMeter(typeof(ApiTest)))
+            {
+                var counterfunc1 = meter1.CreateCounterFunc("counterfunc", (observer, arg) => {
+                    observer.Observe(100, ("location", "func1"));
+                });
+
+                using (var meter2 = basicProvider.GetMeter(typeof(ApiTest)))
+                {
+                    using (var counterfunc2 = meter2.CreateCounterFunc("counterfunc", (observer, arg) => {
+                        observer.Observe(200, ("location", "func2"));
+                        })
+                        )
+                    {
+                        Console.WriteLine("--- 2");
+                        basicProvider.Observe();
+                    }
+
+                    Console.WriteLine("--- 1");
+                    basicProvider.Observe();
+                }
+
+                Console.WriteLine("--- 1");
+                basicProvider.Observe();
+            }
+
+            Console.WriteLine("--- 0");
+            basicProvider.Observe();
+        }
     }
 }

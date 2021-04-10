@@ -1,6 +1,8 @@
+using System;
+
 namespace OpenTelemetry.Metric.Api2
 {
-    public class Instrument
+    public class Instrument : IDisposable
     {
         public BasicMeter MyMeter { get; }
         public string Name { get; }
@@ -31,6 +33,11 @@ namespace OpenTelemetry.Metric.Api2
             {
                 listener.Record(this, value, attributes);
             }
+        }
+
+        public void Dispose()
+        {
+            MyMeter.RemoveInstrument(this.Name);
         }
     }
 }

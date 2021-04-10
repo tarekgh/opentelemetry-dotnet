@@ -1,14 +1,16 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Concurrent;
 
 namespace OpenTelemetry.Metric.Api2
 {
     public class BasicMeter : IMeter
     {
-        public ConcurrentDictionary<string, Instrument> Instruments { get; } = new();
         public BasicMeterProvider MyProvider { get; }
         public string Name { get; }
         public string Version { get; }
+
+        private ConcurrentDictionary<string, Instrument> instruments { get; } = new();
 
         internal BasicMeter(BasicMeterProvider provider, string name, string version)
         {
@@ -21,7 +23,7 @@ namespace OpenTelemetry.Metric.Api2
         {
             bool isNew = false;
 
-            var instrument = Instruments.GetOrAdd(name, (key) => {
+            var instrument = this.instruments.GetOrAdd(name, (key) => {
                 isNew = true;
                 return new Counter(this, key, description, unit);
             });
@@ -38,7 +40,7 @@ namespace OpenTelemetry.Metric.Api2
         {
             bool isNew = false;
 
-            var instrument = Instruments.GetOrAdd(name, (key) => {
+            var instrument = this.instruments.GetOrAdd(name, (key) => {
                 isNew = true;
                 return new Counter<T>(this, key, description, unit);
             });
@@ -55,7 +57,7 @@ namespace OpenTelemetry.Metric.Api2
         {
             bool isNew = false;
 
-            var instrument = Instruments.GetOrAdd(name, (key) => {
+            var instrument = this.instruments.GetOrAdd(name, (key) => {
                 isNew = true;
                 return new CounterFunc(this, key, callback, state, description, unit);
             });
@@ -72,7 +74,7 @@ namespace OpenTelemetry.Metric.Api2
         {
             bool isNew = false;
 
-            var instrument = Instruments.GetOrAdd(name, (key) => {
+            var instrument = this.instruments.GetOrAdd(name, (key) => {
                 isNew = true;
                 return new CounterFunc<T>(this, key, callback, state, description, unit);
             });
@@ -85,15 +87,29 @@ namespace OpenTelemetry.Metric.Api2
             return (ICounterFunc<T>) instrument;
         }
 
+        public ICollection<Instrument> Instruments {
+            get => this.instruments.Values;
+        }
+
         public void Observe()
         {
-            foreach (var instrument in Instruments)
+            foreach (var instrument in this.instruments.Values)
             {
-                if (instrument.Value is ObservableInstrument obv)
+                if (instrument is ObservableInstrument obv)
                 {
                     obv.Observe();
                 }
             }
+        }
+
+        internal void RemoveInstrument(string name)
+        {
+            this.instruments.Remove(name, out var value);
+        }
+
+        public void Dispose()
+        {
+            MyProvider.RemoveMeter(this);
         }
     }
 }

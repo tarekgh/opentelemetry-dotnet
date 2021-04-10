@@ -4,21 +4,21 @@ namespace OpenTelemetry.Metric.Api2
     {
         public static IMeterProvider Default { get; set; } = new BasicMeterProvider();
 
-        private IMeterProvider provider;
+        public IMeterProvider Provider { get; }
 
         public MeterProvider()
         {
-            this.provider = new BasicMeterProvider();
+            this.Provider = new BasicMeterProvider();
         }
 
         public MeterProvider(IMeterProvider provider)
         {
-            this.provider = provider;
+            this.Provider = provider;
         }
 
         public IMeter GetMeter(string name, string version = null)
         {
-            return this.provider.GetMeter(name, version);
+            return this.Provider.GetMeter(name, version);
         }
     }
 }
