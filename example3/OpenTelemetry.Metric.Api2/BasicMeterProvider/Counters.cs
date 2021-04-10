@@ -15,7 +15,7 @@ namespace OpenTelemetry.Metric.Api2
         }
     }
 
-    public class Counter<T> : Counter, ICounter<T>
+    public class Counter<T> : Instrument, ICounter<T>
     {
         internal Counter(BasicMeter meter, string name, string description, string unit)
             : base(meter, name, description, unit)

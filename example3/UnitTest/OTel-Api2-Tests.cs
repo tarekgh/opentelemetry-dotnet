@@ -49,19 +49,25 @@ namespace OpenTelemetry.Metric.Api2
             var longcounter = meter.CreateCounter<long>("longcounter");
             longcounter.Add(20);
 
-            var counterfunc = meter.CreateCounterFunc("counterfunc", (obv, arg) => {
-                obv.Observe(10.1);
-                obv.Observe((double)arg);
-                obv.Observe(10.3, ("location", "inhere"), ("id", 10));
-            }, (double) 100.2);
+            // CounterFunc
 
-            Func<int> funcAsArg = () => {
+            var counterfunc = meter.CreateCounterFunc("counterfunc",
+                (observer, arg) =>
+                {
+                    observer.Observe(10.1);
+                    observer.Observe((double)arg);
+                    observer.Observe(10.3, ("location", "inhere"), ("id", 10));
+                },
+                (double) 100.2);
+
+            Func<int> funcState = () => {
                 return 121;
             };
 
             var intcounterfunc = meter.CreateCounterFunc<int>(
                 name: "intcounterfunc", 
-                callback: (observer, arg) => {
+                callback: (observer, arg) =>
+                {
                     observer.Observe(20, ("location", "here"), ("id", 100));
                     if (arg is Func<int> func)
                     {
@@ -70,18 +76,7 @@ namespace OpenTelemetry.Metric.Api2
                     }
                     observer.Observe(22);
                 }, 
-                state: funcAsArg);
-
-            // Gauges
-
-            var intgauge = meter.CreateGauge<int>("intgauge");
-            intgauge.Set(400);
-
-            var longgaugefunc = meter.CreateGaugeFunc<long>("longgaugefunc", (obv, arg) => {
-                obv.Observe(410);
-                obv.Observe((long)arg);
-                obv.Observe(430);
-            }, 420L);
+                state: funcState);
 
             basicMeter.Observe();
         }

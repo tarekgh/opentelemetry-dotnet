@@ -1,14 +1,11 @@
-using System;
-using System.Linq;
-
 namespace OpenTelemetry.Metric.Api2
 {
     public class Instrument
     {
-        public BasicMeter MyMeter { get; init; }
-        public string Name { get; init; }
-        public string Description { get; init; }
-        public string Unit { get; init; }
+        public BasicMeter MyMeter { get; }
+        public string Name { get; }
+        public string Description { get; }
+        public string Unit { get; }
 
         public Instrument(BasicMeter meter, string name, string description, string unit)
         {
