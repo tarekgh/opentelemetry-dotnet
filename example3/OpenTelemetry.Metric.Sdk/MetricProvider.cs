@@ -12,8 +12,7 @@ namespace OpenTelemetry.Metric.Sdk
 {
     public class MetricProvider
     {
-        private List<UnboundMeterInstrument> meters = new();
-
+        private List<(Predicate<MeterInstrument>, Action<InstrumentBuilder>)> instrumentConfigFuncs = new();
         private ConcurrentDictionary<MeterInstrument, InstrumentState> _instrumentStates = new ConcurrentDictionary<MeterInstrument, InstrumentState>();
 
         private string name;
@@ -21,8 +20,6 @@ namespace OpenTelemetry.Metric.Sdk
         private bool isBuilt = false;
         private bool flushCollect = false;
         private CancellationTokenSource cts = new();
-
-        private List<Tuple<string,string>> metricFilterList = new();
 
         private List<Exporter> exporters = new();
 
@@ -44,8 +41,14 @@ namespace OpenTelemetry.Metric.Sdk
                 state.Update(value, labels);
             }
 
-            protected override void MeterInstrumentPublished(MeterInstrument instrument, MeterSubscribeOptions subscribeOptions) =>
-                subscribeOptions.Subscribe(_owner.GetInstrumentState(instrument));
+            protected override void MeterInstrumentPublished(MeterInstrument instrument, MeterSubscribeOptions subscribeOptions)
+            {
+                InstrumentState state = _owner.GetInstrumentState(instrument);
+                if(state != null)
+                {
+                    subscribeOptions.Subscribe(state);
+                }
+            }
 
             protected override void MeterInstrumentUnpublished(MeterInstrument instrument, object cookie) =>
                 _owner.RemoveInstrumentState(instrument, (InstrumentState)cookie);
@@ -64,13 +67,19 @@ namespace OpenTelemetry.Metric.Sdk
 
         public MetricProvider Include(string term)
         {
-            metricFilterList.Add(Tuple.Create("Include", term));
+            Include(i => i.Meter.Name == term, config => { });
             return this;
         }
 
-        public MetricProvider AddMetricExclusion(string term)
+        public MetricProvider Include(string term, Action<InstrumentBuilder> configFunc)
         {
-            metricFilterList.Add(Tuple.Create("Exclude", term));
+            Include(i => i.Meter.Name == term, configFunc);
+            return this;
+        }
+
+        public MetricProvider Include(Predicate<MeterInstrument> instrumentFilter, Action<InstrumentBuilder> configFunc)
+        {
+            instrumentConfigFuncs.Add((instrumentFilter, configFunc));
             return this;
         }
 
@@ -196,23 +205,23 @@ namespace OpenTelemetry.Metric.Sdk
         {
             if (!_instrumentStates.TryGetValue(instrument, out InstrumentState instrumentState))
             {
-                _instrumentStates.TryAdd(instrument, InstrumentState.Create(instrument));
-                instrumentState = _instrumentStates[instrument];
+                InstrumentBuilder instrumentBuilder = null;
+                foreach (var (filter, configFunc) in instrumentConfigFuncs)
+                {
+                    if (filter(instrument))
+                    {
+                        instrumentBuilder ??= new InstrumentBuilder(instrument);
+                        configFunc(instrumentBuilder);
+                    }
+                }
+                instrumentState = instrumentBuilder?.Build();
+                if(instrumentState != null)
+                {
+                    _instrumentStates.TryAdd(instrument, instrumentState);
+                    instrumentState = _instrumentStates[instrument];
+                }
             }
             return instrumentState;
-        }
-
-        public void OnMeasurementRecorded(MeterInstrument instrument, double value, ReadOnlySpan<(string LabelName, string LabelValue)> labels, object cookie)
-        {
-            if (useQueue)
-            {
-                // the label buffer may be stack-allocated so in order to queue we have to force
-                // a heap allocation here
-                incomingQueue.Enqueue(Tuple.Create(instrument, value, labels.ToArray(), cookie));
-                return;
-            }
-
-            ProcessRecord(instrument, value, labels, cookie);
         }
 
         private void ProcessRecord(MeterInstrument instrument, double value, ReadOnlySpan<(string LabelName, string LabelValue)> labels, object cookie)
@@ -241,7 +250,7 @@ namespace OpenTelemetry.Metric.Sdk
                         var item = new ExportItem();
                         item.dt = collectionTime;
                         item.Labels = new MetricLabelSet(labeledAggStats.Labels);
-                        item.AggregationConfig = InstrumentState.GetDefaultAggregation(kv.Key);
+                        item.MeasurementAggregation = labeledAggStats.MeasurementAggregation;
                         item.AggData = labeledAggStats.Statistics.ToArray();
                         item.MeterName = kv.Key.Meter.Name;
                         item.MeterVersion = kv.Key.Meter.Version;

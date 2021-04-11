@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -19,7 +20,7 @@ namespace UnitTest
             var provider = new MetricProvider()
                 .Include("CounterNoLabels")
                 .Build();
-            Meter m = new Meter("CounterNoLabels");
+            using Meter m = new Meter("CounterNoLabels");
             Counter c = m.CreateCounter("C");
 
             c.Add(3);
@@ -36,7 +37,7 @@ namespace UnitTest
             var provider = new MetricProvider()
                 .Include("Counter1Label")
                 .Build();
-            Meter m = new Meter("Counter1Label");
+            using Meter m = new Meter("Counter1Label");
             Counter c = m.CreateCounter("C");
 
             c.Add(3, ("Color", "Red"));
@@ -53,7 +54,7 @@ namespace UnitTest
             var provider = new MetricProvider()
                 .Include("Counter1LabelMultiValue")
                 .Build();
-            Meter m = new Meter("Counter1LabelMultiValue");
+            using Meter m = new Meter("Counter1LabelMultiValue");
             Counter c = m.CreateCounter("C");
 
             c.Add(3, ("Color", "Red"));
@@ -80,7 +81,7 @@ namespace UnitTest
             var provider = new MetricProvider()
                 .Include("Counter1LabelMultiName")
                 .Build();
-            Meter m = new Meter("Counter1LabelMultiName");
+            using Meter m = new Meter("Counter1LabelMultiName");
             Counter c = m.CreateCounter("C");
 
             c.Add(3, ("Color", "Red"));
@@ -107,7 +108,7 @@ namespace UnitTest
             var provider = new MetricProvider()
                 .Include("Counter2Label")
                 .Build();
-            Meter m = new Meter("Counter2Label");
+            using Meter m = new Meter("Counter2Label");
             Counter c = m.CreateCounter("C");
 
             c.Add(3, ("Color", "Red"), ("Size", "1"));
@@ -124,7 +125,7 @@ namespace UnitTest
             var provider = new MetricProvider()
                 .Include("Counter2LabelMultiValue")
                 .Build();
-            Meter m = new Meter("Counter2LabelMultiValue");
+            using Meter m = new Meter("Counter2LabelMultiValue");
             Counter c = m.CreateCounter("C");
 
             c.Add(3, ("Color", "Red"), ("Size", "1"));
@@ -158,7 +159,7 @@ namespace UnitTest
             var provider = new MetricProvider()
                 .Include("Counter2LabelMultiName")
                 .Build();
-            Meter m = new Meter("Counter2LabelMultiName");
+            using Meter m = new Meter("Counter2LabelMultiName");
             Counter c = m.CreateCounter("C");
 
             c.Add(3, ("Color", "Red"), ("Size", "1"));
@@ -192,7 +193,7 @@ namespace UnitTest
             var provider = new MetricProvider()
                 .Include("Counter2LabelSortOrder")
                 .Build();
-            Meter m = new Meter("Counter2LabelSortOrder");
+            using Meter m = new Meter("Counter2LabelSortOrder");
             Counter c = m.CreateCounter("C");
 
             c.Add(3, ("Color", "Red"), ("Size", "1"));
@@ -207,7 +208,7 @@ namespace UnitTest
             var provider = new MetricProvider()
                 .Include("Counter3Label")
                 .Build();
-            Meter m = new Meter("Counter3Label");
+            using Meter m = new Meter("Counter3Label");
             Counter c = m.CreateCounter("C");
 
             c.Add(3, ("Color", "Red"), ("Size", "1"), ("Zoo", "True"));
@@ -224,7 +225,7 @@ namespace UnitTest
             var provider = new MetricProvider()
                 .Include("Counter3LabelMultiValue")
                 .Build();
-            Meter m = new Meter("Counter3LabelMultiValue");
+            using Meter m = new Meter("Counter3LabelMultiValue");
             Counter c = m.CreateCounter("C");
 
             c.Add(3, ("Color", "Red"), ("Size", "1"), ("Zoo", "True"));
@@ -258,7 +259,7 @@ namespace UnitTest
             var provider = new MetricProvider()
                 .Include("Counter3LabelMultiName")
                 .Build();
-            Meter m = new Meter("Counter3LabelMultiName");
+            using Meter m = new Meter("Counter3LabelMultiName");
             Counter c = m.CreateCounter("C");
 
             c.Add(3, ("Color", "Red"), ("Size", "1"), ("Zoo", "True"));
@@ -292,7 +293,7 @@ namespace UnitTest
             var provider = new MetricProvider()
                 .Include("Counter3LabelSortOrder")
                 .Build();
-            Meter m = new Meter("Counter2LabelSortOrder");
+            using Meter m = new Meter("Counter3LabelSortOrder");
             Counter c = m.CreateCounter("C");
 
             c.Add(1, ("Color", "Red"), ("Size", "1"), ("Zoo", "True"));
@@ -315,7 +316,7 @@ namespace UnitTest
             var provider = new MetricProvider()
                 .Include("CounterMultiRank0Start")
                 .Build();
-            Meter m = new Meter("CounterMultiRank0Start");
+            using Meter m = new Meter("CounterMultiRank0Start");
             Counter c = m.CreateCounter("C");
 
             c.Add(3);
@@ -335,7 +336,7 @@ namespace UnitTest
             var provider = new MetricProvider()
                 .Include("CounterMultiRank1Start")
                 .Build();
-            Meter m = new Meter("CounterMultiRank1Start");
+            using Meter m = new Meter("CounterMultiRank1Start");
             Counter c = m.CreateCounter("C");
 
             c.Add(3, ("Color", "Red"));
@@ -355,7 +356,7 @@ namespace UnitTest
             var provider = new MetricProvider()
                 .Include("CounterMultiRank2Start")
                 .Build();
-            Meter m = new Meter("CounterMultiRank2Start");
+            using Meter m = new Meter("CounterMultiRank2Start");
             Counter c = m.CreateCounter("C");
 
             c.Add(3, ("Color", "Red"), ("Size", "1"));
@@ -375,7 +376,7 @@ namespace UnitTest
             var provider = new MetricProvider()
                 .Include("CounterMultiRank3Start")
                 .Build();
-            Meter m = new Meter("CounterMultiRank3Start");
+            using Meter m = new Meter("CounterMultiRank3Start");
             Counter c = m.CreateCounter("C");
 
             c.Add(3, ("Color", "Red"), ("Size", "1"), ("Zoo", "True"));
@@ -387,6 +388,111 @@ namespace UnitTest
             c.Add(5);
             AssertCounterSum(provider, c, 7, ("Color", "Red"), ("Size", "1"), ("Zoo", "True"));
             AssertCounterSum(provider, c, 9);
+        }
+
+        [Fact]
+        public void ExcludeAllLabels()
+        {
+            var provider = new MetricProvider()
+                .Include("ExcludeAllLabels", ib =>
+                    ib.ExcludeAllLabels())
+                .Build();
+            using Meter m = new Meter("ExcludeAllLabels");
+            Counter c = m.CreateCounter("C");
+
+            c.Add(3, ("Color", "Red"), ("Size", "1"), ("Zoo", "True"));
+            AssertCounterSum(provider, c, 3);
+            c.Add(4, ("Color", "Red"));
+            AssertCounterSum(provider, c, 7);
+            c.Add(5, ("Color", "Red"), ("Size", "7"));
+            AssertCounterSum(provider, c, 12);
+            c.Add(5);
+            AssertCounterSum(provider, c, 17);
+        }
+
+        [Fact]
+        public void IncludeOnlyLabels()
+        {
+            var provider = new MetricProvider()
+                .Include("IncludeOnlyLabels", ib => ib
+                    .ExcludeAllLabels()
+                    .IncludeLabel("Color")
+                    .IncludeLabel("Size"))
+                .Build();
+            using Meter m = new Meter("IncludeOnlyLabels");
+            Counter c = m.CreateCounter("C");
+
+            c.Add(3, ("Color", "Red"), ("Size", "1"), ("Zoo", "True"));
+            AssertCounterSum(provider, c, 3, ("Color", "Red"), ("Size", "1"));
+
+            c.Add(4);
+            AssertCounterSum(provider, c, 3, ("Color", "Red"), ("Size", "1"));
+
+            c.Add(4, ("Size", "8"));
+            AssertCounterSum(provider, c, 3, ("Color", "Red"), ("Size", "1"));
+
+            c.Add(4, ("Color", "Red"), ("Size", "1"));
+            AssertCounterSum(provider, c, 7, ("Color", "Red"), ("Size", "1"));
+
+            c.Add(4, ("Color", "Blue"), ("Size", "1"), ("Zoo", "True"));
+            AssertCounterSum(provider, c, 7, ("Color", "Red"), ("Size", "1"));
+            AssertCounterSum(provider, c, 4, ("Color", "Blue"), ("Size", "1"));
+        }
+
+        [Fact]
+        public void MapLabels()
+        {
+            var provider = new MetricProvider()
+                .Include("MapLabels", ib => ib
+                    .ExcludeAllLabels()
+                    .IncludeLabel("Color")
+                    .IncludeLabel("Size", size => size == "1" ? "Small" : "Large"))
+                .Build();
+            using Meter m = new Meter("MapLabels");
+            Counter c = m.CreateCounter("C");
+
+            c.Add(3, ("Color", "Red"), ("Size", "1"), ("Zoo", "True"));
+            AssertCounterSum(provider, c, 3, ("Color", "Red"), ("Size", "Small"));
+
+            c.Add(4);
+            AssertCounterSum(provider, c, 3, ("Color", "Red"), ("Size", "Small"));
+
+            c.Add(4, ("Color", "Red"), ("Size", "8"));
+            AssertCounterSum(provider, c, 3, ("Color", "Red"), ("Size", "Small"));
+            AssertCounterSum(provider, c, 4, ("Color", "Red"), ("Size", "Large"));
+
+            c.Add(4, ("Color", "Red"), ("Size", "1"));
+            AssertCounterSum(provider, c, 7, ("Color", "Red"), ("Size", "Small"));
+            AssertCounterSum(provider, c, 4, ("Color", "Red"), ("Size", "Large"));
+
+            c.Add(4, ("Color", "Red"), ("Size", "Small"), ("Zoo", "True"));
+            AssertCounterSum(provider, c, 7, ("Color", "Red"), ("Size", "Small"));
+            AssertCounterSum(provider, c, 8, ("Color", "Red"), ("Size", "Large"));
+        }
+
+        [Fact]
+        public void ActivityLabel()
+        {
+            var provider = new MetricProvider()
+                .Include("ActivityLabel", ib => ib
+                    .ExcludeAllLabels()
+                    .IncludeLabel("Color")
+                    .IncludeAmbientLabel("ActivityId", () => Activity.Current.Id))
+                .Build();
+            using Meter m = new Meter("ActivityLabel");
+            Counter c = m.CreateCounter("C");
+
+            using Activity a = new Activity("A");
+            a.Start();
+
+            c.Add(3, ("Color", "Red"), ("Size", "1"), ("Zoo", "True"));
+            AssertCounterSum(provider, c, 3, ("ActivityId", a.Id), ("Color", "Red"));
+
+            c.Add(4);
+            AssertCounterSum(provider, c, 3, ("ActivityId", a.Id), ("Color", "Red"));
+
+            c.Add(4, ("Color", "Red"), ("ActivityId", "8"));
+            AssertCounterSum(provider, c, 7, ("ActivityId", a.Id), ("Color", "Red"));
         }
 
 

@@ -12,6 +12,8 @@ namespace OpenTelemetry.Metric.Sdk
         public double max = 0;
         public double min = 0;
 
+        public override MeasurementAggregation MeasurementAggregation => MeasurementAggregations.Sum;
+
         public override void Update(double value)
         {
             count++;
@@ -31,6 +33,7 @@ namespace OpenTelemetry.Metric.Sdk
         public override AggregationStatistics Collect()
         {
             return new AggregationStatistics(
+                MeasurementAggregation,
                 ("count", $"{count}"),
                 ("sum", $"{sum}"),
                 ("min", $"{min}"),

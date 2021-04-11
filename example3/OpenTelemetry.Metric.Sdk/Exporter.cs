@@ -24,7 +24,7 @@ namespace OpenTelemetry.Metric.Sdk
         public string MeterVersion { get; set; }
         public string InstrumentName { get; set; }
         public MetricLabelSet Labels { get; set; }
-        public AggregationConfiguration AggregationConfig { get; set; }
+        public MeasurementAggregation MeasurementAggregation { get; set; }
         public (string name, string value)[] AggData { get; set; }
     }
 }

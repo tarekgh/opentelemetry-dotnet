@@ -15,28 +15,28 @@ namespace OpenTelemetry.Metric.Sdk
 
         // This can be called concurrently with Update()
         public abstract AggregationStatistics Collect();
+
+        public abstract MeasurementAggregation MeasurementAggregation { get; }
     }
 
     struct AggregationStatistics
     {
-        IEnumerable<(string Key, string Value)> _statistics;
-
-        public AggregationStatistics(IEnumerable<(string Key, string Value)> data)
+        public AggregationStatistics(MeasurementAggregation measurementAggregation, IEnumerable<(string Key, string Value)> data)
         {
-            _statistics = data;
+            Statistics = data;
+            MeasurementAggregation = measurementAggregation;
         }
 
-        public AggregationStatistics(params (string Key, string Value)[] statistics)
-        {
-            _statistics = statistics;
-        }
+        public AggregationStatistics(MeasurementAggregation measurementAggregation, params (string Key, string Value)[] statistics) :
+            this(measurementAggregation, (IEnumerable<(string Key, string Value)>)statistics)
+        { }
 
-        public AggregationStatistics(string key, string value)
-        {
-            _statistics = new (string Key, string Value)[] { (key, value) };
-        }
+        public AggregationStatistics(MeasurementAggregation measurementAggregation, string key, string value) :
+            this(measurementAggregation, new (string Key, string Value)[] { (key, value) })
+        { }
 
-        public IEnumerable<(string Key, string Value)> Statistics => _statistics;
+        public IEnumerable<(string Key, string Value)> Statistics { get; }
+        public MeasurementAggregation MeasurementAggregation { get; }
     }
 
     class LabeledAggregationStatistics
@@ -63,5 +63,6 @@ namespace OpenTelemetry.Metric.Sdk
 
         public IEnumerable<(string LabelName, string LabelValue)> Labels => _labels;
         public IEnumerable<(string Key, string Value)> Statistics => _aggStats.Statistics;
+        public MeasurementAggregation MeasurementAggregation => _aggStats.MeasurementAggregation;
     }
 }

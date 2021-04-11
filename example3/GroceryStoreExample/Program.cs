@@ -12,31 +12,7 @@ namespace GroceryStoreExample
             var pipeline = new MetricProvider()
                 .Name("OrderPipeline1")
                 .Include("GroceryStoreExample")
-
-                /*
-                 * TODO
-                .AggregateByLabels(new SumCountMinMax(), 
-                    new MetricLabelSet(("Customer", "*")),
-                    new MetricLabelSet(("Item", "lemon,tomato")),
-                    new MetricLabelSet(("Customer", "CustomerA,CustomerC"), ("Item", "*")),
-                    new MetricLabelSet(("Store", "*"), ("Item", "*"))
-                    )
-                .AggregateByLabels(new LabelHistogram())
-                */
                 .AddExporter(new ConsoleExporter("export1", 6000))
-                .Build();
-
-            var pipeline2 = new MetricProvider()
-                .Name("OrderPipeline2")
-                .Include("GroceryStoreExample")
-                .SetCollectionPeriod(6000)
-
-                /* TODO
-                 * 
-                .AggregateByLabels(new LabelHistogram())
-                */
-                .AddExporter(new ConsoleExporter("export2", 1000))
-                .AddExporter(new ConsoleExporter("export3", 6000))
                 .Build();
 
 
@@ -49,7 +25,6 @@ namespace GroceryStoreExample
 
             // Shutdown Metric Pipeline
             pipeline.Stop();
-            pipeline2.Stop();
         }
     }
 }

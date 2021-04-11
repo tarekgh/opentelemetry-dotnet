@@ -23,9 +23,9 @@ namespace OpenTelemetry.Metric.Sdk
         // MultiSizeLabelNameDictionary<TAggregator>
         volatile object _stateUnion;
         volatile AggregatorLookupFunc<TAggregator> _cachedLookupFunc;
-        LabelProcessingConfiguration _labelConfig;
+        LabelAggregation _labelConfig;
 
-        public AggregatorStore(LabelProcessingConfiguration labelConfig)
+        public AggregatorStore(LabelAggregation labelConfig)
         {
             _labelConfig = labelConfig;
         }
@@ -242,19 +242,7 @@ namespace OpenTelemetry.Metric.Sdk
     }
 
 
-    class LabelProcessingConfiguration
-    {
-        public bool IncludeAllCallsiteLabels;
-        public Func<string, string> DefaultCallsiteLabelTransform;
-        public LabelConfiguration[] FixedNameLabels = Array.Empty<LabelConfiguration>();
-    }
 
-    class LabelConfiguration
-    {
-        public string LabelName;
-        public bool RequiresSourceLabel;
-        public Func<string, string> ComputeLabelValue;
-    }
 
 
     struct LabelCompilation
@@ -285,7 +273,7 @@ namespace OpenTelemetry.Metric.Sdk
     {
         public static AggregatorLookupFunc<TAggregator> Create<TAggregator>(
             AggregatorStore<TAggregator> aggregatorStore,
-            LabelProcessingConfiguration processingConfig,
+            LabelAggregation processingConfig,
             ReadOnlySpan<(string LabelName, string LabelValue)> labels,
             Action<List<string>> errorLogger)
             where TAggregator : Aggregator, new()
@@ -342,16 +330,21 @@ namespace OpenTelemetry.Metric.Sdk
             }
         }
 
-        private static LabelCompilation CompileVariableLabels(LabelProcessingConfiguration processingConfig, ReadOnlySpan<(string LabelName, string LabelValue)> labels)
+        private static LabelCompilation CompileVariableLabels(LabelAggregation processingConfig, ReadOnlySpan<(string LabelName, string LabelValue)> labels)
         {
+            if(processingConfig.ExcludedLabels.Length != 0)
+            {
+                // TODO
+                throw new NotImplementedException("Excluded labels not yet implemented");
+            }
             LabelCompilation compilation = new LabelCompilation();
             LabelInstruction[] valueComputations;
             {
                 int fixedNames = 0;
-                for (int i = 0; i < processingConfig.FixedNameLabels.Length; i++)
+                for (int i = 0; i < processingConfig.RequiredLabels.Length; i++)
                 {
                     int j = 0;
-                    string knownName = processingConfig.FixedNameLabels[i].LabelName;
+                    string knownName = processingConfig.RequiredLabels[i].LabelName;
                     for (; j < labels.Length; j++)
                     {
                         if (knownName == labels[j].LabelName)
@@ -370,13 +363,12 @@ namespace OpenTelemetry.Metric.Sdk
                 {
                     valueComputations[i].LabelName = labels[i].LabelName;
                     valueComputations[i].SourceIndex = i;
-                    valueComputations[i].ComputeLabelValue = processingConfig.DefaultCallsiteLabelTransform;
                 }
 
                 int curFixedName = 0;
-                for (int i = 0; i < processingConfig.FixedNameLabels.Length; i++)
+                for (int i = 0; i < processingConfig.RequiredLabels.Length; i++)
                 {
-                    LabelConfiguration lc = processingConfig.FixedNameLabels[i];
+                    LabelMapping lc = processingConfig.RequiredLabels[i];
                     Debug.Assert(lc.RequiresSourceLabel || lc.ComputeLabelValue != null);
                     string knownName = lc.LabelName;
                     int vcIndex = -1;
@@ -420,15 +412,15 @@ namespace OpenTelemetry.Metric.Sdk
             return compilation;
         }
 
-        private static LabelCompilation CompileFixedLabels(LabelProcessingConfiguration processingConfig, ReadOnlySpan<(string LabelName, string LabelValue)> labels)
+        private static LabelCompilation CompileFixedLabels(LabelAggregation processingConfig, ReadOnlySpan<(string LabelName, string LabelValue)> labels)
         {
             LabelCompilation compilation = new LabelCompilation();
             LabelInstruction[] valueComputations;
-            int fixedNames = processingConfig.FixedNameLabels.Length;
+            int fixedNames = processingConfig.RequiredLabels.Length;
             valueComputations = new LabelInstruction[fixedNames];
             for (int i = 0; i < fixedNames; i++)
             {
-                LabelConfiguration lc = processingConfig.FixedNameLabels[i];
+                LabelMapping lc = processingConfig.RequiredLabels[i];
                 Debug.Assert(lc.RequiresSourceLabel || lc.ComputeLabelValue != null);
                 valueComputations[i].LabelName = lc.LabelName;
                 valueComputations[i].ComputeLabelValue = lc.ComputeLabelValue;

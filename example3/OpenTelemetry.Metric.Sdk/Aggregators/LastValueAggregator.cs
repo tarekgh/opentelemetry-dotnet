@@ -10,7 +10,8 @@ namespace OpenTelemetry.Metric.Sdk
     {
         private double _lastValue;
 
-        public void Init() { }
+        public override MeasurementAggregation MeasurementAggregation => MeasurementAggregations.LastValue;
+
 
         public override void Update(double value)
         {
@@ -19,7 +20,7 @@ namespace OpenTelemetry.Metric.Sdk
 
         public override AggregationStatistics Collect()
         {
-            return new AggregationStatistics("last", _lastValue.ToString());
+            return new AggregationStatistics(MeasurementAggregation, "last", _lastValue.ToString());
         }
     }
 }

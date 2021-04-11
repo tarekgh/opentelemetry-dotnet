@@ -50,7 +50,7 @@ namespace MyBenchmark
                 item.MeterVersion = "0.0.1";
                 item.InstrumentName = $"MyTest.request_{i}";
                 item.Labels = new MetricLabelSet(("Host", "Test"), ("Mode", "Test"));
-                item.AggregationConfig = new SumAggregation();
+                item.MeasurementAggregation = new SumAggregation();
                 item.AggData = new (string,string)[] {
                     ("sum","100.5"),
                     ("count","100"),

@@ -80,7 +80,7 @@ namespace OpenTelemetry.Metric.Sdk
                         dim = "{_Total}";
                     }
                     items.Add($"    {dim}{Environment.NewLine}" +
-                        $"        {q.AggregationConfig.GetType().Name}: {String.Join("|", aggdata)}");
+                        $"        {q.MeasurementAggregation.GetType().Name}: {String.Join("|", aggdata)}");
                 }
 
                 items.Sort();

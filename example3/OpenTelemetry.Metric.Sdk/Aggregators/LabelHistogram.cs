@@ -9,6 +9,8 @@ namespace OpenTelemetry.Metric.Sdk
     {
         public Dictionary<string, int> bins = new();
 
+        public override MeasurementAggregation MeasurementAggregation => throw new NotImplementedException();
+
         public override void Update(double value)
         {
             throw new NotImplementedException();
@@ -54,7 +56,7 @@ namespace OpenTelemetry.Metric.Sdk
                 ret.Add((bin.Key, $"{bin.Value}"));
             }
 
-            return new AggregationStatistics(ret);
+            return new AggregationStatistics(MeasurementAggregation, ret);
         }
     }
 }

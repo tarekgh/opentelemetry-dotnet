@@ -90,7 +90,7 @@ namespace Microsoft.OpenTelemetry.Export
         {
             var metrics = new List<Metric>();
 
-            if (item.AggregationConfig is SumAggregation)
+            if (item.MeasurementAggregation is SumAggregation)
             {
                 foreach (var d in item.AggData)
                 {
@@ -127,7 +127,7 @@ namespace Microsoft.OpenTelemetry.Export
         {
             var metrics = new List<Metric>();
 
-            if (item.AggregationConfig is SumAggregation)
+            if (item.MeasurementAggregation is SumAggregation)
             {
                 foreach (var d in item.AggData)
                 {
