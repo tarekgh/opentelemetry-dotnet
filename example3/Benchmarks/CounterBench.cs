@@ -18,18 +18,18 @@ namespace Benchmarks
           DefaultJob : .NET Core 5.0.4 (CoreCLR 5.0.421.11614, CoreFX 5.0.421.11614), X64 RyuJIT
 
 
-        |                    Method |        Mean |     Error |   StdDev |  Gen 0 | Gen 1 | Gen 2 | Allocated |
-        |-------------------------- |------------:|----------:|---------:|-------:|------:|------:|----------:|
-        |             Add5xNoLabels |    80.61 ns |  0.339 ns | 0.301 ns |      - |     - |     - |         - |
-        |      Add5xSameLabelNames1 |   174.02 ns |  0.688 ns | 0.610 ns |      - |     - |     - |         - |
-        | Add5xDifferentLabelNames1 | 1,226.38 ns |  8.048 ns | 7.528 ns | 0.2155 |     - |     - |    1360 B |
-        |      Add5xSameLabelNames2 |   227.96 ns |  1.329 ns | 1.243 ns |      - |     - |     - |         - |
-        | Add5xDifferentLabelNames2 | 1,666.12 ns |  5.898 ns | 4.925 ns | 0.2346 |     - |     - |    1480 B |
-        |      Add5xSameLabelNames3 |   283.36 ns |  0.570 ns | 0.533 ns |      - |     - |     - |         - |
-        |      Add5xSameLabelNames4 |   493.46 ns |  1.989 ns | 1.661 ns | 0.1144 |     - |     - |     720 B |
-        | Add5xDifferentLabelNames3 | 2,235.50 ns |  5.835 ns | 4.873 ns | 0.2518 |     - |     - |    1600 B |
-        |       Add5xMultiRankSmall |   914.56 ns |  7.647 ns | 7.153 ns | 0.1297 |     - |     - |     816 B |
-        |       Add5xMultiRankLarge | 1,611.73 ns | 10.248 ns | 9.586 ns | 0.2346 |     - |     - |    1472 B |
+        |                  Method |      Mean |    Error |   StdDev |  Gen 0 | Gen 1 | Gen 2 | Allocated |
+        |------------------------ |----------:|---------:|---------:|-------:|------:|------:|----------:|
+        |             AddNoLabels |  17.45 ns | 0.042 ns | 0.037 ns |      - |     - |     - |         - |
+        |      AddSameLabelNames1 |  33.78 ns | 0.099 ns | 0.088 ns |      - |     - |     - |         - |
+        | AddDifferentLabelNames1 | 232.26 ns | 1.200 ns | 1.002 ns | 0.0432 |     - |     - |     272 B |
+        |      AddSameLabelNames2 |  44.44 ns | 0.186 ns | 0.165 ns |      - |     - |     - |         - |
+        | AddDifferentLabelNames2 | 337.36 ns | 1.465 ns | 1.370 ns | 0.0467 |     - |     - |     296 B |
+        |      AddSameLabelNames3 |  55.19 ns | 0.229 ns | 0.214 ns |      - |     - |     - |         - |
+        |      AddSameLabelNames4 | 101.45 ns | 0.259 ns | 0.217 ns | 0.0229 |     - |     - |     144 B |
+        | AddDifferentLabelNames3 | 435.11 ns | 2.107 ns | 1.971 ns | 0.0505 |     - |     - |     320 B |
+        |       AddMultiRankSmall | 223.43 ns | 1.084 ns | 1.014 ns | 0.0412 |     - |     - |     260 B |
+        |       AddMultiRankLarge | 475.21 ns | 2.040 ns | 1.808 ns | 0.0687 |     - |     - |     432 B |
     */
 
     [MemoryDiagnoser]
@@ -52,108 +52,85 @@ namespace Benchmarks
                 .Include("GroceryStoreExample")
                 .Build();
 
-        
+        static string[] s_values = { "1", "2" };
+        static int s_counter;
+
         [Benchmark]
-        public void Add5xNoLabels()
+        public void AddNoLabels()
         {
-            noLabels.Add(1);
-            noLabels.Add(1);
-            noLabels.Add(1);
-            noLabels.Add(1);
             noLabels.Add(1);
         }
 
         [Benchmark]
-        public void Add5xSameLabelNames1()
+        public void AddSameLabelNames1()
         {
-            sameNames1.Add(1, ("Color", "Red"));
-            sameNames1.Add(1, ("Color", "Blue"));
-            sameNames1.Add(1, ("Color", "Green"));
-            sameNames1.Add(1, ("Color", "Orange"));
-            sameNames1.Add(1, ("Color", "Yellow"));
+            sameNames1.Add(1, ("Color", s_values[s_counter++ % 2]));
         }
 
         
         [Benchmark]
-        public void Add5xDifferentLabelNames1()
+        public void AddDifferentLabelNames1()
         {
-            labels1.Add(1, ("ColorR", "Red"));
-            labels1.Add(1, ("ColorB", "Blue"));
-            labels1.Add(1, ("ColorG", "Green"));
-            labels1.Add(1, ("ColorO", "Orange"));
-            labels1.Add(1, ("ColorY", "Yellow"));
+            labels1.Add(1, (s_values[s_counter++ % 2], "Red"));
         }
 
         [Benchmark]
-        public void Add5xSameLabelNames2()
+        public void AddSameLabelNames2()
         {
-            sameNames2.Add(1, ("Color", "Red"), ("Size", "1"));
-            sameNames2.Add(1, ("Color", "Blue"), ("Size", "1"));
-            sameNames2.Add(1, ("Color", "Green"), ("Size", "1"));
-            sameNames2.Add(1, ("Color", "Orange"), ("Size", "1"));
-            sameNames2.Add(1, ("Color", "Yellow"), ("Size", "1"));
+            sameNames2.Add(1, ("Color", s_values[s_counter++ % 2]), ("Size", "1"));
         }
 
         
         [Benchmark]
-        public void Add5xDifferentLabelNames2()
+        public void AddDifferentLabelNames2()
         {
-            labels2.Add(1, ("ColorR", "Red"), ("Size", "1"));
-            labels2.Add(1, ("ColorB", "Blue"), ("Size", "1"));
-            labels2.Add(1, ("ColorG", "Green"), ("Size", "1"));
-            labels2.Add(1, ("ColorO", "Orange"), ("Size", "1"));
-            labels2.Add(1, ("ColorY", "Yellow"), ("Size", "1"));
+            labels2.Add(1, (s_values[s_counter++ % 2], "Red"), ("Size", "1"));
         }
 
         [Benchmark]
-        public void Add5xSameLabelNames3()
+        public void AddSameLabelNames3()
         {
-            sameNames3.Add(1, ("Color", "Red"), ("Size", "1"), ("Zoo","True"));
-            sameNames3.Add(1, ("Color", "Blue"), ("Size", "1"), ("Zoo", "True"));
-            sameNames3.Add(1, ("Color", "Green"), ("Size", "1"), ("Zoo", "True"));
-            sameNames3.Add(1, ("Color", "Orange"), ("Size", "1"), ("Zoo", "True"));
-            sameNames3.Add(1, ("Color", "Yellow"), ("Size", "1"), ("Zoo", "True"));
+            sameNames3.Add(1, ("Color", s_values[s_counter++ % 2]), ("Size", "1"), ("Zoo","True"));
         }
 
         [Benchmark]
-        public void Add5xSameLabelNames4()
+        public void AddSameLabelNames4()
         {
-            sameNames4.Add(1, ("Color", "Red"), ("Size", "1"), ("Zoo", "True"), ("Zoo2", "True"));
-            sameNames4.Add(1, ("Color", "Blue"), ("Size", "1"), ("Zoo", "True"), ("Zoo2", "True"));
-            sameNames4.Add(1, ("Color", "Green"), ("Size", "1"), ("Zoo", "True"), ("Zoo2", "True"));
-            sameNames4.Add(1, ("Color", "Orange"), ("Size", "1"), ("Zoo", "True"), ("Zoo2", "True"));
-            sameNames4.Add(1, ("Color", "Yellow"), ("Size", "1"), ("Zoo", "True"), ("Zoo2", "True"));
+            sameNames4.Add(1, ("Color", s_values[s_counter++ % 2]), ("Size", "1"), ("Zoo", "True"), ("Zoo2", "True"));
         }
 
         
         [Benchmark]
-        public void Add5xDifferentLabelNames3()
+        public void AddDifferentLabelNames3()
         {
-            labels3.Add(1, ("ColorR", "Red"), ("Size", "1"), ("Zoo", "True"));
-            labels3.Add(1, ("ColorB", "Blue"), ("Size", "1"), ("Zoo", "True"));
-            labels3.Add(1, ("ColorG", "Green"), ("Size", "1"), ("Zoo", "True"));
-            labels3.Add(1, ("ColorO", "Orange"), ("Size", "1"), ("Zoo", "True"));
-            labels3.Add(1, ("ColorY", "Yellow"), ("Size", "1"), ("Zoo", "True"));
+            labels3.Add(1, (s_values[s_counter++ % 2], "Red"), ("Size", "1"), ("Zoo", "True"));
         }
 
         [Benchmark]
-        public void Add5xMultiRankSmall()
+        public void AddMultiRankSmall()
         {
-            multiRankSmall.Add(1);
-            multiRankSmall.Add(1, ("Color", "Blue"));
-            multiRankSmall.Add(1, ("Color", "Green"), ("Size", "1"));
-            multiRankSmall.Add(1, ("Color", "Orange"), ("Size", "1"));
-            multiRankSmall.Add(1, ("Color", "Yellow"), ("Size", "1"));
+            if(s_counter++ % 2 == 0)
+            {
+                multiRankSmall.Add(1);
+            }
+            else
+            {
+                multiRankSmall.Add(1, ("Color", "Blue"));
+            }
+
         }
 
         [Benchmark]
-        public void Add5xMultiRankLarge()
+        public void AddMultiRankLarge()
         {
-            multiRankLarge.Add(1, ("Extra", "1"));
-            multiRankLarge.Add(1, ("Color", "Blue"), ("Extra", "1"), ("Extra2", "2"));
-            multiRankLarge.Add(1, ("Color", "Green"), ("Size", "1"), ("Extra", "1"), ("Extra2", "2"));
-            multiRankLarge.Add(1, ("Color", "Orange"), ("Size", "1"), ("Extra", "1"), ("Extra2", "2"));
-            multiRankLarge.Add(1, ("Color", "Yellow"), ("Size", "1"), ("Extra", "1"), ("Extra2", "2"));
+            if (s_counter++ % 2 == 0)
+            {
+                multiRankLarge.Add(1, ("Extra", "1"));
+            }
+            else
+            {
+                multiRankLarge.Add(1, ("Color", "Green"), ("Size", "1"), ("Extra", "1"), ("Extra2", "2"));
+            }
         }
     }
 }
