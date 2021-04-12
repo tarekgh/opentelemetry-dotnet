@@ -1,6 +1,6 @@
 using System;
+using Microsoft.OpenTelemetry.Export;
 using OpenTelemetry.Metric.Sdk;
-using Microsoft.Diagnostics.Metric;
 
 namespace GroceryStoreExample
 {
@@ -11,8 +11,8 @@ namespace GroceryStoreExample
             // Create Metric Pipeline
             var pipeline = new MetricProvider()
                 .Name("OrderPipeline1")
-                .Include("GroceryStoreExample")
-                .AddExporter(new ConsoleExporter("export1", 6000))
+                .Include("GroceryStore")
+                .AddExporter(new PrometheusExporter())
                 .Build();
 
 
@@ -24,6 +24,8 @@ namespace GroceryStoreExample
 
 
             // Shutdown Metric Pipeline
+            Console.WriteLine("Press Enter to exit");
+            Console.ReadLine();
             pipeline.Stop();
         }
     }

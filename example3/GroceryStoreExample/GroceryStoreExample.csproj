@@ -1,6 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <ProjectReference Include="..\Microsoft.OpenTelemetry.Exporter.Prometheus\Microsoft.OpenTelemetry.Exporter.Prometheus.csproj" />
     <ProjectReference Include="..\OpenTelemetry.Metric.Api\OpenTelemetry.Metric.Api.csproj" />
     <ProjectReference Include="..\OpenTelemetry.Metric.Sdk\OpenTelemetry.Metric.Sdk.csproj" />
     <ProjectReference Include="..\Microsoft.Diagnostics.Metric\Microsoft.Diagnostics.Metric.csproj" />
