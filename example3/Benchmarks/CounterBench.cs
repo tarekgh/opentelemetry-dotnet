@@ -18,18 +18,20 @@ namespace Benchmarks
           DefaultJob : .NET Core 5.0.4 (CoreCLR 5.0.421.11614, CoreFX 5.0.421.11614), X64 RyuJIT
 
 
-        |                  Method |      Mean |    Error |   StdDev |  Gen 0 | Gen 1 | Gen 2 | Allocated |
-        |------------------------ |----------:|---------:|---------:|-------:|------:|------:|----------:|
-        |             AddNoLabels |  17.45 ns | 0.042 ns | 0.037 ns |      - |     - |     - |         - |
-        |      AddSameLabelNames1 |  33.78 ns | 0.099 ns | 0.088 ns |      - |     - |     - |         - |
-        | AddDifferentLabelNames1 | 232.26 ns | 1.200 ns | 1.002 ns | 0.0432 |     - |     - |     272 B |
-        |      AddSameLabelNames2 |  44.44 ns | 0.186 ns | 0.165 ns |      - |     - |     - |         - |
-        | AddDifferentLabelNames2 | 337.36 ns | 1.465 ns | 1.370 ns | 0.0467 |     - |     - |     296 B |
-        |      AddSameLabelNames3 |  55.19 ns | 0.229 ns | 0.214 ns |      - |     - |     - |         - |
-        |      AddSameLabelNames4 | 101.45 ns | 0.259 ns | 0.217 ns | 0.0229 |     - |     - |     144 B |
-        | AddDifferentLabelNames3 | 435.11 ns | 2.107 ns | 1.971 ns | 0.0505 |     - |     - |     320 B |
-        |       AddMultiRankSmall | 223.43 ns | 1.084 ns | 1.014 ns | 0.0412 |     - |     - |     260 B |
-        |       AddMultiRankLarge | 475.21 ns | 2.040 ns | 1.808 ns | 0.0687 |     - |     - |     432 B |
+        |                  Method |       Mean |      Error |     StdDev |  Gen 0 | Gen 1 | Gen 2 | Allocated |
+        |------------------------ |-----------:|-----------:|-----------:|-------:|------:|------:|----------:|
+        |             AddNoLabels |  19.919 ns |  0.0100 ns |  0.0083 ns |      - |     - |     - |         - |
+        |              RandomNext |   7.727 ns |  0.0043 ns |  0.0038 ns |      - |     - |     - |         - |
+        |    DistributionNoLabels |  36.646 ns |  0.1381 ns |  0.1291 ns |      - |     - |     - |         - |
+        |      AddSameLabelNames1 |  29.579 ns |  0.0117 ns |  0.0104 ns |      - |     - |     - |         - |
+        | AddDifferentLabelNames1 | 229.167 ns |  0.4925 ns |  0.4113 ns | 0.0548 |     - |     - |     344 B |
+        |      AddSameLabelNames2 |  38.686 ns |  0.0373 ns |  0.0312 ns |      - |     - |     - |         - |
+        | AddDifferentLabelNames2 | 335.541 ns |  0.8747 ns |  0.7754 ns | 0.0587 |     - |     - |     368 B |
+        |      AddSameLabelNames3 |  53.148 ns |  0.4157 ns |  0.3889 ns |      - |     - |     - |         - |
+        |      AddSameLabelNames4 | 103.566 ns |  1.0291 ns |  0.9626 ns | 0.0229 |     - |     - |     144 B |
+        | AddDifferentLabelNames3 | 439.220 ns |  2.3239 ns |  2.1738 ns | 0.0625 |     - |     - |     392 B |
+        |       AddMultiRankSmall | 210.102 ns |  1.9469 ns |  1.8212 ns | 0.0420 |     - |     - |     264 B |
+        |       AddMultiRankLarge | 510.197 ns | 10.0853 ns | 12.3856 ns | 0.0801 |     - |     - |     504 B |
     */
 
     [MemoryDiagnoser]
@@ -37,6 +39,7 @@ namespace Benchmarks
     public class CounterBench
     {
         static Meter m = new Meter("GroceryStoreExample");
+        static Distribution d = m.CreateDistribution("Distribution");
         static Counter noLabels = m.CreateCounter("NoLabels");
         static Counter sameNames4 = m.CreateCounter("SameNames4");
         static Counter sameNames3 = m.CreateCounter("SameNames3");
@@ -54,11 +57,24 @@ namespace Benchmarks
 
         static string[] s_values = { "1", "2" };
         static int s_counter;
+        static Random s_random = new Random();
 
         [Benchmark]
         public void AddNoLabels()
         {
             noLabels.Add(1);
+        }
+
+        [Benchmark]
+        public void RandomNext()
+        {
+            s_random.NextDouble();
+        }
+
+        [Benchmark]
+        public void DistributionNoLabels()
+        {
+            d.Record(s_random.NextDouble());
         }
 
         [Benchmark]

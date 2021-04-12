@@ -20,13 +20,13 @@ namespace OpenTelemetry.Metric.Sdk
 
 
     sealed class InstrumentState<TAggregator> : InstrumentState
-        where TAggregator : Aggregator, new()
+        where TAggregator : Aggregator
     {
         AggregatorStore<TAggregator> _aggregatorStore;
 
-        public InstrumentState(LabelAggregation labelConfig)
+        public InstrumentState(LabelAggregation labelConfig, Func<TAggregator> createAggregatorFunc)
         {
-            _aggregatorStore = new AggregatorStore<TAggregator>(labelConfig);
+            _aggregatorStore = new AggregatorStore<TAggregator>(labelConfig, createAggregatorFunc);
         }
 
         public override void Collect(MeterInstrument instrument, Action<LabeledAggregationStatistics> aggregationVisitFunc)

@@ -60,26 +60,31 @@ namespace OpenTelemetry.Metric.Sdk
         internal InstrumentState Build()
         {
             InstrumentAggregation defaultAgg = _defaultAggBuilder.Build();
-            Type aggregatorType = GetAggregatorType(defaultAgg.MeasurementAggregation);
+            Func<Aggregator> createAggregatorFunc = GetAggregatorFactory(defaultAgg.MeasurementAggregation);
+            Type aggregatorType = createAggregatorFunc.GetType().GenericTypeArguments[0];
             Type instrumentStateType = typeof(InstrumentState<>).MakeGenericType(aggregatorType);
-            return (InstrumentState)Activator.CreateInstance(instrumentStateType, defaultAgg.LabelAggregation);
+            return (InstrumentState)Activator.CreateInstance(instrumentStateType, defaultAgg.LabelAggregation, createAggregatorFunc);
         }
 
-        static Type GetAggregatorType(MeasurementAggregation config)
+        static Func<Aggregator> GetAggregatorFactory(MeasurementAggregation config)
         {
             if (config is SumAggregation)
             {
-                return typeof(SumCountMinMax);
+                return () => new SumCountMinMax();
             }
             else if (config is LastValueAggregation)
             {
-                return typeof(LastValue);
+                return () => new LastValue();
+            }
+            else if (config is PercentileAggregation percentileConfig)
+            {
+                return () => new ExponentialHistogram(percentileConfig);
             }
             else
             {
                 // for any unsupported aggregations this SDK converts it to SumCountMinMax
                 // this is a flexible policy we can make it do whatever we want
-                return typeof(SumCountMinMax);
+                return () => new SumCountMinMax();
             }
         }
     }
@@ -125,6 +130,13 @@ namespace OpenTelemetry.Metric.Sdk
             else if (instrument is Gauge)
             {
                 return MeasurementAggregations.LastValue;
+            }
+            else if (instrument is Distribution)
+            {
+                return new PercentileAggregation()
+                {
+                    Percentiles = new double[] { 50, 95, 99 }
+                };
             }
             else
             {

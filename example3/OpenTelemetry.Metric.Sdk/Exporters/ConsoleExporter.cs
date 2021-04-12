@@ -73,14 +73,14 @@ namespace OpenTelemetry.Metric.Sdk
 
                 foreach (var q in group)
                 {
-                    var aggdata = q.AggData.Select(k => $"{k.name}={k.value}");
+                    var aggdata = q.AggregationStatistics.Statistics.Select(k => $"{k.name}={k.value}");
                     var dim = String.Join( " | ", q.Labels.GetLabels().Select(k => $"{k.name}={k.value}"));
                     if (dim == "")
                     {
                         dim = "{_Total}";
                     }
                     items.Add($"    {dim}{Environment.NewLine}" +
-                        $"        {q.MeasurementAggregation.GetType().Name}: {String.Join("|", aggdata)}");
+                        $"        {q.AggregationStatistics.MeasurementAggregation.GetType().Name}: {String.Join("|", aggdata)}");
                 }
 
                 items.Sort();

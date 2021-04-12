@@ -500,7 +500,7 @@ namespace UnitTest
         {
             ExportItem[] items = provider.Collect();
             ExportItem item = items.Where(i => i.MeterName == c.Meter.Name && i.InstrumentName == c.Name && i.Labels.Labels.SequenceEqual(labels)).First();
-            Assert.Contains(item.AggData, d => d.name == "sum" && d.value == expectedSum.ToString());
+            Assert.Contains(item.AggregationStatistics.Statistics, d => d.name == "sum" && d.value == expectedSum.ToString());
         }
     }
 

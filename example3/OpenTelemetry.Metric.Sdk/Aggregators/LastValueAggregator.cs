@@ -20,7 +20,7 @@ namespace OpenTelemetry.Metric.Sdk
 
         public override AggregationStatistics Collect()
         {
-            return new AggregationStatistics(MeasurementAggregation, "last", _lastValue.ToString());
+            return new LastValueStatistics(_lastValue);
         }
     }
 }

@@ -90,9 +90,9 @@ namespace Microsoft.OpenTelemetry.Export
         {
             var metrics = new List<Metric>();
 
-            if (item.MeasurementAggregation is SumAggregation)
+            if (item.AggregationStatistics.MeasurementAggregation is SumAggregation)
             {
-                foreach (var d in item.AggData)
+                foreach (var d in item.AggregationStatistics.Statistics)
                 {
                     Metric metric = new Metric();
                     metric.Name = $"{item.InstrumentName}{{_{d.name}}}";
@@ -127,9 +127,9 @@ namespace Microsoft.OpenTelemetry.Export
         {
             var metrics = new List<Metric>();
 
-            if (item.MeasurementAggregation is SumAggregation)
+            if (item.AggregationStatistics.MeasurementAggregation is SumAggregation)
             {
-                foreach (var d in item.AggData)
+                foreach (var d in item.AggregationStatistics.Statistics)
                 {
                     Metric metric = new Metric();
                     metric.Name = $"{item.InstrumentName}{{_{d.name}}}";

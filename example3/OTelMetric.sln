@@ -25,6 +25,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTelemetry.Metric.Api2",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.OpenTelemetry.Exporter.Prometheus", "Microsoft.OpenTelemetry.Exporter.Prometheus\Microsoft.OpenTelemetry.Exporter.Prometheus.csproj", "{8F06EEEB-D00E-44C9-8FBF-9AC15FAA1308}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PercentileExample", "PercentileExample\PercentileExample.csproj", "{C9608FE0-DDF2-433E-84C2-2D8AB753C428}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -167,6 +169,18 @@ Global
 		{8F06EEEB-D00E-44C9-8FBF-9AC15FAA1308}.Release|x64.Build.0 = Release|Any CPU
 		{8F06EEEB-D00E-44C9-8FBF-9AC15FAA1308}.Release|x86.ActiveCfg = Release|Any CPU
 		{8F06EEEB-D00E-44C9-8FBF-9AC15FAA1308}.Release|x86.Build.0 = Release|Any CPU
+		{C9608FE0-DDF2-433E-84C2-2D8AB753C428}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9608FE0-DDF2-433E-84C2-2D8AB753C428}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9608FE0-DDF2-433E-84C2-2D8AB753C428}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C9608FE0-DDF2-433E-84C2-2D8AB753C428}.Debug|x64.Build.0 = Debug|Any CPU
+		{C9608FE0-DDF2-433E-84C2-2D8AB753C428}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C9608FE0-DDF2-433E-84C2-2D8AB753C428}.Debug|x86.Build.0 = Debug|Any CPU
+		{C9608FE0-DDF2-433E-84C2-2D8AB753C428}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9608FE0-DDF2-433E-84C2-2D8AB753C428}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9608FE0-DDF2-433E-84C2-2D8AB753C428}.Release|x64.ActiveCfg = Release|Any CPU
+		{C9608FE0-DDF2-433E-84C2-2D8AB753C428}.Release|x64.Build.0 = Release|Any CPU
+		{C9608FE0-DDF2-433E-84C2-2D8AB753C428}.Release|x86.ActiveCfg = Release|Any CPU
+		{C9608FE0-DDF2-433E-84C2-2D8AB753C428}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

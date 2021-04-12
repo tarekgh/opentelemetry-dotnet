@@ -28,6 +28,17 @@ namespace OpenTelemetry.Metric.Sdk
     {
     }
 
+
+
+    public class PercentileAggregation : MeasurementAggregation
+    {
+        public double[] Percentiles { get; set; }
+        public double MaxRelativeError { get; set; } = 0.001;
+        public double MinValue { get; set; } = double.MinValue;
+        public double MaxValue { get; set; } = double.MaxValue;
+
+    }
+
     public class SumAggregation : MeasurementAggregation { }
 
     public class LastValueAggregation : MeasurementAggregation { }

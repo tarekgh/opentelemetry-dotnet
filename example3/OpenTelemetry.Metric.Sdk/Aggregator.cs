@@ -11,7 +11,7 @@ namespace OpenTelemetry.Metric.Sdk
     {
 
         // This can be called concurrently with Collect()
-        public abstract void Update(double num);
+        public abstract void Update(double measurement);
 
         // This can be called concurrently with Update()
         public abstract AggregationStatistics Collect();
@@ -19,24 +19,82 @@ namespace OpenTelemetry.Metric.Sdk
         public abstract MeasurementAggregation MeasurementAggregation { get; }
     }
 
-    struct AggregationStatistics
+    public abstract class AggregationStatistics
     {
-        public AggregationStatistics(MeasurementAggregation measurementAggregation, IEnumerable<(string Key, string Value)> data)
+        protected AggregationStatistics(MeasurementAggregation measurementAggregation)
         {
-            Statistics = data;
             MeasurementAggregation = measurementAggregation;
         }
 
-        public AggregationStatistics(MeasurementAggregation measurementAggregation, params (string Key, string Value)[] statistics) :
-            this(measurementAggregation, (IEnumerable<(string Key, string Value)>)statistics)
-        { }
-
-        public AggregationStatistics(MeasurementAggregation measurementAggregation, string key, string value) :
-            this(measurementAggregation, new (string Key, string Value)[] { (key, value) })
-        { }
-
-        public IEnumerable<(string Key, string Value)> Statistics { get; }
+        public abstract IEnumerable<(string name, string value)> Statistics { get; }
         public MeasurementAggregation MeasurementAggregation { get; }
+    }
+
+    public struct QuantileValue
+    {
+        public QuantileValue(double quantile, double value)
+        {
+            Quantile = quantile;
+            Value = value;
+        }
+        public double Quantile { get; }
+        public double Value { get; }
+    }
+
+    public class DistributionStatistics : AggregationStatistics
+    {
+        internal DistributionStatistics(MeasurementAggregation measurementAggregation, QuantileValue[] quantiles) :
+            base(measurementAggregation)
+        {
+            Quantiles = quantiles;
+        }
+
+        public QuantileValue[] Quantiles { get; }
+
+        public override IEnumerable<(string name, string value)> Statistics => Quantiles.Select(qv => ($"quantile_{qv.Quantile}", qv.Value.ToString()));
+    }
+
+    public class SumCountMinMaxStatistics : AggregationStatistics
+    {
+        public SumCountMinMaxStatistics( double sum, double count, double min, double max) :
+            base(MeasurementAggregations.Sum)
+        {
+            Sum = sum;
+            Count = count;
+            Min = min;
+            Max = max;
+        }
+
+        public double Sum { get; }
+        public double Count { get; }
+        public double Min { get; }
+        public double Max { get; }
+
+        public override IEnumerable<(string name, string value)> Statistics =>
+            new (string name, string value)[]
+            {
+                ("sum", Sum.ToString()),
+                ("count", Count.ToString()),
+                ("min", Min.ToString()),
+                ("max", Max.ToString())
+            };
+    }
+
+    class LastValueStatistics : AggregationStatistics
+    {
+        internal LastValueStatistics(double lastValue) :
+            base(MeasurementAggregations.LastValue)
+        {
+            LastValue = lastValue;
+        }
+
+        public double LastValue { get; }
+
+        public override IEnumerable<(string name, string value)> Statistics =>
+            new(string name, string value)[]
+            {
+                ("last", LastValue.ToString())
+            };
     }
 
     class LabeledAggregationStatistics
@@ -62,7 +120,6 @@ namespace OpenTelemetry.Metric.Sdk
         }
 
         public IEnumerable<(string LabelName, string LabelValue)> Labels => _labels;
-        public IEnumerable<(string Key, string Value)> Statistics => _aggStats.Statistics;
-        public MeasurementAggregation MeasurementAggregation => _aggStats.MeasurementAggregation;
+        public AggregationStatistics AggregationStatistics => _aggStats;
     }
 }

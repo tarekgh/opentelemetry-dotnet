@@ -11,7 +11,7 @@ using Microsoft.Diagnostics.Metric;
 
 namespace OpenTelemetry.Metric.Sdk
 {
-    class AggregatorStore<TAggregator> where TAggregator : Aggregator, new()
+    class AggregatorStore<TAggregator> where TAggregator : Aggregator
     {
         // this union can be:
         // null
@@ -24,10 +24,12 @@ namespace OpenTelemetry.Metric.Sdk
         volatile object _stateUnion;
         volatile AggregatorLookupFunc<TAggregator> _cachedLookupFunc;
         LabelAggregation _labelConfig;
+        public Func<TAggregator> CreateAggregatorFunc { get; }
 
-        public AggregatorStore(LabelAggregation labelConfig)
+        public AggregatorStore(LabelAggregation labelConfig, Func<TAggregator> createAggregator)
         {
             _labelConfig = labelConfig;
+            CreateAggregatorFunc = createAggregator;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
@@ -97,7 +99,7 @@ namespace OpenTelemetry.Metric.Sdk
                 object state = _stateUnion;
                 if (state == null)
                 {
-                    var newState = new TAggregator();
+                    var newState = CreateAggregatorFunc();
                     Interlocked.CompareExchange(ref _stateUnion, newState, null);
                     continue;
                 }
@@ -107,7 +109,7 @@ namespace OpenTelemetry.Metric.Sdk
                 }
                 else if (state is MultiSizeLabelNameDictionary<TAggregator> multiSizeState)
                 {
-                    return multiSizeState.GetNoLabelAggregator();
+                    return multiSizeState.GetNoLabelAggregator(CreateAggregatorFunc);
                 }
                 else
                 {
@@ -148,7 +150,7 @@ namespace OpenTelemetry.Metric.Sdk
         }
     }
 
-    class MultiSizeLabelNameDictionary<TAggregator> where TAggregator : Aggregator, new()
+    class MultiSizeLabelNameDictionary<TAggregator> where TAggregator : Aggregator
     {
         TAggregator NoLabelAggregator;
         FixedSizeLabelNameDictionary<StringSequence1, TAggregator> Label1;
@@ -180,11 +182,11 @@ namespace OpenTelemetry.Metric.Sdk
             }
         }
 
-        public TAggregator GetNoLabelAggregator()
+        public TAggregator GetNoLabelAggregator(Func<TAggregator> createFunc)
         {
             if (NoLabelAggregator == null)
             {
-                Interlocked.CompareExchange(ref NoLabelAggregator, new TAggregator(), null);
+                Interlocked.CompareExchange(ref NoLabelAggregator, createFunc(), null);
             }
             return NoLabelAggregator;
         }
@@ -276,7 +278,7 @@ namespace OpenTelemetry.Metric.Sdk
             LabelAggregation processingConfig,
             ReadOnlySpan<(string LabelName, string LabelValue)> labels,
             Action<List<string>> errorLogger)
-            where TAggregator : Aggregator, new()
+            where TAggregator : Aggregator
         {
             LabelCompilation compilation;
             if (!processingConfig.IncludeAllCallsiteLabels)
@@ -309,24 +311,28 @@ namespace OpenTelemetry.Metric.Sdk
                 case 1:
                     StringSequence1 names1 = new StringSequence1(instructions[0].LabelName);
                     ConcurrentDictionary<StringSequence1, TAggregator> valuesDict1 = aggregatorStore.GetLabelValuesDictionary(names1);
-                    return (ReadOnlySpan<(string LabelName, string LabelValue)> l, ref TAggregator aggregator) =>
-                        LabelInstructionInterpretter.GetAggregator(expectedLabels, instructions, valuesDict1, l, ref aggregator);
+                    LabelInstructionInterpretter<StringSequence1, TAggregator> interpretter1 = new LabelInstructionInterpretter<StringSequence1, TAggregator>(
+                        expectedLabels, instructions, valuesDict1, aggregatorStore.CreateAggregatorFunc);
+                    return interpretter1.GetAggregator;
                 case 2:
                     StringSequence2 names2 = new StringSequence2(instructions[0].LabelName, instructions[1].LabelName);
                     ConcurrentDictionary<StringSequence2, TAggregator> valuesDict2 = aggregatorStore.GetLabelValuesDictionary(names2);
-                    return (ReadOnlySpan<(string LabelName, string LabelValue)> l, ref TAggregator aggregator) =>
-                        LabelInstructionInterpretter.GetAggregator(expectedLabels, instructions, valuesDict2, l, ref aggregator);
+                    LabelInstructionInterpretter<StringSequence2, TAggregator> interpretter2 = new LabelInstructionInterpretter<StringSequence2, TAggregator>(
+                        expectedLabels, instructions, valuesDict2, aggregatorStore.CreateAggregatorFunc);
+                    return interpretter2.GetAggregator;
                 case 3:
                     StringSequence3 names3 = new StringSequence3(instructions[0].LabelName, instructions[1].LabelName,
                         instructions[2].LabelName);
                     ConcurrentDictionary<StringSequence3, TAggregator> valuesDict3 = aggregatorStore.GetLabelValuesDictionary(names3);
-                    return (ReadOnlySpan<(string LabelName, string LabelValue)> l, ref TAggregator aggregator) =>
-                        LabelInstructionInterpretter.GetAggregator(expectedLabels, instructions, valuesDict3, l, ref aggregator);
+                    LabelInstructionInterpretter<StringSequence3, TAggregator> interpretter3 = new LabelInstructionInterpretter<StringSequence3, TAggregator>(
+                        expectedLabels, instructions, valuesDict3, aggregatorStore.CreateAggregatorFunc);
+                    return interpretter3.GetAggregator;
                 default:
                     StringSequenceMany namesMany = new StringSequenceMany(instructions.Select(instr => instr.LabelName).ToArray());
                     ConcurrentDictionary<StringSequenceMany, TAggregator> valuesDictMany = aggregatorStore.GetLabelValuesDictionary(namesMany);
-                    return (ReadOnlySpan<(string LabelName, string LabelValue)> l, ref TAggregator aggregator) =>
-                        LabelInstructionInterpretter.GetAggregator(expectedLabels, instructions, valuesDictMany, l, ref aggregator);
+                    LabelInstructionInterpretter<StringSequenceMany, TAggregator> interpretter4 = new LabelInstructionInterpretter<StringSequenceMany, TAggregator>(
+                        expectedLabels, instructions, valuesDictMany, aggregatorStore.CreateAggregatorFunc);
+                    return interpretter4.GetAggregator;
             }
         }
 
@@ -453,7 +459,7 @@ namespace OpenTelemetry.Metric.Sdk
             ReadOnlySpan<(string LabelName, string LabelValue)> labels,
             List<string> errors,
             Action<List<string>> errorLogger)
-            where TAggregator : Aggregator, new()
+            where TAggregator : Aggregator
         {
 
             string[] expectedLabelNames = new string[labels.Length];
@@ -480,19 +486,34 @@ namespace OpenTelemetry.Metric.Sdk
         }
     }
 
-    class LabelInstructionInterpretter
+    class LabelInstructionInterpretter<TStringSequence, TAggregator>
+        where TStringSequence : IStringSequence, IEquatable<TStringSequence>
+        where TAggregator : Aggregator
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-        public static bool GetAggregator<TStringSequence, TAggregator>(
+        int _expectedLabelCount;
+        LabelInstruction[] _instructions;
+        ConcurrentDictionary<TStringSequence, TAggregator> _valuesDict;
+        Func<TStringSequence,TAggregator> _createAggregator;
+
+
+        public LabelInstructionInterpretter(
             int expectedLabelCount,
             LabelInstruction[] instructions,
             ConcurrentDictionary<TStringSequence, TAggregator> valuesDict,
+            Func<TAggregator> createAggregator)
+        {
+            _expectedLabelCount = expectedLabelCount;
+            _instructions = instructions;
+            _valuesDict = valuesDict;
+            _createAggregator = _ => createAggregator();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+        public bool GetAggregator(
             ReadOnlySpan<(string labelName, string labelValue)> labels,
             ref TAggregator aggregator)
-            where TStringSequence : IStringSequence, IEquatable<TStringSequence>
-            where TAggregator : Aggregator, new()
         {
-            if(labels.Length != expectedLabelCount)
+            if(labels.Length != _expectedLabelCount)
             {
                 return false;
             }
@@ -500,13 +521,13 @@ namespace OpenTelemetry.Metric.Sdk
             TStringSequence values = default;
             if(values is StringSequenceMany)
             {
-                values = (TStringSequence)(object)new StringSequenceMany(new string[expectedLabelCount]);
+                values = (TStringSequence)(object)new StringSequenceMany(new string[_expectedLabelCount]);
             }
             Span<string> valuesSpan = values.AsSpan();
 
-            for(int i = 0; i < instructions.Length; i++)
+            for(int i = 0; i < _instructions.Length; i++)
             {
-                LabelInstruction instr = instructions[i];
+                LabelInstruction instr = _instructions[i];
 
                 if (instr.ComputeLabelValue != null)
                 {
@@ -531,14 +552,14 @@ namespace OpenTelemetry.Metric.Sdk
                 }
             }
 
-            aggregator = valuesDict.GetOrAdd(values, v => new TAggregator());
+            aggregator = _valuesDict.GetOrAdd(values, _createAggregator);
             return true;
         }
     }
 
     class FixedSizeLabelNameDictionary<TStringSequence, TAggregator> :
         ConcurrentDictionary<TStringSequence, ConcurrentDictionary<TStringSequence, TAggregator>>
-        where TAggregator : Aggregator, new()
+        where TAggregator : Aggregator
         where TStringSequence : IStringSequence, IEquatable<TStringSequence>
     {
         public void Collect(Action<LabeledAggregationStatistics> visitFunc)

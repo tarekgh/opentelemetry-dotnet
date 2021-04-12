@@ -32,12 +32,7 @@ namespace OpenTelemetry.Metric.Sdk
 
         public override AggregationStatistics Collect()
         {
-            return new AggregationStatistics(
-                MeasurementAggregation,
-                ("count", $"{count}"),
-                ("sum", $"{sum}"),
-                ("min", $"{min}"),
-                ("max", $"{max}"));
+            return new SumCountMinMaxStatistics(sum, count, min, max);
         }
     }
 }

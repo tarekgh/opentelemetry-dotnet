@@ -56,7 +56,7 @@ namespace OpenTelemetry.Metric.Sdk
                 ret.Add((bin.Key, $"{bin.Value}"));
             }
 
-            return new AggregationStatistics(MeasurementAggregation, ret);
+            throw new NotImplementedException();
         }
     }
 }

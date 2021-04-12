@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -84,19 +85,38 @@ namespace Microsoft.OpenTelemetry.Export
             }
             foreach (ExportItem e in metrics)
             {
-                StringBuilder labelBuilder = new StringBuilder();
-                if (e.Labels.Labels.Any())
+                
+                IEnumerable<(string name, string value)> labels = e.Labels.Labels;
+                if (e.AggregationStatistics is DistributionStatistics dStats)
                 {
-                    labelBuilder.Append("{");
-                    labelBuilder.Append(string.Join(",", e.Labels.Labels.Select(((string name, string value) label) => $"{label.name}=\"{label.value}\"")));
-                    labelBuilder.Append("}");
+                    foreach (QuantileValue qv in dStats.Quantiles)
+                    {
+                        string label = FormatLabels(labels.Append(("quantile", qv.Quantile.ToString())));
+                        builder.Append($"{e.InstrumentName}{label} {qv.Value}\n");
+                    }
                 }
-                string label = labelBuilder.ToString();
-                foreach(var (statName,val) in e.AggData)
+                else
                 {
-                    builder.Append($"{e.InstrumentName}_{statName}{label} {val}\n");
+                    string label = FormatLabels(labels);
+                    foreach (var (statName, val) in e.AggregationStatistics.Statistics)
+                    {
+                        builder.Append($"{e.InstrumentName}_{statName}{label} {val}\n");
+                    }
                 }
             }
+        }
+
+        private static string FormatLabels(IEnumerable<(string name, string value)> labels)
+        {
+            StringBuilder labelBuilder = new StringBuilder();
+            if (labels.Any())
+            {
+                labelBuilder.Append("{");
+                labelBuilder.Append(string.Join(",", labels.Select(((string name, string value) label) => $"{label.name}=\"{label.value}\"")));
+                labelBuilder.Append("}");
+            }
+            string label = labelBuilder.ToString();
+            return label;
         }
     }
 }

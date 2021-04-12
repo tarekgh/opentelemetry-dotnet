@@ -42,6 +42,11 @@ namespace Microsoft.Diagnostics.Metric
             return new Gauge(this, name);
         }
 
+        public Distribution CreateDistribution(string name)
+        {
+            return new Distribution(this, name);
+        }
+
         public string Name { get; }
         public string Version { get; }
 

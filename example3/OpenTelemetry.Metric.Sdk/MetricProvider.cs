@@ -250,8 +250,7 @@ namespace OpenTelemetry.Metric.Sdk
                         var item = new ExportItem();
                         item.dt = collectionTime;
                         item.Labels = new MetricLabelSet(labeledAggStats.Labels);
-                        item.MeasurementAggregation = labeledAggStats.MeasurementAggregation;
-                        item.AggData = labeledAggStats.Statistics.ToArray();
+                        item.AggregationStatistics = labeledAggStats.AggregationStatistics;
                         item.MeterName = kv.Key.Meter.Name;
                         item.MeterVersion = kv.Key.Meter.Version;
                         item.InstrumentName = kv.Key.Name;
