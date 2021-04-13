@@ -57,8 +57,9 @@ counter.increment(2.5);
 
 ``` java
 
-// A gauge can be made to track any java.lang.Number subtype that is settable, such as 
-// AtomicInteger and AtomicLong found in java.util.concurrent.atomic and similar types like Guava’s AtomicDouble.
+// A gauge can be made to track any java.lang.Number subtype that is settable,
+// such as AtomicInteger and AtomicLong found in java.util.concurrent.atomic and
+// similar types like Guava’s AtomicDouble.
 
 // maintain a reference to myGauge
 AtomicInteger myGauge = registry.gauge("numberGauge", new AtomicInteger(0));
@@ -68,7 +69,8 @@ myGauge.set(27);
 myGauge.set(11);
 ```
 
-Types: Counter, Gauge, Timer, Distribution Summary, Long Task Timer, Histogram and Percentiles
+Types: Counter, Gauge, Timer, Distribution Summary, Long Task Timer, Histogram
+and Percentiles
 
 ## DropWizard
 
