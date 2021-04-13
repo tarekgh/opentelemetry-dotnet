@@ -12,7 +12,7 @@ name for the same concept, what worries me more is if OT is reusing the same nam
 
 2. MM has no equivalent abstraction for OT's Meter or Instrument. It goes straight from MeterProvider (MeterRegistry in MM-terminology) to a bound-instrument 
 (Meter in MM-terminology). There is an even simpler case for people using a default global registry where they can use static functions defined in the Metrics class.
-If MM has been succesful with these simpler abstractions it raises the question what value is OT getting from its more complex 4 layers of
+If MM has been successful with these simpler abstractions it raises the question what value is OT getting from its more complex 4 layers of
 abstraction (MeterProvider->Meter->Instrument->BoundInstrument)?
 
 3. MM landed on a different set of instrument types than OT did. It would be good to understand why we believe OT's instrument set is the right set to pick?
@@ -51,7 +51,7 @@ Prometheus.NET - https://github.com/prometheus-net/prometheus-net
 
 1. Naming - What MM calls Meters and OT calls bound instruments, Prometheus calls Metrics.
 2. Similar to MM and different from OT, metrics can be created directly from static functions on a global Metrics class.
-3. Prometheus also has different metric types (instrument types in OT terminology). It has Counter, Guage, Summary, and Histogram. The best mapping appears to be:
+3. Prometheus also has different metric types (instrument types in OT terminology). It has Counter, Gauge, Summary, and Histogram. The best mapping appears to be:
 Counter       Counter
 Gauge         UpDownCounter or ValueRecorder?
 Summary       ValueRecorder

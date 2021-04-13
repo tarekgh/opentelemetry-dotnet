@@ -31,7 +31,7 @@ namespace SimpleExamples
 
         public static long GetTotalHatsSold(string color)
         {
-            // Pretend this update was occuring asynchronously
+            // Pretend this update was occurring asynchronously
             s_hatsSold[color] += new Random().Next(10_000);
             return s_hatsSold[color];
         }

@@ -20,7 +20,7 @@ namespace SimpleExamples
 
         public static long GetTotalHatsSold()
         {
-            // Pretend this update was occuring asynchronously
+            // Pretend this update was occurring asynchronously
             s_hatsSold += new Random().Next(10_000);
             return s_hatsSold;
         }

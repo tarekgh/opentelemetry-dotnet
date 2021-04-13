@@ -47,7 +47,7 @@ portal config) requested different handling.
 
 ## What should 'Instrument' concepts be named?
 
-By 'Instrument' I am refering to the types that have the Record(), Add(), Set(), etc API that .NET developers
+By 'Instrument' I am referring to the types that have the Record(), Add(), Set(), etc API that .NET developers
 would invoke to record a value and send it to the SDK. There are multiple potential names to decide on here:
 1. There is the general concept, what OpenTelemetry calls 'Instrument'. Some other potential terms are
  'Meter', 'Metric', 'Measure', and 'Counter'.
@@ -70,7 +70,7 @@ have considerable real world usage appear to have selected other patterns, likel
 Proposed answer: Yes we should have them. I'm still not understanding the scenario for ValueObserver but I'm on-board
 with at least an async sum and async gauge. The alternative pattern described below got messy for a few reasons:
 
- - The implementing code gets unnecesarily split. The user is forced to author the constructor, a callback 
+ - The implementing code gets unnecessarily split. The user is forced to author the constructor, a callback 
    registration, and the body of the callback. This is 2-3 different locations in code to edit.
  - The pre-aggregated sum replaces rather than adds to the previous sum so isn't substitutable for the original
    synchronous sum instrument.
@@ -226,11 +226,11 @@ Gauge g = factory.CreateGauge("temperature");
 
 // OR this
 Counter c = new Counter(factory, "hats-sold");
-Guage g = new Gauge(factory, "temperature");
+Gauge g = new Gauge(factory, "temperature");
 
 // OR potentially still this if there is a default global factory
 Counter c = new Counter("hats-sold");
-Guage g = new Gauge("temperature");
+Gauge g = new Gauge("temperature");
 ````
 
 ### Design discussion
@@ -516,7 +516,7 @@ public void Sold(string color, int size)
     s_hatsSold.Add(1, (Color:color, Size:size));
 }
 ```
-That seems much nicer but unforetunately it won't work. The names of the fields in the ValueTuple only
+That seems much nicer but unfortunately it won't work. The names of the fields in the ValueTuple only
 exist at compile-time. What is emitted into the image is a Counter<ValueTuple`2>> and the fields of
 ValueTuple`2 are Item1 and Item2, not "Color" and "Size". This means we can't reflect over it to determine
 the dimension names. We could add back the string[] labelNames parameter to the constructor but it felt
@@ -575,13 +575,13 @@ int and float can be perfectly represented by double, long in the range [-2^53, 
 outside that range a long of magnitude <= 2^X will be rounded to the nearest increment of 2^(X-53). Alternately large
 long values casted to double have a margin of error of 0.00000000000001%. When visualized as an absolute value on a
 graph or compared to some alert threshold it seems extremely unlikely that such a small error would ever be meaningful.
-When used as a counter the difference between succesive measurements is used which would accentuate small errors, but it
+When used as a counter the difference between successive measurements is used which would accentuate small errors, but it
 is still hard to envision how it would matter in any common case. Even a counter that recorded an increment every second 
 for 10 years would need to increment in value by more than 28M/sec to reach 2^53. This gives an error of 1 in 28M when
 displaying the rate.
 
 My attempts to benchmark trivial Meters that require int->double, long->double, int->double->int and long->double->long
-conversions show that the overheads if they even exist, were neglible. Each iteration recorded 1000 measurements so it
+conversions show that the overheads if they even exist, were negligible. Each iteration recorded 1000 measurements so it
 is ~13ns per measurement regardless of the data type conversions.
 
 |             Method |     Mean |    Error |   StdDev |
@@ -690,7 +690,7 @@ Proposed answer: Meter implements IDisposable. All instruments associated with i
 ### Problem Statement
 When a measurement is recorded, the calculation/accumulation/aggregation is
 process synchronouosly per call. Thus, the timing for each recording can vary
-based on how the SDK is configured.  It may be desireable to have a constant
+based on how the SDK is configured.  It may be desirable to have a constant
 time/space per recording.
 
 ### Proposal

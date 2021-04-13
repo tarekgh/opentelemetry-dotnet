@@ -137,7 +137,7 @@ namespace OpenTelemetry.Metric.Sdk
         {
             this.valueType = MetricValueType.intType;
 
-            // TODO: Looking forward to an allocation free (Span<>) verison of GetBytes()
+            // TODO: Looking forward to an allocation free (Span<>) version of GetBytes()
             var buffer = BitConverter.GetBytes(v);
             b0 = buffer[0];
             b1 = buffer[1];

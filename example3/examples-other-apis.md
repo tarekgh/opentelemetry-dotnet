@@ -32,7 +32,7 @@ class YourClass {
 }
 ```
 
-Types: Counter, Guage, Summary, Histogram
+Types: Counter, Gauge, Summary, Histogram
 
 ## Micrometer
 
@@ -68,7 +68,7 @@ myGauge.set(27);
 myGauge.set(11);
 ```
 
-Types: Counter, Guage, Timer, Distrubution Summary, Long Task Timer, Histogram and Percentiles
+Types: Counter, Gauge, Timer, Distribution Summary, Long Task Timer, Histogram and Percentiles
 
 ## DropWizard
 
@@ -133,7 +133,7 @@ public Job takeJob() {
 }
 ```
 
-Types: Counter, Guage, Timer, Histogram, Health Check
+Types: Counter, Gauge, Timer, Histogram, Health Check
 
 ## DogStatsD
 
