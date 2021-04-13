@@ -1,7 +1,7 @@
-﻿using SquidLibrary;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using SquidLibrary;
 
 namespace ConsoleApp6
 {
@@ -13,7 +13,7 @@ namespace ConsoleApp6
             // this sets the default SDK, sets exporters, determines which metrics to listen to,
             // maybe registers specializations or modifications in how the data is emitted
             // OpenTelemetry.Configure(...)
-            
+
             Run();
         }
 
@@ -25,4 +25,3 @@ namespace ConsoleApp6
         }
     }
 }
-

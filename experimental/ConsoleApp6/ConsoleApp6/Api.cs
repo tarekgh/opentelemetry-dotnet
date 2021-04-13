@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -9,9 +9,9 @@ namespace System.Diagnostics
 {
     public class MetricSource
     {
-        public MetricSource(string componentName, Version version = default, IDictionary<string,string> defaultLabels = null) { }
-        
-        public Counter CreateCounter(string counterName, IDictionary<string,string> defaultLabels = null)
+        public MetricSource(string componentName, Version version = default, IDictionary<string, string> defaultLabels = null) { }
+
+        public Counter CreateCounter(string counterName, IDictionary<string, string> defaultLabels = null)
         {
             Metric m = new Metric(this, counterName, MetricAggregations.Sum, defaultLabels);
             return new Counter(m);
@@ -48,8 +48,7 @@ namespace System.Diagnostics
         public void Record(int measurement, string labelName1, string labelValue1) { }
         public void Record(int measurement, string labelName1, string labelValue1, string labelName2, string labelValue2) { }
         public void Record(int measurement, string labelName1, string labelValue1, string labelName2, string labelValue2, string labelName3, string labelValue3) { }
-        public void Record(int measurement, string labelName1, string labelValue1, string labelName2, string labelValue2, string labelName3, string labelValue3, 
-            params string[] additionalLabels) { }
+        public void Record(int measurement, string labelName1, string labelValue1, string labelName2, string labelValue2, string labelName3, string labelValue3, params string[] additionalLabels) { }
         public void Record(int measurement, LabelSet labels)
         { }
 
@@ -61,9 +60,9 @@ namespace System.Diagnostics
     {
         internal Counter(Metric metric) { Metric = metric; }
         private Metric Metric { get; }
-        public void Add(int measurement) => 
+        public void Add(int measurement) =>
             Metric.Record(measurement);
-        public void Add(int measurement, string labelName1, string labelValue1) => 
+        public void Add(int measurement, string labelName1, string labelValue1) =>
             Metric.Record(measurement, labelName1, labelValue1);
         public void Add(int measurement, string labelName1, string labelValue1, string labelName2, string labelValue2) =>
             Metric.Record(measurement, labelName1, labelValue1, labelName2, labelValue2);
@@ -104,8 +103,6 @@ namespace System.Diagnostics
         public LabelSet(string labelName1, string labelValue1, string labelName2, string labelValue2) : base(null) { }
         public LabelSet(string labelName1, string labelValue1, string labelName2, string labelValue2, string labelName3, string labelValue3) : base(null) { }
     }
-
-
 
     public static class MetricAggregations
     {

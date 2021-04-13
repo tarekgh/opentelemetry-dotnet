@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
@@ -36,7 +36,7 @@ namespace ConsoleApp6
 
         public async Task PublishMetrics(CancellationToken ct)
         {
-            while(!ct.IsCancellationRequested)
+            while (!ct.IsCancellationRequested)
             {
                 await Task.Delay(_publishInterval);
             }
