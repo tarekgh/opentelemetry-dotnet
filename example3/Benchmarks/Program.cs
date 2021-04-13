@@ -2,9 +2,9 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Running;
-using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Engines;
+using BenchmarkDotNet.Running;
 
 namespace MyBenchmark
 {

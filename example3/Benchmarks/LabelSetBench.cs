@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Running;
 using BenchmarkDotNet.Engines;
+using BenchmarkDotNet.Running;
 
 using Microsoft.Diagnostics.Metric;
 using OpenTelemetry.Metric.Sdk;
@@ -34,7 +34,7 @@ namespace MyBenchmark
 
         MetricLabelSet ls;
 
-        IDictionary<string,string> dict;
+        IDictionary<string, string> dict;
 
         [GlobalSetup]
         public void Setup()
@@ -51,7 +51,7 @@ namespace MyBenchmark
                 ("Key9", "Value9")
                 );
 
-            dict = new Dictionary<string,string> {
+            dict = new Dictionary<string, string> {
                 { "Key1", "Value1" },
                 { "Key2", "Value2" },
                 { "Key3", "Value3" },
@@ -67,9 +67,9 @@ namespace MyBenchmark
         //****************
 
         [Benchmark]
-        public IDictionary<string,string> Dict_new()
+        public IDictionary<string, string> Dict_new()
         {
-            return new Dictionary<string,string> {
+            return new Dictionary<string, string> {
                 { "Key1", "Value1" },
                 { "Key2", "Value2" },
                 { "Key3", "Value3" },
@@ -83,32 +83,32 @@ namespace MyBenchmark
         }
 
         [Benchmark]
-        public List<Tuple<string,string>> Dict_enum()
+        public List<Tuple<string, string>> Dict_enum()
         {
-            List<Tuple<string,string>> ret = new();
+            List<Tuple<string, string>> ret = new();
 
-            foreach(var kv in dict)
+            foreach (var kv in dict)
             {
                 var key = kv.Key;
                 var val = kv.Value;
 
-                ret.Add(Tuple.Create(key,val));
+                ret.Add(Tuple.Create(key, val));
             }
 
             return ret;
         }
 
         [Benchmark]
-        public List<(string,string)> ValueTuple_enum()
+        public List<(string, string)> ValueTuple_enum()
         {
-            List<(string,string)> ret = new();
+            List<(string, string)> ret = new();
 
-            foreach(var kv in dict)
+            foreach (var kv in dict)
             {
                 var key = kv.Key;
                 var val = kv.Value;
 
-                ret.Add((key,val));
+                ret.Add((key, val));
             }
 
             return ret;
@@ -133,9 +133,9 @@ namespace MyBenchmark
         }
 
         [Benchmark]
-        public List<(string,string)> MetricLabelSet_enum()
+        public List<(string, string)> MetricLabelSet_enum()
         {
-            List<(string,string)> ret = new();
+            List<(string, string)> ret = new();
 
             var ls = this.ls.GetLabels();
             foreach (var label in ls)

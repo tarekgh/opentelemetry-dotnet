@@ -14,7 +14,7 @@ namespace OpenTelemetry.Metric.Sdk
             MeasurementAggregation = measurementAggregation;
             LabelAggregation = labelAggregation;
         }
-        public MeasurementAggregation MeasurementAggregation { get;}
+        public MeasurementAggregation MeasurementAggregation { get; }
         public LabelAggregation LabelAggregation { get; }
     }
 
@@ -23,7 +23,7 @@ namespace OpenTelemetry.Metric.Sdk
         public static SumAggregation Sum = new SumAggregation();
         public static LastValueAggregation LastValue = new LastValueAggregation();
     }
-    
+
     public class MeasurementAggregation
     {
     }
@@ -61,7 +61,7 @@ namespace OpenTelemetry.Metric.Sdk
 
     struct LabelMapping
     {
-        public LabelMapping(string labelName, bool requiredSourceLabel, Func<string,string> computeLabelValue)
+        public LabelMapping(string labelName, bool requiredSourceLabel, Func<string, string> computeLabelValue)
         {
             LabelName = labelName;
             RequiresSourceLabel = requiredSourceLabel;

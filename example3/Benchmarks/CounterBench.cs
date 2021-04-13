@@ -83,7 +83,6 @@ namespace Benchmarks
             sameNames1.Add(1, ("Color", s_values[s_counter++ % 2]));
         }
 
-        
         [Benchmark]
         public void AddDifferentLabelNames1()
         {
@@ -96,7 +95,6 @@ namespace Benchmarks
             sameNames2.Add(1, ("Color", s_values[s_counter++ % 2]), ("Size", "1"));
         }
 
-        
         [Benchmark]
         public void AddDifferentLabelNames2()
         {
@@ -106,7 +104,7 @@ namespace Benchmarks
         [Benchmark]
         public void AddSameLabelNames3()
         {
-            sameNames3.Add(1, ("Color", s_values[s_counter++ % 2]), ("Size", "1"), ("Zoo","True"));
+            sameNames3.Add(1, ("Color", s_values[s_counter++ % 2]), ("Size", "1"), ("Zoo", "True"));
         }
 
         [Benchmark]
@@ -115,7 +113,6 @@ namespace Benchmarks
             sameNames4.Add(1, ("Color", s_values[s_counter++ % 2]), ("Size", "1"), ("Zoo", "True"), ("Zoo2", "True"));
         }
 
-        
         [Benchmark]
         public void AddDifferentLabelNames3()
         {
@@ -125,7 +122,7 @@ namespace Benchmarks
         [Benchmark]
         public void AddMultiRankSmall()
         {
-            if(s_counter++ % 2 == 0)
+            if (s_counter++ % 2 == 0)
             {
                 multiRankSmall.Add(1);
             }

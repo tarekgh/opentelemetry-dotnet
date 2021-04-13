@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace OpenTelemetry.Metric.Api2
@@ -9,13 +9,14 @@ namespace OpenTelemetry.Metric.Api2
     {
         public BasicMeterProviderListener ProviderListener { get; set; }
 
-        private ConcurrentDictionary<BasicMeter, bool> meters { get; } = new ();
+        private ConcurrentDictionary<BasicMeter, bool> meters { get; } = new();
 
         public BasicMeterProvider()
         {
         }
 
-        public ICollection<BasicMeter> Meters {
+        public ICollection<BasicMeter> Meters
+        {
             get => meters.Keys;
         }
 

@@ -58,14 +58,15 @@ namespace OpenTelemetry.Metric.Api2
                     observer.Observe((double)arg);
                     observer.Observe(10.3, ("location", "inhere"), ("id", 10));
                 },
-                (double) 100.2);
+                (double)100.2);
 
-            Func<int> funcState = () => {
+            Func<int> funcState = () =>
+            {
                 return 121;
             };
 
             var intcounterfunc = meter.CreateCounterFunc<int>(
-                name: "intcounterfunc", 
+                name: "intcounterfunc",
                 callback: (observer, arg) =>
                 {
                     observer.Observe(20, ("location", "here"), ("id", 100));
@@ -75,7 +76,7 @@ namespace OpenTelemetry.Metric.Api2
                         observer.Observe(val, ("location", "there"), ("id", 221));
                     }
                     observer.Observe(22);
-                }, 
+                },
                 state: funcState);
 
             basicMeter.Observe();
@@ -160,14 +161,16 @@ namespace OpenTelemetry.Metric.Api2
             var counter = meter1.CreateCounter("counter");
             counter.Add(100, ("location", "local1"));
 
-            var counterfunc = meter1.CreateCounterFunc("counterfunc", (observer, arg) => {
+            var counterfunc = meter1.CreateCounterFunc("counterfunc", (observer, arg) =>
+            {
                 observer.Observe(100, ("location", "func1"));
             });
 
             var counter2 = meter2.CreateCounter("counter");
             counter2.Add(200, ("location", "local2"));
 
-            var counterfunc2 = meter2.CreateCounterFunc("counterfunc", (observer, arg) => {
+            var counterfunc2 = meter2.CreateCounterFunc("counterfunc", (observer, arg) =>
+            {
                 observer.Observe(200, ("location", "func2"));
             });
 
@@ -184,16 +187,17 @@ namespace OpenTelemetry.Metric.Api2
 
             using (var meter1 = basicProvider.GetMeter(typeof(ApiTest)))
             {
-                var counterfunc1 = meter1.CreateCounterFunc("counterfunc", (observer, arg) => {
+                var counterfunc1 = meter1.CreateCounterFunc("counterfunc", (observer, arg) =>
+                {
                     observer.Observe(100, ("location", "func1"));
                 });
 
                 using (var meter2 = basicProvider.GetMeter(typeof(ApiTest)))
                 {
-                    using (var counterfunc2 = meter2.CreateCounterFunc("counterfunc", (observer, arg) => {
+                    using (var counterfunc2 = meter2.CreateCounterFunc("counterfunc", (observer, arg) =>
+                    {
                         observer.Observe(200, ("location", "func2"));
-                        })
-                        )
+                    }))
                     {
                         Console.WriteLine("--- 2");
                         basicProvider.Observe();

@@ -25,7 +25,7 @@ namespace Microsoft.Diagnostics.Metric
 
         public void AddMeter(Meter meter)
         {
-            lock(Lock)
+            lock (Lock)
             {
                 _meters.Add(meter);
                 foreach (MeterInstrumentListener listener in _listeners)
@@ -64,7 +64,7 @@ namespace Microsoft.Diagnostics.Metric
 
         public void AddListener(MeterInstrumentListener listener)
         {
-            lock(Lock)
+            lock (Lock)
             {
                 _listeners.Add(listener);
                 foreach (Meter meter in _meters)
@@ -115,7 +115,7 @@ namespace Microsoft.Diagnostics.Metric
             object cookie = null;
             if (!instrument.IsObservable)
             {
-                 wasSubscribed = instrument.RemoveSubscription(listener, out cookie);
+                wasSubscribed = instrument.RemoveSubscription(listener, out cookie);
             }
             else
             {

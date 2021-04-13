@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Linq;
 using OpenTelemetry.Metric.Sdk;
 
 namespace Microsoft.OpenTelemetry.Export
@@ -42,7 +42,8 @@ namespace Microsoft.OpenTelemetry.Export
 
         public override void Start(CancellationToken token)
         {
-            exportTask = Task.Run(async () => {
+            exportTask = Task.Run(async () =>
+            {
                 while (!token.IsCancellationRequested)
                 {
                     try
@@ -67,7 +68,7 @@ namespace Microsoft.OpenTelemetry.Export
             {
                 exportTask.Wait();
             }
-            
+
             receiveTokenSrc.Cancel();
             if (receiveTask is not null)
             {

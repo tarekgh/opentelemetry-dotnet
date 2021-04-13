@@ -162,7 +162,7 @@ namespace UnitTest
             if (instrument.Meter.Name != _meterName) return;
 
             LastPublish = instrument;
-            if(_subscribe)
+            if (_subscribe)
             {
                 subscribeOptions.Subscribe();
             }

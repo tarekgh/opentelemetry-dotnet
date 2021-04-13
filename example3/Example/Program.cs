@@ -1,11 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using MyLibrary;
 using Microsoft.Diagnostics.Metric;
-using OpenTelemetry.Metric.Sdk;
 using Microsoft.OpenTelemetry.Export;
+using MyLibrary;
+using OpenTelemetry.Metric.Sdk;
 
 namespace Example
 {
@@ -37,20 +37,20 @@ namespace Example
                 //.AddMetricInclusion("/_Total")
 
                 // Configure what Labels are important
-                /* 
+                /*
                  * TODO
-                .AggregateByLabels(new SumCountMinMax(), 
+                .AggregateByLabels(new SumCountMinMax(),
                     new MetricLabelSet(
                         ("LibraryInstanceName", "*")),
                     new MetricLabelSet(
-                        ("LibraryInstanceName", "*"), 
+                        ("LibraryInstanceName", "*"),
                         ("Mode", "*")),
                     new MetricLabelSet(
-                        ("OperName", "*"), 
+                        ("OperName", "*"),
                         ("Mode", "Batch")))
                 */
 
-                //.AddExporter(new ConsoleExporter("export1", 6000))
+                // .AddExporter(new ConsoleExporter("export1", 6000))
                 .AddExporter(new OTLPExporter(10, 6000))
 
                 // Finalize pipeline
@@ -73,7 +73,8 @@ namespace Example
 
             var taskList = new List<Task>();
 
-            taskList.Add(Task.Run(async () => {
+            taskList.Add(Task.Run(async () =>
+            {
                 var lib = new Library("Library_1", token);
                 while (!token.IsCancellationRequested)
                 {
@@ -82,7 +83,8 @@ namespace Example
                 }
             }));
 
-            taskList.Add(Task.Run(async () => {
+            taskList.Add(Task.Run(async () =>
+            {
                 var lib = new Library("Library_2", token);
 
                 while (!token.IsCancellationRequested)
@@ -92,7 +94,8 @@ namespace Example
                 }
             }));
 
-            taskList.Add(Task.Run(async () => {
+            taskList.Add(Task.Run(async () =>
+            {
                 Meter m = new Meter("Program.Test3");
                 var sum = m.CreateCounter("Sum");
                 var lastvalue = m.CreateGauge("Last");

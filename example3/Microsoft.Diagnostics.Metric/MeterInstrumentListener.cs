@@ -69,7 +69,7 @@ namespace Microsoft.Diagnostics.Metric
 
         public void Observe(double value)
         {
-            Listener.MeasurementRecorded(CurrentInstrument, value, Array.Empty<ValueTuple<string,string>>().AsSpan(), CurrentCookie);
+            Listener.MeasurementRecorded(CurrentInstrument, value, Array.Empty<ValueTuple<string, string>>().AsSpan(), CurrentCookie);
         }
 
         public void Observe(double value, ValueTuple<string, string> label)
@@ -78,7 +78,7 @@ namespace Microsoft.Diagnostics.Metric
             Listener.MeasurementRecorded(CurrentInstrument, value, labels, CurrentCookie);
         }
 
-        public void Observe(double value, ReadOnlySpan<ValueTuple<string,string>> labels)
+        public void Observe(double value, ReadOnlySpan<ValueTuple<string, string>> labels)
         {
             Listener.MeasurementRecorded(CurrentInstrument, value, labels, CurrentCookie);
         }

@@ -37,7 +37,7 @@ namespace OpenTelemetry.Metric.Sdk
         {
             TAggregator aggregator = null;
             AggregatorLookupFunc<TAggregator> lookupFunc = _cachedLookupFunc;
-            if(lookupFunc != null)
+            if (lookupFunc != null)
             {
                 if (lookupFunc(labels, ref aggregator)) return aggregator;
             }
@@ -120,10 +120,10 @@ namespace OpenTelemetry.Metric.Sdk
             }
         }
 
-        public ConcurrentDictionary<TStringSequence,TAggregator> GetLabelValuesDictionary<TStringSequence>(in TStringSequence names)
+        public ConcurrentDictionary<TStringSequence, TAggregator> GetLabelValuesDictionary<TStringSequence>(in TStringSequence names)
             where TStringSequence : IStringSequence, IEquatable<TStringSequence>
         {
-            while(true)
+            while (true)
             {
                 object state = _stateUnion;
                 if (state == null)
@@ -136,7 +136,7 @@ namespace OpenTelemetry.Metric.Sdk
                 {
                     return fixedState.GetValuesDictionary(names);
                 }
-                else if(state is MultiSizeLabelNameDictionary<TAggregator> multiSizeState)
+                else if (state is MultiSizeLabelNameDictionary<TAggregator> multiSizeState)
                 {
                     return multiSizeState.GetFixedSizeLabelNameDictionary<TStringSequence>().GetValuesDictionary(names);
                 }
@@ -191,13 +191,13 @@ namespace OpenTelemetry.Metric.Sdk
             return NoLabelAggregator;
         }
 
-        public FixedSizeLabelNameDictionary<TStringSequence,TAggregator> GetFixedSizeLabelNameDictionary<TStringSequence>()
+        public FixedSizeLabelNameDictionary<TStringSequence, TAggregator> GetFixedSizeLabelNameDictionary<TStringSequence>()
             where TStringSequence : IStringSequence, IEquatable<TStringSequence>
         {
             TStringSequence seq = default;
-            if(seq is StringSequence1)
+            if (seq is StringSequence1)
             {
-                if(Label1 == null)
+                if (Label1 == null)
                 {
                     Interlocked.CompareExchange(ref Label1, new FixedSizeLabelNameDictionary<StringSequence1, TAggregator>(), null);
                 }
@@ -254,7 +254,7 @@ namespace OpenTelemetry.Metric.Sdk
 
         public void AddError(string errorMessage)
         {
-            if(Errors == null)
+            if (Errors == null)
             {
                 Errors = new List<string>();
             }
@@ -290,7 +290,7 @@ namespace OpenTelemetry.Metric.Sdk
                 compilation = CompileVariableLabels(processingConfig, labels);
             }
 
-            if(compilation.Errors != null)
+            if (compilation.Errors != null)
             {
                 return CreateErrorLoggingAggregatorLookup<TAggregator>(labels, compilation.Errors, errorLogger);
             }
@@ -307,7 +307,7 @@ namespace OpenTelemetry.Metric.Sdk
                         aggregator = aggregatorStore.GetAggregator();
                         return true;
                     };
-                        
+
                 case 1:
                     StringSequence1 names1 = new StringSequence1(instructions[0].LabelName);
                     ConcurrentDictionary<StringSequence1, TAggregator> valuesDict1 = aggregatorStore.GetLabelValuesDictionary(names1);
@@ -338,7 +338,7 @@ namespace OpenTelemetry.Metric.Sdk
 
         private static LabelCompilation CompileVariableLabels(LabelAggregation processingConfig, ReadOnlySpan<(string LabelName, string LabelValue)> labels)
         {
-            if(processingConfig.ExcludedLabels.Length != 0)
+            if (processingConfig.ExcludedLabels.Length != 0)
             {
                 // TODO
                 throw new NotImplementedException("Excluded labels not yet implemented");
@@ -463,7 +463,7 @@ namespace OpenTelemetry.Metric.Sdk
         {
 
             string[] expectedLabelNames = new string[labels.Length];
-            for(int i = 0; i < labels.Length; i++)
+            for (int i = 0; i < labels.Length; i++)
             {
                 expectedLabelNames[i] = labels[i].LabelName;
             }
@@ -493,7 +493,7 @@ namespace OpenTelemetry.Metric.Sdk
         int _expectedLabelCount;
         LabelInstruction[] _instructions;
         ConcurrentDictionary<TStringSequence, TAggregator> _valuesDict;
-        Func<TStringSequence,TAggregator> _createAggregator;
+        Func<TStringSequence, TAggregator> _createAggregator;
 
 
         public LabelInstructionInterpretter(
@@ -513,19 +513,19 @@ namespace OpenTelemetry.Metric.Sdk
             ReadOnlySpan<(string labelName, string labelValue)> labels,
             ref TAggregator aggregator)
         {
-            if(labels.Length != _expectedLabelCount)
+            if (labels.Length != _expectedLabelCount)
             {
                 return false;
             }
 
             TStringSequence values = default;
-            if(values is StringSequenceMany)
+            if (values is StringSequenceMany)
             {
                 values = (TStringSequence)(object)new StringSequenceMany(new string[_expectedLabelCount]);
             }
             Span<string> valuesSpan = values.AsSpan();
 
-            for(int i = 0; i < _instructions.Length; i++)
+            for (int i = 0; i < _instructions.Length; i++)
             {
                 LabelInstruction instr = _instructions[i];
 
@@ -534,7 +534,7 @@ namespace OpenTelemetry.Metric.Sdk
                     string inputValue = null;
                     if (instr.SourceIndex != -1)
                     {
-                        if(instr.LabelName != labels[instr.SourceIndex].labelName)
+                        if (instr.LabelName != labels[instr.SourceIndex].labelName)
                         {
                             return false;
                         }
@@ -564,14 +564,14 @@ namespace OpenTelemetry.Metric.Sdk
     {
         public void Collect(Action<LabeledAggregationStatistics> visitFunc)
         {
-            foreach(KeyValuePair<TStringSequence, ConcurrentDictionary<TStringSequence, TAggregator>> kvName in this)
+            foreach (KeyValuePair<TStringSequence, ConcurrentDictionary<TStringSequence, TAggregator>> kvName in this)
             {
                 string[] names = kvName.Key.AsSpan().ToArray();
-                foreach(KeyValuePair<TStringSequence,TAggregator> kvValue in kvName.Value)
+                foreach (KeyValuePair<TStringSequence, TAggregator> kvValue in kvName.Value)
                 {
                     Span<string> values = kvValue.Key.AsSpan();
                     var labels = new (string LabelName, string LabelValue)[names.Length];
-                    for(int i = 0; i < labels.Length; i++)
+                    for (int i = 0; i < labels.Length; i++)
                     {
                         labels[i] = (names[i], values[i]);
                     }

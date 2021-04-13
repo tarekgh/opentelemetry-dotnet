@@ -56,8 +56,8 @@ namespace OpenTelemetry.Metric.Sdk
 
     public class SumCountMinMaxStatistics : AggregationStatistics
     {
-        public SumCountMinMaxStatistics( double sum, double count, double min, double max) :
-            base(MeasurementAggregations.Sum)
+        public SumCountMinMaxStatistics(double sum, double count, double min, double max)
+            : base(MeasurementAggregations.Sum)
         {
             Sum = sum;
             Count = count;
@@ -91,7 +91,7 @@ namespace OpenTelemetry.Metric.Sdk
         public double LastValue { get; }
 
         public override IEnumerable<(string name, string value)> Statistics =>
-            new(string name, string value)[]
+            new (string name, string value)[]
             {
                 ("last", LastValue.ToString())
             };
@@ -114,9 +114,9 @@ namespace OpenTelemetry.Metric.Sdk
             _labels = labels;
         }
 
-        public LabeledAggregationStatistics WithLabels(IEnumerable<KeyValuePair<string,string>> labels)
+        public LabeledAggregationStatistics WithLabels(IEnumerable<KeyValuePair<string, string>> labels)
         {
-            return new LabeledAggregationStatistics(_aggStats, Labels.Concat(labels.Select(kv => (kv.Key,kv.Value))));
+            return new LabeledAggregationStatistics(_aggStats, Labels.Concat(labels.Select(kv => (kv.Key, kv.Value))));
         }
 
         public IEnumerable<(string LabelName, string LabelValue)> Labels => _labels;

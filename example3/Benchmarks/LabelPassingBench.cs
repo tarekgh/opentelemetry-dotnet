@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Running;
 using BenchmarkDotNet.Engines;
+using BenchmarkDotNet.Running;
 
 using Microsoft.Diagnostics.Metric;
 using Microsoft.OpenTelemetry.Export;
@@ -54,7 +54,7 @@ namespace MyBenchmark
             this.colnames1 = new string[] { "host", "location", "tenantid" };
             this.counter1 = new Counter(colnames1);
 
-            this.colnames2 = new string[] { 
+            this.colnames2 = new string[] {
                 "col01", "col02", "col03", "col04", "col05", "col06", "col07", "col08", "col09", "col10",
                 "col11", "col12", "col13", "col14", "col15", "col16", "col17", "col18", "col19", "col20",
                 };
@@ -77,10 +77,10 @@ namespace MyBenchmark
         [Benchmark]
         public int AddByNameValueArray()
         {
-            var namevalues = new string[] { 
-                "host", "host1", 
-                "location", "location1", 
-                "tenantid", "tenantid1" 
+            var namevalues = new string[] {
+                "host", "host1",
+                "location", "location1",
+                "tenantid", "tenantid1",
                 };
 
             this.counter1.Add2(namevalues);
@@ -154,7 +154,7 @@ namespace MyBenchmark
         [Benchmark]
         public int AddByDictionary()
         {
-            var labels = new Dictionary<string,string>()
+            var labels = new Dictionary<string, string>()
             {
                 { "host", "host1" },
                 { "location", "location1" },
@@ -381,7 +381,7 @@ namespace MyBenchmark
         [Benchmark]
         public int LargeAddByDictionary()
         {
-            var labels = new Dictionary<string,string>()
+            var labels = new Dictionary<string, string>()
             {
                 { "col01", "val01" },
                 { "col02", "val02" },
@@ -414,7 +414,7 @@ namespace MyBenchmark
     public class Counter
     {
         private string[] colnames;
-        private Dictionary<string,string> dict = new();
+        private Dictionary<string, string> dict = new();
 
 
         public Counter(string[] colnames)
@@ -422,7 +422,7 @@ namespace MyBenchmark
             this.colnames = colnames;
         }
 
-        public void Add(string [] colvalues)
+        public void Add(string[] colvalues)
         {
             dict.Clear();
 
@@ -432,17 +432,17 @@ namespace MyBenchmark
             }
         }
 
-        public void Add2(string [] namevalues)
+        public void Add2(string[] namevalues)
         {
             dict.Clear();
 
             for (int i = 0; i < namevalues.Length; i += 2)
             {
-                dict[namevalues[i]] = namevalues[i+1];
+                dict[namevalues[i]] = namevalues[i + 1];
             }
         }
 
-        public void Add(string [] names, string [] values)
+        public void Add(string[] names, string[] values)
         {
             dict.Clear();
 
@@ -482,7 +482,7 @@ namespace MyBenchmark
             }
         }
 
-        public void Add(IDictionary<string,string> labels)
+        public void Add(IDictionary<string, string> labels)
         {
             dict.Clear();
 

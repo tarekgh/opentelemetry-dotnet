@@ -14,13 +14,13 @@ namespace OpenTelemetry.Metric.Sdk
         public MetricValueBox(int v)
         {
             this.valueType = MetricValueType.intType;
-            this.value = (object) v;
+            this.value = (object)v;
         }
 
         public MetricValueBox(double v)
         {
             this.valueType = MetricValueType.doubleType;
-            this.value = (object) v;
+            this.value = (object)v;
         }
 
         public int ToInt32()
@@ -39,7 +39,7 @@ namespace OpenTelemetry.Metric.Sdk
             {
                 return v;
             }
-            
+
             return 0;
         }
     }
@@ -152,7 +152,7 @@ namespace OpenTelemetry.Metric.Sdk
         public MetricValueSpan(double v)
         {
             this.valueType = MetricValueType.doubleType;
-            
+
             var buffer = BitConverter.GetBytes(v);
             b0 = buffer[0];
             b1 = buffer[1];

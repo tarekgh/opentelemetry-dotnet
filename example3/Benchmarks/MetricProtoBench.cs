@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Running;
 using BenchmarkDotNet.Engines;
+using BenchmarkDotNet.Running;
 
 using Microsoft.Diagnostics.Metric;
 using Microsoft.OpenTelemetry.Export;

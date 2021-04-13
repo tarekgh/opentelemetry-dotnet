@@ -1,16 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Diagnostics.Metric;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Xunit;
-using Microsoft.Diagnostics.Metric;
 using Microsoft.OpenTelemetry.Export;
 using OpenTelemetry.Metric.Api;
 using OpenTelemetry.Metric.Sdk;
-using System.Threading.Tasks;
-using System.Threading;
+using Xunit;
 
 namespace UnitTest
 {
@@ -56,7 +56,7 @@ namespace UnitTest
             var meter = MeterProvider.Global.GetMeter<UnitTest1>();
             var counter = meter.CreateCounter("request");
 
-            counter.Add(10, ("name", "nameValue"), ("value","typeValue"));
+            counter.Add(10, ("name", "nameValue"), ("value", "typeValue"));
             counter.Add(100, ("name", "nameValue2"), ("value", "typeValue2"));
 
             provider.Stop();
@@ -92,7 +92,8 @@ namespace UnitTest
             var host = Host.CreateDefaultBuilder()
                 .ConfigureServices((hostContext, services) =>
                 {
-                    services.AddScoped<Meter>((srvprov) => {
+                    services.AddScoped<Meter>((srvprov) =>
+                    {
                         return MeterProvider.Global.GetMeter<UnitTest1>();
                     });
                     services.AddHostedService<MyService>();
@@ -143,7 +144,7 @@ namespace UnitTest
 
                 var counter = meter.CreateCounter("request");
 
-                counter.Add(10, ("Dim1", "nameValue"), ("Dim2","typeValue"));
+                counter.Add(10, ("Dim1", "nameValue"), ("Dim2", "typeValue"));
 
                 while (!cts.Token.IsCancellationRequested)
                 {
@@ -151,7 +152,7 @@ namespace UnitTest
                     await Task.Delay(400);
                 }
 
-                counter.Add(100, ("Dim1","DimVal1"), ("Dim2","DimVal2"));
+                counter.Add(100, ("Dim1", "DimVal1"), ("Dim2", "DimVal2"));
 
                 logger.LogInformation("Stopped...");
             }
@@ -161,12 +162,14 @@ namespace UnitTest
         public void OTelSimpleDI()
         {
             var services = new ServiceCollection();
-            services.AddScoped<Meter>((srvprov) => {
+            services.AddScoped<Meter>((srvprov) =>
+            {
                 return MeterProvider.Global.GetMeter<UnitTest1>();
             });
             var serviceProvider = services.BuildServiceProvider();
 
-            Task.Run(async () => {
+            Task.Run(async () =>
+            {
                 // Need to get IServiceProvider
                 await Task.Delay(200);
 
@@ -177,7 +180,7 @@ namespace UnitTest
 
                     for (int n = 0; n < 5; n++)
                     {
-                        counter.Add(10, ("dim1","dimval1"));
+                        counter.Add(10, ("dim1", "dimval1"));
                         await Task.Delay(200);
                     }
                 }

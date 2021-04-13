@@ -6,7 +6,7 @@ namespace GroceryStoreExample
 {
     public class GroceryStore
     {
-        private static Dictionary<string,double> s_priceList = new()
+        private static Dictionary<string, double> s_priceList = new()
         {
             { "potato", 1.10 },
             { "tomato", 3.00 },

@@ -21,17 +21,17 @@ namespace OpenTelemetry.Metric.Sdk
         int _mantissaMax;
         int _mantissaMask;
         int _mantissaShift;
-        
+
 
         public ExponentialHistogram(PercentileAggregation config)
         {
             _config = config;
             _counters = new object[ExponentArraySize];
-            if(_config.MaxRelativeError < MinRelativeError)
+            if (_config.MaxRelativeError < MinRelativeError)
             {
                 throw new ArgumentException();
             }
-            int mantissaBits = (int)Math.Ceiling(Math.Log2(1 / _config.MaxRelativeError))-1;
+            int mantissaBits = (int)Math.Ceiling(Math.Log2(1 / _config.MaxRelativeError)) - 1;
             _mantissaShift = 52 - mantissaBits;
             _mantissaMax = 1 << mantissaBits;
             _mantissaMask = _mantissaMax - 1;
@@ -43,7 +43,7 @@ namespace OpenTelemetry.Metric.Sdk
         {
             object[] counters;
             int count;
-            lock(this)
+            lock (this)
             {
                 counters = _counters;
                 count = _count;
@@ -70,7 +70,7 @@ namespace OpenTelemetry.Metric.Sdk
                             _config.Percentiles[nextPercentileIdx] / 100.0,
                             GetBucketCanonicalValue(exponent, mantissa));
                         nextPercentileIdx++;
-                        if(nextPercentileIdx == _config.Percentiles.Length)
+                        if (nextPercentileIdx == _config.Percentiles.Length)
                         {
                             return new DistributionStatistics(MeasurementAggregation, quantiles);
                         }
@@ -102,7 +102,7 @@ namespace OpenTelemetry.Metric.Sdk
         private double GetBucketCanonicalValue(int exponent, int mantissa)
         {
             double result = 0;
-            ref long bits = ref Unsafe.As<double,long>(ref result);
+            ref long bits = ref Unsafe.As<double, long>(ref result);
             bits = ((long)exponent << ExponentShift) | ((long)mantissa << _mantissaShift);
             return result;
         }

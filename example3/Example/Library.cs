@@ -32,7 +32,7 @@ namespace MyLibrary
             counter_request2 = s_meter.CreateCounter("requests");
 
             var counter_registered = s_meter.CreateCounter("registered");
-            counter_registered.Add(1, ("Program","test"), ("LibraryInstanceName", name));
+            counter_registered.Add(1, ("Program", "test"), ("LibraryInstanceName", name));
         }
 
         public void DoOperation()
@@ -46,7 +46,7 @@ namespace MyLibrary
 
             //var labels = new MetricLabelSet(("OperNum", $"{opernum}"));
 
-            
+
             counter_request2.Add(1);
 
             counter_request2.Add(0.15, ("OpenNum", opernum.ToString()));
@@ -62,7 +62,7 @@ namespace MyLibrary
                 ("OperNum", $"{opernum}"),
                 ("Mode", "Batch"));
 
-            
+
             new BatchMetricBuilder(labels2)
                 .RecordMetric(counter_request, 1.0)
                 .RecordMetric(gauge_qsize, count)

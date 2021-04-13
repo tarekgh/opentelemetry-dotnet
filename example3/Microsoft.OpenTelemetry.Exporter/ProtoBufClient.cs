@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Google.Protobuf;
 using Microsoft.Diagnostics.Metric;
-using OpenTelemetry.Metric.Sdk;
-using Opentelemetry.Proto.Metrics.V1;
-using Opentelemetry.Proto.Common.V1;
 using Opentelemetry.Proto.Collector.Metrics.V1;
+using Opentelemetry.Proto.Common.V1;
+using Opentelemetry.Proto.Metrics.V1;
+using OpenTelemetry.Metric.Sdk;
 
 namespace Microsoft.OpenTelemetry.Export
 {
@@ -31,7 +31,7 @@ namespace Microsoft.OpenTelemetry.Export
             var groups = items.GroupBy(
                 k => (k.MeterName, k.MeterVersion),
                 item => item,
-                (k,items) => (k, items));
+                (k, items) => (k, items));
 
             var instMetrics = new List<InstrumentationLibraryMetrics>();
             foreach (var group in groups)
@@ -102,8 +102,8 @@ namespace Microsoft.OpenTelemetry.Export
                     var datapoints = sum.DataPoints;
 
                     var datapoint = new DoubleDataPoint();
-                    datapoint.StartTimeUnixNano = (ulong) item.dt.ToUnixTimeMilliseconds() * 100000;
-                    datapoint.TimeUnixNano = (ulong) item.dt.ToUnixTimeMilliseconds() * 100000;
+                    datapoint.StartTimeUnixNano = (ulong)item.dt.ToUnixTimeMilliseconds() * 100000;
+                    datapoint.TimeUnixNano = (ulong)item.dt.ToUnixTimeMilliseconds() * 100000;
 
                     foreach (var l in item.Labels.GetLabels())
                     {
@@ -139,8 +139,8 @@ namespace Microsoft.OpenTelemetry.Export
                     var datapoints = sum.DataPoints;
 
                     var datapoint = new ScalarDataPoint();
-                    datapoint.StartTimeUnixNano = (ulong) item.dt.ToUnixTimeMilliseconds() * 100000;
-                    datapoint.TimeUnixNano = (ulong) item.dt.ToUnixTimeMilliseconds() * 100000;
+                    datapoint.StartTimeUnixNano = (ulong)item.dt.ToUnixTimeMilliseconds() * 100000;
+                    datapoint.TimeUnixNano = (ulong)item.dt.ToUnixTimeMilliseconds() * 100000;
 
                     foreach (var l in item.Labels.GetLabels())
                     {
@@ -221,7 +221,7 @@ namespace Microsoft.OpenTelemetry.Export
                                         case ScalarDataPoint.ValueOneofCase.DoubleValue:
                                             val = $"{dp.DoubleValue}";
                                             break;
-                                            
+
                                         case ScalarDataPoint.ValueOneofCase.IntValue:
                                             val = $"{dp.IntValue}";
                                             break;
@@ -295,6 +295,5 @@ namespace Microsoft.OpenTelemetry.Export
             public ulong timestamp;
             public string value;
         }
-    
     }
 }

@@ -1,6 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 namespace OpenTelemetry.Metric.Api2
 {
@@ -23,7 +23,8 @@ namespace OpenTelemetry.Metric.Api2
         {
             bool isNew = false;
 
-            var instrument = this.instruments.GetOrAdd(name, (key) => {
+            var instrument = this.instruments.GetOrAdd(name, (key) =>
+            {
                 isNew = true;
                 return new Counter(this, key, description, unit);
             });
@@ -33,14 +34,15 @@ namespace OpenTelemetry.Metric.Api2
                 throw new ArgumentException("Instrument name already exists.", nameof(name));
             }
 
-            return (ICounter) instrument;
+            return (ICounter)instrument;
         }
 
         public ICounter<T> CreateCounter<T>(string name, string description = null, string unit = null)
         {
             bool isNew = false;
 
-            var instrument = this.instruments.GetOrAdd(name, (key) => {
+            var instrument = this.instruments.GetOrAdd(name, (key) =>
+            {
                 isNew = true;
                 return new Counter<T>(this, key, description, unit);
             });
@@ -50,14 +52,15 @@ namespace OpenTelemetry.Metric.Api2
                 throw new ArgumentException("Instrument name already exists.", nameof(name));
             }
 
-            return (ICounter<T>) instrument;
+            return (ICounter<T>)instrument;
         }
 
         public ICounterFunc CreateCounterFunc(string name, Action<Observer<double>, object> callback, object state, string description = null, string unit = null)
         {
             bool isNew = false;
 
-            var instrument = this.instruments.GetOrAdd(name, (key) => {
+            var instrument = this.instruments.GetOrAdd(name, (key) =>
+            {
                 isNew = true;
                 return new CounterFunc(this, key, callback, state, description, unit);
             });
@@ -67,14 +70,15 @@ namespace OpenTelemetry.Metric.Api2
                 throw new ArgumentException("Instrument name already exists.", nameof(name));
             }
 
-            return (ICounterFunc) instrument;
+            return (ICounterFunc)instrument;
         }
 
         public ICounterFunc<T> CreateCounterFunc<T>(string name, Action<Observer<T>, object> callback, object state, string description = null, string unit = null)
         {
             bool isNew = false;
 
-            var instrument = this.instruments.GetOrAdd(name, (key) => {
+            var instrument = this.instruments.GetOrAdd(name, (key) =>
+            {
                 isNew = true;
                 return new CounterFunc<T>(this, key, callback, state, description, unit);
             });
@@ -84,10 +88,11 @@ namespace OpenTelemetry.Metric.Api2
                 throw new ArgumentException("Instrument name already exists.", nameof(name));
             }
 
-            return (ICounterFunc<T>) instrument;
+            return (ICounterFunc<T>)instrument;
         }
 
-        public ICollection<Instrument> Instruments {
+        public ICollection<Instrument> Instruments
+        {
             get => this.instruments.Values;
         }
 

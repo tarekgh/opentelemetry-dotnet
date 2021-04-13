@@ -127,13 +127,13 @@ namespace OpenTelemetry.Metric.Sdk
 
         public bool Equals(StringSequenceMany other)
         {
-            if(_values.Length != other._values.Length)
+            if (_values.Length != other._values.Length)
             {
                 return false;
             }
-            for(int i = 0; i < _values.Length; i++)
+            for (int i = 0; i < _values.Length; i++)
             {
-                if(_values[i] != other._values[i])
+                if (_values[i] != other._values[i])
                 {
                     return false;
                 }

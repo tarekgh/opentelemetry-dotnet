@@ -33,7 +33,7 @@ namespace Microsoft.Diagnostics.Metric
             {
                 observer.Observe(((Func<double>)_observeValueFunc)());
             }
-            else if((_observeValueFunc is Action<MeasurementObserver>))
+            else if ((_observeValueFunc is Action<MeasurementObserver>))
             {
                 ((Action<MeasurementObserver>)_observeValueFunc)(observer);
             }

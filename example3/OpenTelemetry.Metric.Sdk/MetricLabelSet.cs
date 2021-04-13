@@ -7,7 +7,7 @@ namespace OpenTelemetry.Metric.Sdk
 
     interface ILabelSet
     {
-        IEnumerable<(string LabelName, string LabelValue)> Labels { get; } 
+        IEnumerable<(string LabelName, string LabelValue)> Labels { get; }
     }
 
     struct LabelSet1 : ILabelSet, IEquatable<LabelSet1>
@@ -25,7 +25,7 @@ namespace OpenTelemetry.Metric.Sdk
         }
 
         public IEnumerable<(string LabelName, string LabelValue)> Labels =>
-            new (string,string)[] { _label1 };
+            new (string, string)[] { _label1 };
 
         public bool Equals(LabelSet1 other)
         {
@@ -84,11 +84,11 @@ namespace OpenTelemetry.Metric.Sdk
 
     public class MetricLabelSet : ILabelSet, IEquatable<MetricLabelSet>
     {
-        static private (string name, string value)[] emptyLabel = {};
-        
+        static private (string name, string value)[] emptyLabel = { };
+
         static private MetricLabelSet defaultLabel = new MetricLabelSet();
 
-        private (string name, string value)[] labels = {};
+        private (string name, string value)[] labels = { };
 
         static public MetricLabelSet DefaultLabelSet
         {
@@ -103,9 +103,9 @@ namespace OpenTelemetry.Metric.Sdk
         public MetricLabelSet(string[] labelNames, string[] labelValues)
         {
             this.labels = new (string, string)[labelNames.Length];
-            for(int i = 0; i < labelNames.Length; i++)
+            for (int i = 0; i < labelNames.Length; i++)
             {
-                if(i < labelValues.Length)
+                if (i < labelValues.Length)
                 {
                     this.labels[i] = (labelNames[i], labelValues[i]);
                 }
@@ -166,7 +166,7 @@ namespace OpenTelemetry.Metric.Sdk
             {
                 return this.Equals(other);
             }
-            
+
             return false;
         }
 
@@ -179,7 +179,7 @@ namespace OpenTelemetry.Metric.Sdk
                 hash.Add(l.name);
                 hash.Add(l.value);
             }
-            
+
             return hash.ToHashCode();
         }
 

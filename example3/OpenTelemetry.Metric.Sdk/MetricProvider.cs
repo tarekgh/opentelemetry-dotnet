@@ -1,12 +1,12 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
-using System.Threading.Tasks;
-using System.Threading;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Diagnostics.Metric;
 using OpenTelemetry.Metric.Api;
-using System.Linq;
 
 namespace OpenTelemetry.Metric.Sdk
 {
@@ -28,7 +28,7 @@ namespace OpenTelemetry.Metric.Sdk
 
         private MeterInstrumentListener listener;
 
-        private ConcurrentQueue<Tuple<MeterInstrument,double,(string LabelName,string LabelValue)[],object>> incomingQueue = new();
+        private ConcurrentQueue<Tuple<MeterInstrument, double, (string LabelName, string LabelValue)[], object>> incomingQueue = new();
         private bool useQueue = false;
 
         sealed class SdkInstrumentListener : MeterInstrumentListener
@@ -44,7 +44,7 @@ namespace OpenTelemetry.Metric.Sdk
             protected override void MeterInstrumentPublished(MeterInstrument instrument, MeterSubscribeOptions subscribeOptions)
             {
                 InstrumentState state = _owner.GetInstrumentState(instrument);
-                if(state != null)
+                if (state != null)
                 {
                     subscribeOptions.Subscribe(state);
                 }
@@ -107,13 +107,14 @@ namespace OpenTelemetry.Metric.Sdk
 
             var token = cts.Token;
 
-            if(exporters.Count == 0)
+            if (exporters.Count == 0)
             {
                 collectTask = Task.CompletedTask;
             }
             else
             {
-                collectTask = Task.Run(async () => {
+                collectTask = Task.Run(async () =>
+                {
                     while (!flushCollect && !token.IsCancellationRequested)
                     {
                         try
@@ -138,7 +139,8 @@ namespace OpenTelemetry.Metric.Sdk
 
             if (useQueue)
             {
-                dequeueTask = Task.Run(async () => {
+                dequeueTask = Task.Run(async () =>
+                {
                     while (!token.IsCancellationRequested)
                     {
                         if (incomingQueue.TryDequeue(out var record))
@@ -215,7 +217,7 @@ namespace OpenTelemetry.Metric.Sdk
                     }
                 }
                 instrumentState = instrumentBuilder?.Build();
-                if(instrumentState != null)
+                if (instrumentState != null)
                 {
                     _instrumentStates.TryAdd(instrument, instrumentState);
                     instrumentState = _instrumentStates[instrument];

@@ -1,7 +1,7 @@
 using System;
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Running;
 using BenchmarkDotNet.Engines;
+using BenchmarkDotNet.Running;
 
 using OpenTelemetry.Metric.Sdk;
 

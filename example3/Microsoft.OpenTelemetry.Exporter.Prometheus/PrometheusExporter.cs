@@ -78,14 +78,13 @@ namespace Microsoft.OpenTelemetry.Export
             lock (this)
             {
                 metrics = _metrics;
-                if(metrics == null)
+                if (metrics == null)
                 {
                     return;
                 }
             }
             foreach (ExportItem e in metrics)
             {
-                
                 IEnumerable<(string name, string value)> labels = e.Labels.Labels;
                 if (e.AggregationStatistics is DistributionStatistics dStats)
                 {

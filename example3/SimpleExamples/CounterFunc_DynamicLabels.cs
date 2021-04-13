@@ -14,12 +14,11 @@ namespace SimpleExamples
             name: "HatCo.ColoredHatsSold",
             observeValues: o =>
             {
-                o.Observe(ColoredHatStoreData.GetTotalHatsSold("Yellow"), ("Color","Yellow"));
-                o.Observe(ColoredHatStoreData.GetTotalHatsSold("Red"), ("Color","Red"));
+                o.Observe(ColoredHatStoreData.GetTotalHatsSold("Yellow"), ("Color", "Yellow"));
+                o.Observe(ColoredHatStoreData.GetTotalHatsSold("Red"), ("Color", "Red"));
             });
     }
 
-    
     static class ColoredHatStoreData
     {
         static Dictionary<string, long> s_hatsSold = new Dictionary<string, long>();

@@ -62,7 +62,7 @@ namespace Microsoft.Diagnostics.Metric
 
         public void Dispose()
         {
-            lock(MeterInstrumentCollection.Lock)
+            lock (MeterInstrumentCollection.Lock)
             {
                 MeterInstrumentCollection.Instance.RemoveMeter(this);
                 _instruments = null;

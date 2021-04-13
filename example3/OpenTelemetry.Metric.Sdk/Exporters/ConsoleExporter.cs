@@ -1,9 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Linq;
 
 namespace OpenTelemetry.Metric.Sdk
 {
@@ -37,7 +37,8 @@ namespace OpenTelemetry.Metric.Sdk
 
         public override void Start(CancellationToken token)
         {
-            exportTask = Task.Run(async () => {
+            exportTask = Task.Run(async () =>
+            {
                 while (!token.IsCancellationRequested && Process())
                 {
                     try
@@ -74,7 +75,7 @@ namespace OpenTelemetry.Metric.Sdk
                 foreach (var q in group)
                 {
                     var aggdata = q.AggregationStatistics.Statistics.Select(k => $"{k.name}={k.value}");
-                    var dim = String.Join( " | ", q.Labels.GetLabels().Select(k => $"{k.name}={k.value}"));
+                    var dim = String.Join(" | ", q.Labels.GetLabels().Select(k => $"{k.name}={k.value}"));
                     if (dim == "")
                     {
                         dim = "{_Total}";

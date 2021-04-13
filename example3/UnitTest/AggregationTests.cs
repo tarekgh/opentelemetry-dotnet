@@ -506,7 +506,7 @@ namespace UnitTest
 
     public static class ProviderExtensions
     {
-        static Func<MetricProvider,ExportItem[]> s_collectFunc;
+        static Func<MetricProvider, ExportItem[]> s_collectFunc;
         static ProviderExtensions()
         {
             s_collectFunc = typeof(MetricProvider).GetMethod("Collect", BindingFlags.NonPublic | BindingFlags.Instance).

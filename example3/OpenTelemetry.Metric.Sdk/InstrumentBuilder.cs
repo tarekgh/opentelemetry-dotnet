@@ -49,13 +49,12 @@ namespace OpenTelemetry.Metric.Sdk
             _defaultAggBuilder.IncludeLabel(labelName, labelValueFunc);
             return this;
         }
-            
+
         public InstrumentBuilder IncludeAmbientLabel(string labelName, Func<string> labelValueFunc)
         {
             _defaultAggBuilder.IncludeAmbientLabel(labelName, labelValueFunc);
             return this;
         }
-            
 
         internal InstrumentState Build()
         {
@@ -187,9 +186,9 @@ namespace OpenTelemetry.Metric.Sdk
         public void IncludeAllLabels()
         {
             IncludeAllCallsiteLabels = true;
-            foreach(string key in LabelConfigs.Keys.ToArray())
+            foreach (string key in LabelConfigs.Keys.ToArray())
             {
-                if(LabelConfigs[key].IsExclusion)
+                if (LabelConfigs[key].IsExclusion)
                 {
                     LabelConfigs.Remove(key);
                 }

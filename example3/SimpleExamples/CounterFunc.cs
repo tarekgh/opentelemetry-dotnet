@@ -13,8 +13,6 @@ namespace SimpleExamples
         static CounterFunc _hatsSoldCounter = hatCo.CreateCounterFunc("HatCo.HatsSold", () => HatStoreData.GetTotalHatsSold());
     }
 
-
-    
     static class HatStoreData
     {
 
