@@ -29,7 +29,7 @@ namespace Example
                 .UseQueue()
 
                 // Add Metrics
-                .Include("MyLibrary")
+                .Include((inst) => true, (builder) => {})
 
                 // Add Filters.  Order matters.  Can be stacked.
                 //.AddMetricInclusion("/MyLibrary/")

@@ -182,11 +182,11 @@ namespace OpenTelemetry.Metric.Sdk
         {
             cts.CancelAfter(timeout);
 
-            listener.Dispose();
-
             flushCollect = true;
             collectTask.Wait();
 
+            listener.Dispose();
+            
             foreach (var exporter in exporters)
             {
                 exporter.BeginFlush();
