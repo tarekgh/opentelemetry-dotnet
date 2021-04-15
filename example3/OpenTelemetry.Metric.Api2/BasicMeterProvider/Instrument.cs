@@ -8,6 +8,7 @@ namespace OpenTelemetry.Metric.Api2
         public string Name { get; }
         public string Description { get; }
         public string Unit { get; }
+        public object CreateContext { get; }
 
         public Instrument(BasicMeter meter, string name, string description, string unit)
         {
@@ -15,6 +16,7 @@ namespace OpenTelemetry.Metric.Api2
             this.Name = name;
             this.Description = description;
             this.Unit = unit;
+            this.CreateContext = meter.MyProvider.ProviderListener?.OnCreateInstrument(this);
         }
 
         internal void Record<T>((T value, (string name, object value)[] attributes)[] measurements)

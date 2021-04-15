@@ -1,4 +1,8 @@
 using System;
+using System.Collections.Concurrent;
+using Microsoft.Diagnostics.Metric;
+using OpenTelemetry.Metric.Sdk;
+using Microsoft.OpenTelemetry.Export;
 using Xunit;
 
 namespace OpenTelemetry.Metric.Api2
@@ -7,6 +11,11 @@ namespace OpenTelemetry.Metric.Api2
     {
         public class TestListener : BasicMeterProviderListener
         {
+            public override object OnCreateInstrument(Instrument instrument)
+            {
+                return null;
+            }
+
             public override void Record<T>(Instrument instrument, T value, (string name, object value)[] attributes)
             {
                 var msg = base.ToString(instrument, value, attributes);
@@ -25,9 +34,97 @@ namespace OpenTelemetry.Metric.Api2
             }
         }
 
+        public class DotNetListener : BasicMeterProviderListener
+        {
+            private static ConcurrentDictionary<BasicMeter,Meter> meters = new();
+            private MetricProvider sdk;
+
+            public DotNetListener()
+            {
+                this.sdk = new MetricProvider()
+                    .Include((inst) => true, (builder) => {})
+                    .AddExporter(new OTLPExporter(6, 1000))
+                    .Build();
+            }
+
+            public void Shutdown()
+            {
+                this.sdk.Stop();
+            }
+
+            public override object OnCreateInstrument(Instrument instrument)
+            {
+                var meter = meters.GetOrAdd(instrument.MyMeter, (m) => new Meter(m.Name, m.Version));
+                return new ProxyInstrument(meter, instrument.Name);
+            }
+
+            public override void Record<T>(Instrument instrument, T value, (string name, object value)[] attributes)
+            {
+                var proxy = instrument.CreateContext as ProxyInstrument;
+                if (proxy is not null)
+                {
+                    proxy.Record(value, attributes);
+                }
+            }
+
+            public override void Record<T>(Instrument instrument, (T value, (string name, object value)[] attributes)[] measurements)
+            {
+                var proxy = instrument.CreateContext as ProxyInstrument;
+
+                int c = 1;
+                foreach (var m in measurements)
+                {
+                    if (proxy is not null)
+                    {
+                        proxy.Record(m.value, m.attributes);
+                    }
+                    c++;
+                }
+            }
+
+            public class ProxyInstrument : UnboundMeterInstrument
+            {
+                public ProxyInstrument(Meter meter, string name)
+                    : base(meter, name)
+                {
+                    Publish();
+                }
+
+                public void Record<T>(T value, (string name, object value)[] attributes)
+                {
+                    double dvalue = 0;
+
+                    if (value is int ivalue)
+                    {
+                        dvalue = ivalue;
+                    }
+                    else if (value is long lvalue)
+                    {
+                        dvalue = lvalue;
+                    }
+                    else if (value is double dval)
+                    {
+                        dvalue = dval;
+                    }
+
+                    var labels = new (string name, string value)[attributes.Length];
+                    for (var n = 0; n < attributes.Length; n++)
+                    {
+                        labels[n].name = attributes[n].name;
+                        labels[n].value = attributes[n].value.ToString();
+                    }
+
+                    this.RecordMeasurement(dvalue, labels);
+                }
+            }
+        }
+
         [Fact]
         public void HappyPath()
         {
+            //BasicMeterProviderListener listener = new TestListener();
+            BasicMeterProviderListener listener = new DotNetListener();
+
             var provider = MeterProvider.Default;
 
             var meter = provider.GetMeter("mylib.test", "1.0.0");
@@ -36,7 +133,7 @@ namespace OpenTelemetry.Metric.Api2
 
             var basicProvider = provider as BasicMeterProvider;
 
-            basicProvider.ProviderListener = new TestListener();
+            basicProvider.ProviderListener = listener;
 
             // Counters
 
@@ -80,6 +177,11 @@ namespace OpenTelemetry.Metric.Api2
                 state: funcState);
 
             basicMeter.Observe();
+
+            if (listener is DotNetListener sdk)
+            {
+                sdk.Shutdown();
+            }
         }
 
         [Fact]

@@ -4,6 +4,8 @@ namespace OpenTelemetry.Metric.Api2
 {
     public abstract class BasicMeterProviderListener
     {
+        public abstract object OnCreateInstrument(Instrument instrument);
+
         public abstract void Record<T>(Instrument instrument, T value, (string name, object value)[] attributes);
 
         public abstract void Record<T>(Instrument instrument, (T value, (string name, object value)[] attributes)[] measurements);
