@@ -2,13 +2,32 @@ using System.Linq;
 
 namespace OpenTelemetry.Metric.Api2
 {
-    public abstract class BasicMeterProviderListener
+    public class BasicMeterProviderListener
     {
-        public abstract object OnCreateInstrument(Instrument instrument);
+        public virtual void OnCreateMeter(BasicMeter meter)
+        {
+        }
 
-        public abstract void Record<T>(Instrument instrument, T value, (string name, object value)[] attributes);
+        public virtual void OnRemoveMeter(BasicMeter meter)
+        {
+        }
 
-        public abstract void Record<T>(Instrument instrument, (T value, (string name, object value)[] attributes)[] measurements);
+        public virtual object OnCreateInstrument(Instrument instrument)
+        {
+            return null;
+        }
+
+        public virtual void OnRemoveInstrument(Instrument instrument)
+        {
+        }
+
+        public virtual void Record<T>(Instrument instrument, T value, (string name, object value)[] attributes)
+        {
+        }
+
+        public virtual void Record<T>(Instrument instrument, (T value, (string name, object value)[] attributes)[] measurements)
+        {
+        }
 
         public string ToString<T>(Instrument instrument, T value, (string name, object value)[] attributes)
         {

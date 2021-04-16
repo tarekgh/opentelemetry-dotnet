@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using Microsoft.Diagnostics.Metric;
 using OpenTelemetry.Metric.Sdk;
 using Microsoft.OpenTelemetry.Export;
@@ -11,11 +12,6 @@ namespace OpenTelemetry.Metric.Api2
     {
         public class TestListener : BasicMeterProviderListener
         {
-            public override object OnCreateInstrument(Instrument instrument)
-            {
-                return null;
-            }
-
             public override void Record<T>(Instrument instrument, T value, (string name, object value)[] attributes)
             {
                 var msg = base.ToString(instrument, value, attributes);
@@ -52,10 +48,27 @@ namespace OpenTelemetry.Metric.Api2
                 this.sdk.Stop();
             }
 
+            public override void OnCreateMeter(BasicMeter meter)
+            {
+                meters.GetOrAdd(meter, (m) => new Meter(m.Name, m.Version));
+            }
+
+            public override void OnRemoveMeter(BasicMeter meter)
+            {
+                if (meters.TryGetValue(meter, out var m))
+                {
+                    meters.TryRemove(KeyValuePair.Create(meter, m));
+                }
+            }
+
             public override object OnCreateInstrument(Instrument instrument)
             {
                 var meter = meters.GetOrAdd(instrument.MyMeter, (m) => new Meter(m.Name, m.Version));
                 return new ProxyInstrument(meter, instrument.Name);
+            }
+
+            public override void OnRemoveInstrument(Instrument instrument)
+            {
             }
 
             public override void Record<T>(Instrument instrument, T value, (string name, object value)[] attributes)
@@ -122,33 +135,32 @@ namespace OpenTelemetry.Metric.Api2
         [Fact]
         public void HappyPath()
         {
-            //BasicMeterProviderListener listener = new TestListener();
-            BasicMeterProviderListener listener = new DotNetListener();
-
             var provider = MeterProvider.Default;
 
-            var meter = provider.GetMeter("mylib.test", "1.0.0");
+            using var meter = provider.GetMeter("mylib.test", "1.0.0");
 
-            var basicMeter = meter as BasicMeter;
+            // Customize
 
-            var basicProvider = provider as BasicMeterProvider;
-
-            basicProvider.ProviderListener = listener;
+            if (provider is BasicMeterProvider basicProvider)
+            {
+                //basicProvider.ProviderListener = new TestListener();
+                basicProvider.ProviderListener = new DotNetListener();
+            }
 
             // Counters
 
-            var counter = meter.CreateCounter("counter");
+            using var counter = meter.CreateCounter("counter");
             counter.Add(10, ("location", "here"), ("id", 100));
 
-            var intcounter = meter.CreateCounter<int>("intcounter", "desc of counter", "bytes");
+            using var intcounter = meter.CreateCounter<int>("intcounter", "desc of counter", "bytes");
             intcounter.Add(20);
 
-            var longcounter = meter.CreateCounter<long>("longcounter");
+            using var longcounter = meter.CreateCounter<long>("longcounter");
             longcounter.Add(20);
 
             // CounterFunc
 
-            var counterfunc = meter.CreateCounterFunc("counterfunc",
+            using var counterfunc = meter.CreateCounterFunc("counterfunc",
                 (observer, arg) =>
                 {
                     observer.Observe(10.1);
@@ -162,7 +174,7 @@ namespace OpenTelemetry.Metric.Api2
                 return 121;
             };
 
-            var intcounterfunc = meter.CreateCounterFunc<int>(
+            using var intcounterfunc = meter.CreateCounterFunc<int>(
                 name: "intcounterfunc",
                 callback: (observer, arg) =>
                 {
@@ -176,11 +188,21 @@ namespace OpenTelemetry.Metric.Api2
                 },
                 state: funcState);
 
-            basicMeter.Observe();
+            // ****
 
-            if (listener is DotNetListener sdk)
+            if (meter is BasicMeter basicMeter)
             {
-                sdk.Shutdown();
+                basicMeter.Observe();
+            }
+
+            // ****
+
+            if (provider is BasicMeterProvider basicProvider1)
+            {
+                if (basicProvider1.ProviderListener is DotNetListener sdk)
+                {
+                    sdk.Shutdown();
+                }
             }
         }
 

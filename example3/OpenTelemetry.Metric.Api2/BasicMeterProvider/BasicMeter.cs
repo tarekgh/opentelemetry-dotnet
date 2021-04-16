@@ -17,6 +17,8 @@ namespace OpenTelemetry.Metric.Api2
             this.MyProvider = provider;
             this.Name = name;
             this.Version = version;
+
+            this.MyProvider.ProviderListener?.OnCreateMeter(this);
         }
 
         public ICounter CreateCounter(string name, string description = null, string unit = null)
@@ -114,6 +116,7 @@ namespace OpenTelemetry.Metric.Api2
 
         public void Dispose()
         {
+            this.MyProvider.ProviderListener?.OnRemoveMeter(this);
             MyProvider.RemoveMeter(this);
         }
     }

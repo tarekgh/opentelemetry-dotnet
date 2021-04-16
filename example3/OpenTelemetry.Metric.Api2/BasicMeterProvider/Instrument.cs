@@ -39,6 +39,7 @@ namespace OpenTelemetry.Metric.Api2
 
         public void Dispose()
         {
+            this.MyMeter.MyProvider.ProviderListener?.OnRemoveInstrument(this);
             MyMeter.RemoveInstrument(this.Name);
         }
     }
