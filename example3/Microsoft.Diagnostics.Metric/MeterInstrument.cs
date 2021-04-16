@@ -11,13 +11,28 @@ namespace Microsoft.Diagnostics.Metric
 {
     public abstract class MeterInstrument
     {
-        struct ListenerSubscription
+        protected struct ListenerSubscription
         {
             public MeterInstrumentListener Listener;
             public object Cookie;
         }
 
-        ListenerSubscription[] _subscriptions = Array.Empty<ListenerSubscription>();
+        [StructLayout(LayoutKind.Sequential)]
+        protected struct TwoLabels
+        {
+            public (string LabelName, string LabelValue) Label1;
+            public (string LabelName, string LabelValue) Label2;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        protected struct ThreeLabels
+        {
+            public (string LabelName, string LabelValue) Label1;
+            public (string LabelName, string LabelValue) Label2;
+            public (string LabelName, string LabelValue) Label3;
+        }
+
+        protected ListenerSubscription[] _subscriptions = Array.Empty<ListenerSubscription>();
 
         public abstract Meter Meter { get; }
         public abstract string Name { get; }
@@ -30,72 +45,6 @@ namespace Microsoft.Diagnostics.Metric
         protected void Publish()
         {
             Meter.PublishInstrument(this);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void RecordMeasurement(double val) =>
-            RecordMeasurement(val, Array.Empty<(string LabelName, string LabelValue)>());
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void RecordMeasurement(double val, (string LabelName, string LabelValue) label)
-        {
-            ReadOnlySpan<(string LabelName, string LabelValue)> labels = MemoryMarshal.CreateReadOnlySpan(ref label, 1);
-            RecordMeasurement(val, labels);
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        struct TwoLabels
-        {
-            public (string LabelName, string LabelValue) Label1;
-            public (string LabelName, string LabelValue) Label2;
-        }
-
-        [SkipLocalsInit]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void RecordMeasurement(double val,
-            (string LabelName, string LabelValue) label1,
-            (string LabelName, string LabelValue) label2)
-        {
-            TwoLabels twoLabels = new TwoLabels();
-            twoLabels.Label1 = label1;
-            twoLabels.Label2 = label2;
-            ReadOnlySpan<(string LabelName, string LabelValue)> labels = MemoryMarshal.CreateReadOnlySpan(ref twoLabels.Label1, 2);
-            RecordMeasurement(val, labels);
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        struct ThreeLabels
-        {
-            public (string LabelName, string LabelValue) Label1;
-            public (string LabelName, string LabelValue) Label2;
-            public (string LabelName, string LabelValue) Label3;
-        }
-
-        [SkipLocalsInit]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void RecordMeasurement(double val,
-            (string LabelName, string LabelValue) label1,
-            (string LabelName, string LabelValue) label2,
-            (string LabelName, string LabelValue) label3)
-        {
-            ThreeLabels threeLabels = new ThreeLabels();
-            threeLabels.Label1 = label1;
-            threeLabels.Label2 = label2;
-            threeLabels.Label3 = label3;
-            ReadOnlySpan<(string LabelName, string LabelValue)> labels = MemoryMarshal.CreateReadOnlySpan(ref threeLabels.Label1, 3);
-            RecordMeasurement(val, labels);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void RecordMeasurement(double val, ReadOnlySpan<(string LabelName, string LabelValue)> labels)
-        {
-            // this captures a snapshot, _subscriptions array could be replaced while
-            // we are invoking callbacks
-            ListenerSubscription[] subscriptions = _subscriptions;
-            for (int i = 0; i < subscriptions.Length; i++)
-            {
-                subscriptions[i].Listener.MeasurementRecorded(this, val, labels, subscriptions[i].Cookie);
-            }
         }
 
         protected internal virtual bool IsObservable => false;
@@ -148,5 +97,60 @@ namespace Microsoft.Diagnostics.Metric
             cookie = null;
             return false;
         }
+    }
+
+    public abstract class MeterInstrument<T> : MeterInstrument where T:struct
+    {
+        [SkipLocalsInit]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void RecordMeasurement(T val,
+            (string LabelName, string LabelValue) label1,
+            (string LabelName, string LabelValue) label2)
+        {
+            TwoLabels twoLabels = new TwoLabels();
+            twoLabels.Label1 = label1;
+            twoLabels.Label2 = label2;
+            ReadOnlySpan<(string LabelName, string LabelValue)> labels = MemoryMarshal.CreateReadOnlySpan(ref twoLabels.Label1, 2);
+            RecordMeasurement(val, labels);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void RecordMeasurement(T val) =>
+            RecordMeasurement(val, Array.Empty<(string LabelName, string LabelValue)>());
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void RecordMeasurement(T val, (string LabelName, string LabelValue) label)
+        {
+            ReadOnlySpan<(string LabelName, string LabelValue)> labels = MemoryMarshal.CreateReadOnlySpan(ref label, 1);
+            RecordMeasurement(val, labels);
+        }
+
+        [SkipLocalsInit]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void RecordMeasurement(T val,
+            (string LabelName, string LabelValue) label1,
+            (string LabelName, string LabelValue) label2,
+            (string LabelName, string LabelValue) label3)
+        {
+            ThreeLabels threeLabels = new ThreeLabels();
+            threeLabels.Label1 = label1;
+            threeLabels.Label2 = label2;
+            threeLabels.Label3 = label3;
+            ReadOnlySpan<(string LabelName, string LabelValue)> labels = MemoryMarshal.CreateReadOnlySpan(ref threeLabels.Label1, 3);
+            RecordMeasurement(val, labels);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void RecordMeasurement(T val, ReadOnlySpan<(string LabelName, string LabelValue)> labels)
+        {
+            // this captures a snapshot, _subscriptions array could be replaced while
+            // we are invoking callbacks
+            ListenerSubscription[] subscriptions = _subscriptions;
+            for (int i = 0; i < subscriptions.Length; i++)
+            {
+                subscriptions[i].Listener.MeasurementRecorded(this, val, labels, subscriptions[i].Cookie);
+            }
+        }
+
     }
 }

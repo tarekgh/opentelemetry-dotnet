@@ -10,7 +10,7 @@ namespace SimpleExamples
     class CounterFunc_DynamicLabels_Example
     {
         static Meter hatCo = new Meter("HatCo");
-        CounterFunc _hatsSoldCounter = hatCo.CreateCounterFunc(
+        CounterFunc<double> _hatsSoldCounter = hatCo.CreateCounterFunc<double>(
             name: "HatCo.ColoredHatsSold",
             observeValues: o =>
             {

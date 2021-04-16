@@ -14,7 +14,7 @@ namespace UnitTest
         public void PublishMeterFirst()
         {
             using Meter m = new Meter("TestMeterA");
-            Counter c = m.CreateCounter("C");
+            Counter<double> c = m.CreateCounter<double>("C");
             using TestListener listener = new TestListener("TestMeterA", false);
 
             Assert.Null(listener.LastPublish);
@@ -31,7 +31,7 @@ namespace UnitTest
             Assert.Null(listener.LastPublish);
             listener.Start();
             Assert.Null(listener.LastPublish);
-            Counter c = m.CreateCounter("C");
+            Counter<double> c = m.CreateCounter<double>("C");
             Assert.Equal(c, listener.LastPublish);
         }
 
@@ -45,7 +45,7 @@ namespace UnitTest
             Assert.Null(listener.LastPublish);
             using Meter m = new Meter("TestMeterC");
             Assert.Null(listener.LastPublish);
-            Counter c = m.CreateCounter("C");
+            Counter<double> c = m.CreateCounter<double>("C");
             Assert.Equal(c, listener.LastPublish);
         }
 
@@ -53,7 +53,7 @@ namespace UnitTest
         public void UnpublishOnMeterDispose()
         {
             using Meter m = new Meter("TestMeterD");
-            Counter c = m.CreateCounter("C");
+            Counter<double> c = m.CreateCounter<double>("C");
             using TestListener listener = new TestListener("TestMeterD", true);
 
             listener.Start();
@@ -66,7 +66,7 @@ namespace UnitTest
         public void NoUnpublishOnDoubleDispose()
         {
             using Meter m = new Meter("TestMeterD2");
-            Counter c = m.CreateCounter("C");
+            Counter<double> c = m.CreateCounter<double>("C");
             using TestListener listener = new TestListener("TestMeterD2", true);
 
             listener.Start();
@@ -82,7 +82,7 @@ namespace UnitTest
         public void UnpublishOnlyWhenSubscribed()
         {
             using Meter m = new Meter("TestMeterE");
-            Counter c = m.CreateCounter("C");
+            Counter<double> c = m.CreateCounter<double>("C");
             using TestListener listener = new TestListener("TestMeterE", false);
 
             listener.Start();
@@ -95,7 +95,7 @@ namespace UnitTest
         public void NoPublishAfterMeterDispose()
         {
             using Meter m = new Meter("TestMeterF");
-            Counter c = m.CreateCounter("C");
+            Counter<double> c = m.CreateCounter<double>("C");
             m.Dispose();
             using TestListener listener = new TestListener("TestMeterF", false);
 
@@ -115,7 +115,7 @@ namespace UnitTest
             Assert.Null(listener.LastPublish);
             listener.Dispose();
             Assert.Null(listener.LastPublish);
-            Counter c = m.CreateCounter("C");
+            Counter<double> c = m.CreateCounter<double>("C");
             Assert.Null(listener.LastPublish);
         }
 
@@ -123,7 +123,7 @@ namespace UnitTest
         public void UnpublishListenerDispose()
         {
             using Meter m = new Meter("TestMeterH");
-            Counter c = m.CreateCounter("C");
+            Counter<double> c = m.CreateCounter<double>("C");
             using TestListener listener = new TestListener("TestMeterH", true);
 
             listener.Start();
@@ -136,7 +136,7 @@ namespace UnitTest
         public void NoUnpublishListenerDoubleDispose()
         {
             using Meter m = new Meter("TestMeterI");
-            Counter c = m.CreateCounter("C");
+            Counter<double> c = m.CreateCounter<double>("C");
             using TestListener listener = new TestListener("TestMeterI", true);
 
             listener.Start();

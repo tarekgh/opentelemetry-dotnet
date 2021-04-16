@@ -35,7 +35,7 @@ namespace OpenTelemetry.Metric.Sdk
         {
             MetricProvider _owner;
             public SdkInstrumentListener(MetricProvider owner) { _owner = owner; }
-            protected override void MeasurementRecorded(MeterInstrument instrument, double value, ReadOnlySpan<(string, string)> labels, object cookie)
+            protected override void MeasurementRecorded<T>(MeterInstrument instrument, T value, ReadOnlySpan<(string, string)> labels, object cookie)
             {
                 InstrumentState state = (InstrumentState)cookie;
                 state.Update(value, labels);

@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Diagnostics.Metric
 {
-    public class Distribution : UnboundMeterInstrument
+    public interface IDistribution
+    {
+    }
+
+    public class Distribution<T> : UnboundMeterInstrument<T>, IDistribution where T:struct
     {
         internal Distribution(Meter meter, string name) :
             base(meter, name)
@@ -14,16 +18,16 @@ namespace Microsoft.Diagnostics.Metric
             Publish();
         }
 
-        public void Record(double measurement) => RecordMeasurement(measurement);
-        public void Record(double measurement,
+        public void Record(T measurement) => RecordMeasurement(measurement);
+        public void Record(T measurement,
             (string LabelName, string LabelValue) label1) => RecordMeasurement(measurement, label1);
-        public void Record(double measurement,
+        public void Record(T measurement,
             (string LabelName, string LabelValue) label1,
             (string LabelName, string LabelValue) label2) => RecordMeasurement(measurement, label1, label2);
-        public void Record(double measurement,
+        public void Record(T measurement,
             (string LabelName, string LabelValue) label1,
             (string LabelName, string LabelValue) label2,
             (string LabelName, string LabelValue) label3) => RecordMeasurement(measurement, label1, label2, label3);
-        public void Record(double measurement, params (string LabelName, string LabelValue)[] labels) => RecordMeasurement(measurement, labels);
+        public void Record(T measurement, params (string LabelName, string LabelValue)[] labels) => RecordMeasurement(measurement, labels);
     }
 }

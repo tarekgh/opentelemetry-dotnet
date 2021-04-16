@@ -11,7 +11,7 @@ namespace OpenTelemetry.Metric.Sdk
 
         public override MeasurementAggregation MeasurementAggregation => throw new NotImplementedException();
 
-        public override void Update(double value)
+        public override void Update<T>(T value)
         {
             throw new NotImplementedException();
             /*

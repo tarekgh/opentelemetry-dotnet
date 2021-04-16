@@ -83,11 +83,12 @@ namespace OpenTelemetry.Metric.Sdk
             return new DistributionStatistics(MeasurementAggregation, new QuantileValue[0]);
         }
 
-        public override void Update(double measurement)
+        public override void Update<T>(T measurement)
         {
+            double dval = ToDouble(measurement);
             lock (this)
             {
-                ref long bits = ref Unsafe.As<double, long>(ref measurement);
+                ref long bits = ref Unsafe.As<double, long>(ref dval);
                 int exponent = (int)(bits >> ExponentShift);
                 int mantissa = (int)(bits >> _mantissaShift) & _mantissaMask;
                 ref int[] mantissaCounts = ref Unsafe.As<object, int[]>(ref _counters[exponent]);

@@ -97,8 +97,8 @@ namespace Example
             taskList.Add(Task.Run(async () =>
             {
                 Meter m = new Meter("Program.Test3");
-                var sum = m.CreateCounter("Sum");
-                var lastvalue = m.CreateGauge("Last");
+                var sum = m.CreateCounter<double>("Sum");
+                var lastvalue = m.CreateGauge<double>("Last");
 
                 while (!token.IsCancellationRequested)
                 {

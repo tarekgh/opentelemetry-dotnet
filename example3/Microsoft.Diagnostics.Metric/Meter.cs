@@ -22,29 +22,29 @@ namespace Microsoft.Diagnostics.Metric
             }
         }
 
-        public Counter CreateCounter(string name)
+        public Counter<T> CreateCounter<T>(string name) where T:struct
         {
-            return new Counter(this, name);
+            return new Counter<T>(this, name);
         }
 
-        public CounterFunc CreateCounterFunc(string name, Func<double> observeValue)
+        public CounterFunc<T> CreateCounterFunc<T>(string name, Func<double> observeValue) where T:struct
         {
-            return new CounterFunc(this, name, observeValue);
+            return new CounterFunc<T>(this, name, observeValue);
         }
 
-        public CounterFunc CreateCounterFunc(string name, Action<MeasurementObserver> observeValues)
+        public CounterFunc<T> CreateCounterFunc<T>(string name, Action<MeasurementObserver> observeValues) where T:struct
         {
-            return new CounterFunc(this, name, observeValues);
+            return new CounterFunc<T>(this, name, observeValues);
         }
 
-        public Gauge CreateGauge(string name)
+        public Gauge<T> CreateGauge<T>(string name) where T:struct
         {
-            return new Gauge(this, name);
+            return new Gauge<T>(this, name);
         }
 
-        public Distribution CreateDistribution(string name)
+        public Distribution<T> CreateDistribution<T>(string name) where T:struct
         {
-            return new Distribution(this, name);
+            return new Distribution<T>(this, name);
         }
 
         public string Name { get; }

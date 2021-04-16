@@ -31,7 +31,7 @@ namespace PercentileExample
         {
             HttpClient client = new HttpClient();
             Meter meter = new Meter("PercentileExample");
-            Distribution d = meter.CreateDistribution("ping_bing");
+            Distribution<double> d = meter.CreateDistribution<double>("ping_bing");
             Stopwatch sw = new Stopwatch();
             while (!ct.IsCancellationRequested)
             {

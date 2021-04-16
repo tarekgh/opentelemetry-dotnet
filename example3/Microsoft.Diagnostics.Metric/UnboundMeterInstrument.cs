@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace Microsoft.Diagnostics.Metric
 {
-    public abstract class UnboundMeterInstrument : MeterInstrument
+    public abstract class UnboundMeterInstrument<T> : MeterInstrument<T> where T:struct
     {
         public override Meter Meter { get; }
         public override string Name { get; }

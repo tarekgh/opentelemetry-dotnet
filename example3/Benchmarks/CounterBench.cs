@@ -39,17 +39,17 @@ namespace Benchmarks
     public class CounterBench
     {
         static Meter m = new Meter("GroceryStoreExample");
-        static Distribution d = m.CreateDistribution("Distribution");
-        static Counter noLabels = m.CreateCounter("NoLabels");
-        static Counter sameNames4 = m.CreateCounter("SameNames4");
-        static Counter sameNames3 = m.CreateCounter("SameNames3");
-        static Counter labels3 = m.CreateCounter("Labels3");
-        static Counter sameNames2 = m.CreateCounter("SameNames2");
-        static Counter labels2 = m.CreateCounter("Labels2");
-        static Counter sameNames1 = m.CreateCounter("SameNames1");
-        static Counter labels1 = m.CreateCounter("Labels1");
-        static Counter multiRankSmall = m.CreateCounter("MultiRankSmall");
-        static Counter multiRankLarge = m.CreateCounter("MultiRankLarge");
+        static Distribution<double> d = m.CreateDistribution<double>("Distribution");
+        static Counter<double> noLabels = m.CreateCounter<double>("NoLabels");
+        static Counter<double> sameNames4 = m.CreateCounter<double>("SameNames4");
+        static Counter<double> sameNames3 = m.CreateCounter<double>("SameNames3");
+        static Counter<double> labels3 = m.CreateCounter<double>("Labels3");
+        static Counter<double> sameNames2 = m.CreateCounter<double>("SameNames2");
+        static Counter<double> labels2 = m.CreateCounter<double>("Labels2");
+        static Counter<double> sameNames1 = m.CreateCounter<double>("SameNames1");
+        static Counter<double> labels1 = m.CreateCounter<double>("Labels1");
+        static Counter<double> multiRankSmall = m.CreateCounter<double>("MultiRankSmall");
+        static Counter<double> multiRankLarge = m.CreateCounter<double>("MultiRankLarge");
         static MetricProvider _provider = new MetricProvider()
                 .Name("OrderPipeline1")
                 .Include("GroceryStoreExample")

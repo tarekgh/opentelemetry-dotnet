@@ -13,8 +13,8 @@ namespace GroceryStoreExample
         };
 
         static Meter s_meter = new Meter("GroceryStore", "1.0.0");
-        static private Counter s_itemCounter = s_meter.CreateCounter("item_counter");
-        static private Counter s_cashCounter = s_meter.CreateCounter("cash_counter");
+        static private Counter<double> s_itemCounter = s_meter.CreateCounter<double>("item_counter");
+        static private Counter<double> s_cashCounter = s_meter.CreateCounter<double>("cash_counter");
 
         private string _storeName;
 

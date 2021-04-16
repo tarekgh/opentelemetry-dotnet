@@ -118,19 +118,19 @@ namespace OpenTelemetry.Metric.Sdk
             // In the future instruments will likely have a more explicit default aggregation configuration API
             // but for now the type of the instrument implies the config
             //
-            if (instrument is Counter)
+            if (instrument is ICounter)
             {
                 return MeasurementAggregations.Sum;
             }
-            else if (instrument is CounterFunc)
+            else if (instrument is ICounterFunc)
             {
                 return MeasurementAggregations.Sum;
             }
-            else if (instrument is Gauge)
+            else if (instrument is IGauge)
             {
                 return MeasurementAggregations.LastValue;
             }
-            else if (instrument is Distribution)
+            else if (instrument is IDistribution)
             {
                 return new PercentileAggregation()
                 {

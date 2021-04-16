@@ -9,12 +9,12 @@ namespace MyLibrary
     public class Library
     {
         static Meter s_meter = new Meter("Library");
-        static Counter s_c1 = s_meter.CreateCounter("c1");
+        static Counter<double> s_c1 = s_meter.CreateCounter<double>("c1");
 
-        Counter counter_request;
-        Counter counter_request2;
-        Counter counter_request3;
-        Gauge gauge_qsize;
+        Counter<double> counter_request;
+        Counter<double> counter_request2;
+        Counter<double> counter_request3;
+        Gauge<double> gauge_qsize;
         int count = 0;
         string _name;
 
@@ -22,16 +22,16 @@ namespace MyLibrary
         {
             _name = name;
 
-            counter_request = s_meter.CreateCounter("request2");
+            counter_request = s_meter.CreateCounter<double>("request2");
 
-            gauge_qsize = s_meter.CreateGauge("queue_size");
+            gauge_qsize = s_meter.CreateGauge<double>("queue_size");
 
             //TODO: make this async
-            counter_request3 = s_meter.CreateCounter("request3");
+            counter_request3 = s_meter.CreateCounter<double>("request3");
 
-            counter_request2 = s_meter.CreateCounter("requests");
+            counter_request2 = s_meter.CreateCounter<double>("requests");
 
-            var counter_registered = s_meter.CreateCounter("registered");
+            var counter_registered = s_meter.CreateCounter<double>("registered");
             counter_registered.Add(1, ("Program", "test"), ("LibraryInstanceName", name));
         }
 

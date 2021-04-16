@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Diagnostics.Metric
 {
-    public class CounterFunc : UnboundMeterInstrument
+    public interface ICounterFunc
+    {
+    }
+
+    public class CounterFunc<T> : UnboundMeterInstrument<T>, ICounterFunc where T:struct
     {
         // This is either a Func<double> or an Action<MeasurementObserver>
         object _observeValueFunc;

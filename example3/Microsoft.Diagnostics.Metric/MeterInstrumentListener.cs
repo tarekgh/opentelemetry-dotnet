@@ -50,7 +50,7 @@ namespace Microsoft.Diagnostics.Metric
         internal protected virtual void MeterInstrumentPublished(MeterInstrument instrument, MeterSubscribeOptions subscribeOptions)
         { }
 
-        internal protected virtual void MeasurementRecorded(MeterInstrument instrument, double value, ReadOnlySpan<ValueTuple<string, string>> labels, object cookie)
+        internal protected virtual void MeasurementRecorded<T>(MeterInstrument instrument, T value, ReadOnlySpan<ValueTuple<string, string>> labels, object cookie)
         { }
 
         internal protected virtual void MeterInstrumentUnpublished(MeterInstrument instrument, object cookie)

@@ -10,7 +10,7 @@ namespace SimpleExamples
     class CounterFunc_Example
     {
         static Meter hatCo = new Meter("HatCo");
-        static CounterFunc _hatsSoldCounter = hatCo.CreateCounterFunc("HatCo.HatsSold", () => HatStoreData.GetTotalHatsSold());
+        static CounterFunc<double> _hatsSoldCounter = hatCo.CreateCounterFunc<double>("HatCo.HatsSold", () => HatStoreData.GetTotalHatsSold());
     }
 
     static class HatStoreData

@@ -12,7 +12,7 @@ namespace OpenTelemetry.Metric.Sdk
     abstract class InstrumentState
     {
         // This can be called concurrently with Collect()
-        public abstract void Update(double measurement, ReadOnlySpan<(string LabelName, string LabelValue)> labels);
+        public abstract void Update<T>(T measurement, ReadOnlySpan<(string LabelName, string LabelValue)> labels);
 
         // This can be called concurrently with Update()
         public abstract void Collect(MeterInstrument instrument, Action<LabeledAggregationStatistics> aggregationVisitFunc);
@@ -34,7 +34,7 @@ namespace OpenTelemetry.Metric.Sdk
             _aggregatorStore.Collect(aggregationVisitFunc);
         }
 
-        public override void Update(double measurement, ReadOnlySpan<(string LabelName, string LabelValue)> labels)
+        public override void Update<T>(T measurement, ReadOnlySpan<(string LabelName, string LabelValue)> labels)
         {
             // TODO: we need to figure out our atomicity guarantees. If this function updates
             // multiple aggregators for a single measurement or any aggregator

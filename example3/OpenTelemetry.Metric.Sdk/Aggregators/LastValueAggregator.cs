@@ -13,9 +13,9 @@ namespace OpenTelemetry.Metric.Sdk
         public override MeasurementAggregation MeasurementAggregation => MeasurementAggregations.LastValue;
 
 
-        public override void Update(double value)
+        public override void Update<T>(T value)
         {
-            this._lastValue = value;
+            this._lastValue = ToDouble(value);
         }
 
         public override AggregationStatistics Collect()

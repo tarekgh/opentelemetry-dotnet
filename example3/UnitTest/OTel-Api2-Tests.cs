@@ -95,7 +95,7 @@ namespace OpenTelemetry.Metric.Api2
                 }
             }
 
-            public class ProxyInstrument : UnboundMeterInstrument
+            public class ProxyInstrument : UnboundMeterInstrument<double>
             {
                 public ProxyInstrument(Meter meter, string name)
                     : base(meter, name)
