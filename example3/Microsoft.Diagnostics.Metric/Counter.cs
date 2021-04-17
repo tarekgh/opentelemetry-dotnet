@@ -6,11 +6,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Diagnostics.Metric
 {
-    public interface ICounter
-    {
-    }
-
-    public class Counter<T> : UnboundMeterInstrument<T>, ICounter where T:struct
+    public class Counter<T> : UnboundMeterInstrument<T> where T:struct
     {
         internal Counter(Meter meter, string name) :
             base(meter, name)

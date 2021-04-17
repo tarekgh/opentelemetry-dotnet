@@ -6,11 +6,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Diagnostics.Metric
 {
-    public interface IGauge
-    {
-    }
-
-    public class Gauge<T> : UnboundMeterInstrument<T>, IGauge where T:struct
+    public class Gauge<T> : UnboundMeterInstrument<T> where T:struct
     {
         internal Gauge(Meter meter, string name) :
             base(meter, name)
