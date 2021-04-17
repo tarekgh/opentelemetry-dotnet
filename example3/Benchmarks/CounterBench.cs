@@ -13,25 +13,25 @@ namespace Benchmarks
 {
     /*  BenchmarkDotNet=v0.12.1, OS=Windows 10.0.19042
         Intel Core i7-9700K CPU 3.60GHz (Coffee Lake), 1 CPU, 8 logical and 8 physical cores
-        .NET Core SDK=5.0.201
-          [Host]     : .NET Core 5.0.4 (CoreCLR 5.0.421.11614, CoreFX 5.0.421.11614), X64 RyuJIT
-          DefaultJob : .NET Core 5.0.4 (CoreCLR 5.0.421.11614, CoreFX 5.0.421.11614), X64 RyuJIT
+        .NET Core SDK=5.0.202
+          [Host]     : .NET Core 5.0.5 (CoreCLR 5.0.521.16609, CoreFX 5.0.521.16609), X64 RyuJIT
+          DefaultJob : .NET Core 5.0.5 (CoreCLR 5.0.521.16609, CoreFX 5.0.521.16609), X64 RyuJIT
 
 
-        |                  Method |       Mean |      Error |     StdDev |  Gen 0 | Gen 1 | Gen 2 | Allocated |
-        |------------------------ |-----------:|-----------:|-----------:|-------:|------:|------:|----------:|
-        |             AddNoLabels |  19.919 ns |  0.0100 ns |  0.0083 ns |      - |     - |     - |         - |
-        |              RandomNext |   7.727 ns |  0.0043 ns |  0.0038 ns |      - |     - |     - |         - |
-        |    DistributionNoLabels |  36.646 ns |  0.1381 ns |  0.1291 ns |      - |     - |     - |         - |
-        |      AddSameLabelNames1 |  29.579 ns |  0.0117 ns |  0.0104 ns |      - |     - |     - |         - |
-        | AddDifferentLabelNames1 | 229.167 ns |  0.4925 ns |  0.4113 ns | 0.0548 |     - |     - |     344 B |
-        |      AddSameLabelNames2 |  38.686 ns |  0.0373 ns |  0.0312 ns |      - |     - |     - |         - |
-        | AddDifferentLabelNames2 | 335.541 ns |  0.8747 ns |  0.7754 ns | 0.0587 |     - |     - |     368 B |
-        |      AddSameLabelNames3 |  53.148 ns |  0.4157 ns |  0.3889 ns |      - |     - |     - |         - |
-        |      AddSameLabelNames4 | 103.566 ns |  1.0291 ns |  0.9626 ns | 0.0229 |     - |     - |     144 B |
-        | AddDifferentLabelNames3 | 439.220 ns |  2.3239 ns |  2.1738 ns | 0.0625 |     - |     - |     392 B |
-        |       AddMultiRankSmall | 210.102 ns |  1.9469 ns |  1.8212 ns | 0.0420 |     - |     - |     264 B |
-        |       AddMultiRankLarge | 510.197 ns | 10.0853 ns | 12.3856 ns | 0.0801 |     - |     - |     504 B |
+        |                  Method |       Mean |     Error |     StdDev |  Gen 0 | Gen 1 | Gen 2 | Allocated |
+        |------------------------ |-----------:|----------:|-----------:|-------:|------:|------:|----------:|
+        |             AddNoLabels |  20.626 ns | 0.0578 ns |  0.0540 ns |      - |     - |     - |         - |
+        |              RandomNext |   8.109 ns | 0.0199 ns |  0.0177 ns |      - |     - |     - |         - |
+        |    DistributionNoLabels |  36.850 ns | 0.0846 ns |  0.0750 ns |      - |     - |     - |         - |
+        |      AddSameLabelNames1 |  29.983 ns | 0.0788 ns |  0.0698 ns |      - |     - |     - |         - |
+        | AddDifferentLabelNames1 | 262.870 ns | 4.4975 ns |  3.7557 ns | 0.0548 |     - |     - |     344 B |
+        |      AddSameLabelNames2 |  39.937 ns | 0.1153 ns |  0.1079 ns |      - |     - |     - |         - |
+        | AddDifferentLabelNames2 | 363.361 ns | 6.8562 ns | 11.8266 ns | 0.0587 |     - |     - |     368 B |
+        |      AddSameLabelNames3 |  50.973 ns | 0.0907 ns |  0.0804 ns |      - |     - |     - |         - |
+        |      AddSameLabelNames4 | 106.251 ns | 2.0857 ns |  1.9509 ns | 0.0229 |     - |     - |     144 B |
+        | AddDifferentLabelNames3 | 472.157 ns | 8.2714 ns |  6.9070 ns | 0.0625 |     - |     - |     392 B |
+        |       AddMultiRankSmall | 236.080 ns | 4.7208 ns |  4.4159 ns | 0.0420 |     - |     - |     264 B |
+        |       AddMultiRankLarge | 536.597 ns | 6.6272 ns |  5.8748 ns | 0.0801 |     - |     - |     504 B |
     */
 
     [MemoryDiagnoser]
@@ -65,6 +65,7 @@ namespace Benchmarks
             noLabels.Add(1);
         }
 
+        
         [Benchmark]
         public void RandomNext()
         {

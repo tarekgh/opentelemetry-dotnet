@@ -38,7 +38,19 @@ namespace OpenTelemetry.Metric.Sdk
             protected override void MeasurementRecorded<T>(MeterInstrument instrument, T value, ReadOnlySpan<(string, string)> labels, object cookie)
             {
                 InstrumentState state = (InstrumentState)cookie;
-                state.Update(value, labels);
+                state.Update(ToDouble(value), labels);
+            }
+
+            protected override void MeasurementRecorded(MeterInstrument instrument, double dValue, ReadOnlySpan<(string, string)> labels, object cookie)
+            {
+                InstrumentState state = (InstrumentState)cookie;
+                state.Update(dValue, labels);
+            }
+
+            protected override void MeasurementRecorded(MeterInstrument instrument, long lValue, ReadOnlySpan<(string, string)> labels, object cookie)
+            {
+                InstrumentState state = (InstrumentState)cookie;
+                state.Update((double)lValue, labels);
             }
 
             protected override void MeterInstrumentPublished(MeterInstrument instrument, MeterSubscribeOptions subscribeOptions)
@@ -52,6 +64,37 @@ namespace OpenTelemetry.Metric.Sdk
 
             protected override void MeterInstrumentUnpublished(MeterInstrument instrument, object cookie) =>
                 _owner.RemoveInstrumentState(instrument, (InstrumentState)cookie);
+
+            double ToDouble<T>(T value)
+            {
+                double dvalue = 0;
+                if (value is double dval)
+                {
+                    dvalue = dval;
+                }
+                else if(value is float fVal)
+                {
+                    dvalue = fVal;
+                }
+                else if (value is long lval)
+                {
+                    dvalue = lval;
+                }
+                else if (value is int ival)
+                {
+                    dvalue = ival;
+                }
+                else if(value is short sVal)
+                {
+                    dvalue = sVal;
+                }
+                else if(value is byte bVal)
+                {
+                    dvalue = bVal;
+                }
+
+                return dvalue;
+            }
         }
 
         public MetricProvider()

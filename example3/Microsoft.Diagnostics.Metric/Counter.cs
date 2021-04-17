@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Diagnostics.Metric
 {
-    public class Counter<T> : UnboundMeterInstrument<T> where T:struct
+    public class Counter<T> : UnboundMeterInstrument<T> where T: unmanaged
     {
         internal Counter(Meter meter, string name) :
             base(meter, name)

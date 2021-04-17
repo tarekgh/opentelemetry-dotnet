@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Microsoft.Diagnostics.Metric
 {
 
-    public class CounterFunc<T> : UnboundMeterInstrument<T> where T:struct
+    public class CounterFunc<T> : UnboundMeterInstrument<T> where T: unmanaged
     {
         // This is either a Func<double> or an Action<MeasurementObserver>
         object _observeValueFunc;

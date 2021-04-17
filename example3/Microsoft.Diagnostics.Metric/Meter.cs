@@ -22,27 +22,27 @@ namespace Microsoft.Diagnostics.Metric
             }
         }
 
-        public Counter<T> CreateCounter<T>(string name) where T:struct
+        public Counter<T> CreateCounter<T>(string name) where T:unmanaged
         {
             return new Counter<T>(this, name);
         }
 
-        public CounterFunc<T> CreateCounterFunc<T>(string name, Func<double> observeValue) where T:struct
+        public CounterFunc<T> CreateCounterFunc<T>(string name, Func<double> observeValue) where T: unmanaged
         {
             return new CounterFunc<T>(this, name, observeValue);
         }
 
-        public CounterFunc<T> CreateCounterFunc<T>(string name, Action<MeasurementObserver> observeValues) where T:struct
+        public CounterFunc<T> CreateCounterFunc<T>(string name, Action<MeasurementObserver> observeValues) where T: unmanaged
         {
             return new CounterFunc<T>(this, name, observeValues);
         }
 
-        public Gauge<T> CreateGauge<T>(string name) where T:struct
+        public Gauge<T> CreateGauge<T>(string name) where T: unmanaged
         {
             return new Gauge<T>(this, name);
         }
 
-        public Distribution<T> CreateDistribution<T>(string name) where T:struct
+        public Distribution<T> CreateDistribution<T>(string name) where T: unmanaged
         {
             return new Distribution<T>(this, name);
         }

@@ -50,11 +50,42 @@ namespace Microsoft.Diagnostics.Metric
         internal protected virtual void MeterInstrumentPublished(MeterInstrument instrument, MeterSubscribeOptions subscribeOptions)
         { }
 
-        internal protected virtual void MeasurementRecorded<T>(MeterInstrument instrument, T value, ReadOnlySpan<ValueTuple<string, string>> labels, object cookie)
-        { }
-
         internal protected virtual void MeterInstrumentUnpublished(MeterInstrument instrument, object cookie)
         { }
+
+        internal protected virtual void MeasurementRecorded<T>(MeterInstrument instrument, T value, ReadOnlySpan<ValueTuple<string, string>> labels, object cookie)
+            where T : unmanaged
+        { }
+
+        internal protected virtual void MeasurementRecorded(MeterInstrument instrument, double doubleValue, ReadOnlySpan<ValueTuple<string, string>> labels, object cookie)
+        {
+            MeasurementRecorded<double>(instrument, doubleValue, labels, cookie);
+        }
+
+        internal protected virtual void MeasurementRecorded(MeterInstrument instrument, float floatValue, ReadOnlySpan<ValueTuple<string, string>> labels, object cookie)
+        {
+            MeasurementRecorded<float>(instrument, floatValue, labels, cookie);
+        }
+
+        internal protected virtual void MeasurementRecorded(MeterInstrument instrument, long longValue, ReadOnlySpan<ValueTuple<string, string>> labels, object cookie)
+        {
+            MeasurementRecorded<long>(instrument, longValue, labels, cookie);
+        }
+
+        internal protected virtual void MeasurementRecorded(MeterInstrument instrument, int intValue, ReadOnlySpan<ValueTuple<string, string>> labels, object cookie)
+        {
+            MeasurementRecorded<int>(instrument, intValue, labels, cookie);
+        }
+
+        internal protected virtual void MeasurementRecorded(MeterInstrument instrument, short shortValue, ReadOnlySpan<ValueTuple<string, string>> labels, object cookie)
+        {
+            MeasurementRecorded<short>(instrument, shortValue, labels, cookie);
+        }
+
+        internal protected virtual void MeasurementRecorded(MeterInstrument instrument, byte byteValue, ReadOnlySpan<ValueTuple<string, string>> labels, object cookie)
+        {
+            MeasurementRecorded<byte>(instrument, byteValue, labels, cookie);
+        }
     }
 
     public class MeasurementObserver

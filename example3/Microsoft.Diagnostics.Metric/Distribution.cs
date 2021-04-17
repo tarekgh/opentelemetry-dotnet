@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Diagnostics.Metric
 {
-    public class Distribution<T> : UnboundMeterInstrument<T> where T:struct
+    public class Distribution<T> : UnboundMeterInstrument<T> where T: unmanaged
     {
         internal Distribution(Meter meter, string name) :
             base(meter, name)

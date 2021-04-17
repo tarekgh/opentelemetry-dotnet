@@ -14,21 +14,19 @@ namespace OpenTelemetry.Metric.Sdk
 
         public override MeasurementAggregation MeasurementAggregation => MeasurementAggregations.Sum;
 
-        public override void Update<T>(T value)
+        public override void Update(double value)
         {
-            double dvalue = ToDouble(value);
-
             count++;
-            sum += dvalue;
+            sum += value;
             if (count == 1)
             {
-                min = dvalue;
-                max = dvalue;
+                min = value;
+                max = value;
             }
             else
             {
-                min = Math.Min(min, dvalue);
-                max = Math.Max(max, dvalue);
+                min = Math.Min(min, value);
+                max = Math.Max(max, value);
             }
         }
 

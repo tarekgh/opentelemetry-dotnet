@@ -10,31 +10,12 @@ namespace OpenTelemetry.Metric.Sdk
     internal abstract class Aggregator
     {
         // This can be called concurrently with Collect()
-        public abstract void Update<T>(T measurement);
+        public abstract void Update(double measurement);
 
         // This can be called concurrently with Update()
         public abstract AggregationStatistics Collect();
 
         public abstract MeasurementAggregation MeasurementAggregation { get; }
-
-        public double ToDouble<T>(T value)
-        {
-            double dvalue = 0;
-            if (value is double dval)
-            {
-                dvalue = dval;
-            }
-            else if (value is long lval)
-            {
-                dvalue = lval;
-            }
-            else if (value is int ival)
-            {
-                dvalue = ival;
-            }
-
-            return dvalue;
-        }
     }
 
     public abstract class AggregationStatistics

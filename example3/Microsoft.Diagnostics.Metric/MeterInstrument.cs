@@ -99,7 +99,7 @@ namespace Microsoft.Diagnostics.Metric
         }
     }
 
-    public abstract class MeterInstrument<T> : MeterInstrument where T:struct
+    public abstract class MeterInstrument<T> : MeterInstrument where T : unmanaged
     {
         [SkipLocalsInit]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -148,7 +148,36 @@ namespace Microsoft.Diagnostics.Metric
             ListenerSubscription[] subscriptions = _subscriptions;
             for (int i = 0; i < subscriptions.Length; i++)
             {
-                subscriptions[i].Listener.MeasurementRecorded(this, val, labels, subscriptions[i].Cookie);
+                // All these conditionals can be resolved statically by the JIT once it knows the T type.
+                // The body of the loop reduces to just the statement from one branch and all the rest are eliminated
+                if (val is double dVal)
+                {
+                    subscriptions[i].Listener.MeasurementRecorded(this, dVal, labels, subscriptions[i].Cookie);
+                }
+                else if (val is float fVal)
+                {
+                    subscriptions[i].Listener.MeasurementRecorded(this, fVal, labels, subscriptions[i].Cookie);
+                }
+                else if (val is long lVal)
+                {
+                    subscriptions[i].Listener.MeasurementRecorded(this, lVal, labels, subscriptions[i].Cookie);
+                }
+                else if (val is int iVal)
+                {
+                    subscriptions[i].Listener.MeasurementRecorded(this, iVal, labels, subscriptions[i].Cookie);
+                }
+                else if (val is short sVal)
+                {
+                    subscriptions[i].Listener.MeasurementRecorded(this, sVal, labels, subscriptions[i].Cookie);
+                }
+                else if (val is byte bVal)
+                {
+                    subscriptions[i].Listener.MeasurementRecorded(this, bVal, labels, subscriptions[i].Cookie);
+                }
+                else
+                {
+                    subscriptions[i].Listener.MeasurementRecorded(this, val, labels, subscriptions[i].Cookie);
+                }
             }
         }
 
