@@ -26,80 +26,113 @@ namespace OpenTelemetry.Metric.Sdk
         private Task collectTask;
         private Task dequeueTask;
 
-        private MeterInstrumentListener listener;
+        // private MeterInstrumentListener listener;
+        private MeterInstrumentListener<double> doubleListner   = new MeterInstrumentListener<double>() { MeasurementRecorded = (instrument, value, labels, cookie) => ((InstrumentState)cookie).Update((double)value, labels) };
+        private MeterInstrumentListener<long>   longListner     = new MeterInstrumentListener<long>() { MeasurementRecorded = (instrument, value, labels, cookie) => ((InstrumentState)cookie).Update((double)value, labels) };
+        private MeterInstrumentListener<int>    intListner      = new MeterInstrumentListener<int>() { MeasurementRecorded = (instrument, value, labels, cookie) => ((InstrumentState)cookie).Update((double)value, labels) };
+        private MeterInstrumentListener<float>  floatListner    = new MeterInstrumentListener<float>() { MeasurementRecorded = (instrument, value, labels, cookie) => ((InstrumentState)cookie).Update((double)value, labels) };
+        private MeterInstrumentListener<short>  shortListner    = new MeterInstrumentListener<short>() { MeasurementRecorded = (instrument, value, labels, cookie) => ((InstrumentState)cookie).Update((double)value, labels) };
+        private MeterInstrumentListener<byte>   byteListner     = new MeterInstrumentListener<byte>() { MeasurementRecorded = (instrument, value, labels, cookie) => ((InstrumentState)cookie).Update((double)value, labels) };
+
+        private MeterListener meterListener;
 
         private ConcurrentQueue<Tuple<MeterInstrument, double, (string LabelName, string LabelValue)[], object>> incomingQueue = new();
         private bool useQueue = false;
 
-        sealed class SdkInstrumentListener : MeterInstrumentListener
+        private void EnableListener(MeterInstrument instrument, object cookie)
         {
-            MetricProvider _owner;
-            public SdkInstrumentListener(MetricProvider owner) { _owner = owner; }
-            protected override void MeasurementRecorded<T>(MeterInstrument instrument, T value, ReadOnlySpan<(string, string)> labels, object cookie)
-            {
-                InstrumentState state = (InstrumentState)cookie;
-                state.Update(ToDouble(value), labels);
-            }
-
-            protected override void MeasurementRecorded(MeterInstrument instrument, double dValue, ReadOnlySpan<(string, string)> labels, object cookie)
-            {
-                InstrumentState state = (InstrumentState)cookie;
-                state.Update(dValue, labels);
-            }
-
-            protected override void MeasurementRecorded(MeterInstrument instrument, long lValue, ReadOnlySpan<(string, string)> labels, object cookie)
-            {
-                InstrumentState state = (InstrumentState)cookie;
-                state.Update((double)lValue, labels);
-            }
-
-            protected override void MeterInstrumentPublished(MeterInstrument instrument, MeterSubscribeOptions subscribeOptions)
-            {
-                InstrumentState state = _owner.GetInstrumentState(instrument);
-                if (state != null)
-                {
-                    subscribeOptions.Subscribe(state);
-                }
-            }
-
-            protected override void MeterInstrumentUnpublished(MeterInstrument instrument, object cookie) =>
-                _owner.RemoveInstrumentState(instrument, (InstrumentState)cookie);
-
-            double ToDouble<T>(T value)
-            {
-                double dvalue = 0;
-                if (value is double dval)
-                {
-                    dvalue = dval;
-                }
-                else if(value is float fVal)
-                {
-                    dvalue = fVal;
-                }
-                else if (value is long lval)
-                {
-                    dvalue = lval;
-                }
-                else if (value is int ival)
-                {
-                    dvalue = ival;
-                }
-                else if(value is short sVal)
-                {
-                    dvalue = sVal;
-                }
-                else if(value is byte bVal)
-                {
-                    dvalue = bVal;
-                }
-
-                return dvalue;
-            }
+            if (instrument.IsObservable) { return; }
+            if (instrument is MeterInstrument<long> longInst) { longInst.AddListener(longListner, cookie); return; }
+            if (instrument is MeterInstrument<double> doubleInst) { doubleInst.AddListener(doubleListner, cookie); return; }
+            if (instrument is MeterInstrument<int> intInst) { intInst.AddListener(intListner, cookie); return; }
+            if (instrument is MeterInstrument<float> floatInst) { floatInst.AddListener(floatListner, cookie); return; }
+            if (instrument is MeterInstrument<short> shortInst) { shortInst.AddListener(shortListner, cookie); return; }
+            if (instrument is MeterInstrument<byte> byteInst) { byteInst.AddListener(byteListner, cookie); return; }
         }
+
+        //sealed class SdkInstrumentListener : MeterInstrumentListener
+        //{
+        //    MetricProvider _owner;
+        //    public SdkInstrumentListener(MetricProvider owner) { _owner = owner; }
+        //    protected override void MeasurementRecorded<T>(MeterInstrument instrument, T value, ReadOnlySpan<(string, string)> labels, object cookie)
+        //    {
+        //        InstrumentState state = (InstrumentState)cookie;
+        //        state.Update(ToDouble(value), labels);
+        //    }
+
+        //    protected override void MeasurementRecorded(MeterInstrument instrument, double dValue, ReadOnlySpan<(string, string)> labels, object cookie)
+        //    {
+        //        InstrumentState state = (InstrumentState)cookie;
+        //        state.Update(dValue, labels);
+        //    }
+
+        //    protected override void MeasurementRecorded(MeterInstrument instrument, long lValue, ReadOnlySpan<(string, string)> labels, object cookie)
+        //    {
+        //        InstrumentState state = (InstrumentState)cookie;
+        //        state.Update((double)lValue, labels);
+        //    }
+
+        //    protected override void MeterInstrumentPublished(MeterInstrument instrument, MeterSubscribeOptions subscribeOptions)
+        //    {
+        //        InstrumentState state = _owner.GetInstrumentState(instrument);
+        //        if (state != null)
+        //        {
+        //            subscribeOptions.Subscribe(state);
+        //        }
+        //    }
+
+        //    protected override void MeterInstrumentUnpublished(MeterInstrument instrument, object cookie) =>
+        //        _owner.RemoveInstrumentState(instrument, (InstrumentState)cookie);
+
+        //    double ToDouble<T>(T value)
+        //    {
+        //        double dvalue = 0;
+        //        if (value is double dval)
+        //        {
+        //            dvalue = dval;
+        //        }
+        //        else if(value is float fVal)
+        //        {
+        //            dvalue = fVal;
+        //        }
+        //        else if (value is long lval)
+        //        {
+        //            dvalue = lval;
+        //        }
+        //        else if (value is int ival)
+        //        {
+        //            dvalue = ival;
+        //        }
+        //        else if(value is short sVal)
+        //        {
+        //            dvalue = sVal;
+        //        }
+        //        else if(value is byte bVal)
+        //        {
+        //            dvalue = bVal;
+        //        }
+
+        //        return dvalue;
+        //    }
+        //}
 
         public MetricProvider()
         {
-            this.listener = new SdkInstrumentListener(this);
+            MetricProvider thisObject = this;
+            // this.listener = new SdkInstrumentListener(this);
+            meterListener = new MeterListener()
+            {
+                ShouldListenTo = (meter) => true,
+                InstrumentEncountered = (instrument) =>
+                {
+                    InstrumentState state = thisObject.GetInstrumentState(instrument);
+                    if (state != null)
+                    {
+                        EnableListener(instrument, state);
+                    }
+                },
+                InstrumentDisposed = (instrument) => RemoveInstrumentState(instrument, (InstrumentState)cookie);
+            };
         }
 
         public MetricProvider Name(string name)
@@ -246,7 +279,7 @@ namespace OpenTelemetry.Metric.Sdk
             _instrumentStates.TryRemove(KeyValuePair.Create(instrument, state));
         }
 
-        InstrumentState GetInstrumentState(MeterInstrument instrument)
+        internal InstrumentState GetInstrumentState(MeterInstrument instrument)
         {
             if (!_instrumentStates.TryGetValue(instrument, out InstrumentState instrumentState))
             {

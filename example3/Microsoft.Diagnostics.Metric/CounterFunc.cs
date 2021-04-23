@@ -6,38 +6,17 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Diagnostics.Metric
 {
-
-    public class CounterFunc<T> : UnboundMeterInstrument<T> where T: unmanaged
+    public class CounterFunc<T> : MeterObservableInstrument<T> where T: unmanaged
     {
         // This is either a Func<double> or an Action<MeasurementObserver>
-        object _observeValueFunc;
+        Func<IEnumerable<MeasurementObserver<T>>> _observeValueFunc;
 
-        public CounterFunc(Meter meter, string name, Func<double> observeValue) :
-            base(meter, name)
-        {
-            _observeValueFunc = observeValue;
-            Publish();
-        }
-
-        public CounterFunc(Meter meter, string name, Action<MeasurementObserver> observeValues) :
-            base(meter, name)
+        public CounterFunc(Meter meter, string name, Func<IEnumerable<MeasurementObserver<T>>> observeValues, string? description, string? unit) : base(meter, name, description, unit)
         {
             _observeValueFunc = observeValues;
             Publish();
         }
 
-        protected internal override bool IsObservable => true;
-
-        protected internal override void Observe(MeasurementObserver observer)
-        {
-            if (_observeValueFunc is Func<double>)
-            {
-                observer.Observe(((Func<double>)_observeValueFunc)());
-            }
-            else if ((_observeValueFunc is Action<MeasurementObserver>))
-            {
-                ((Action<MeasurementObserver>)_observeValueFunc)(observer);
-            }
-        }
+        public override IEnumerable<MeasurementObserver<T>> Observe() => _observeValueFunc();
     }
 }

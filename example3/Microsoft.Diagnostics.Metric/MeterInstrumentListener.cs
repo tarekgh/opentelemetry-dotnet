@@ -1,118 +1,54 @@
 using System;
+using System.Threading;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace Microsoft.Diagnostics.Metric
 {
-    public class MeterInstrumentListener : IDisposable
-    {
-        // this dictionary is synchronized by the MetricCollection.s_lock
-        Dictionary<MeterInstrument, object> _subscribedObservableMeters = new Dictionary<MeterInstrument, object>();
+    public delegate void RecordMeasurement<T>(MeterInstrument<T> instrument, T value, ReadOnlySpan<ValueTuple<string, string>> labels, object cookie) where T : unmanaged;
 
-        public void Start()
+    public class MeterInstrumentListener<T> : IDisposable where T : unmanaged
+    {
+        private List<MeterInstrument<T>> _subscribedInstruments;
+
+        public MeterInstrumentListener() { }
+
+        public MeterInstrumentListener(RecordMeasurement<T> measurementRecorded)
         {
-            MeterInstrumentCollection.Instance.AddListener(this);
+            MeasurementRecorded = measurementRecorded;
         }
 
-        public void RecordObservableMeters()
+        public RecordMeasurement<T> MeasurementRecorded { get; set;  }
+
+        internal void AddInstrument(MeterInstrument<T> instrument)
         {
-            // This ensures that meters can't be published/unpublished while we are trying to traverse the
-            // list. The Observe callback could still be concurrent with Dispose().
-            lock (MeterInstrumentCollection.Lock)
+            if (_subscribedInstruments is null)
             {
-                Dictionary<MeterInstrument, object> subscriptionCopy = new(_subscribedObservableMeters);
+                Interlocked.CompareExchange(ref _subscribedInstruments, new List<MeterInstrument<T>>(), null);
             }
-            MeasurementObserver observer = new MeasurementObserver(this);
-            foreach (KeyValuePair<MeterInstrument, object> kv in _subscribedObservableMeters)
+
+            lock (_subscribedInstruments)
             {
-                observer.CurrentInstrument = kv.Key;
-                observer.CurrentCookie = kv.Value;
-                observer.CurrentInstrument.Observe(observer);
+                if (!_subscribedInstruments.Contains(instrument))
+                {
+                    _subscribedInstruments.Add(instrument);
+                }
             }
         }
 
         public void Dispose()
         {
-            MeterInstrumentCollection.Instance.RemoveListener(this);
-        }
+            List<MeterInstrument<T>> list = _subscribedInstruments;
+            if (list is not null)
+            {
+                foreach (MeterInstrument<T> instrument in list)
+                {
+                    instrument.RemoveSubscription(this, out _);
+                }
+            }
 
-        internal void SubscribeObservableInstrument(MeterInstrument instrument, object listenerCookie)
-        {
-            _subscribedObservableMeters[instrument] = listenerCookie;
-        }
-
-        internal bool UnsubscribeObservableInstrument(MeterInstrument instrument, out object cookie)
-        {
-            return _subscribedObservableMeters.Remove(instrument, out cookie);
-        }
-
-        internal protected virtual void MeterInstrumentPublished(MeterInstrument instrument, MeterSubscribeOptions subscribeOptions)
-        { }
-
-        internal protected virtual void MeterInstrumentUnpublished(MeterInstrument instrument, object cookie)
-        { }
-
-        internal protected virtual void MeasurementRecorded<T>(MeterInstrument instrument, T value, ReadOnlySpan<ValueTuple<string, string>> labels, object cookie)
-            where T : unmanaged
-        { }
-
-        internal protected virtual void MeasurementRecorded(MeterInstrument instrument, double doubleValue, ReadOnlySpan<ValueTuple<string, string>> labels, object cookie)
-        {
-            MeasurementRecorded<double>(instrument, doubleValue, labels, cookie);
-        }
-
-        internal protected virtual void MeasurementRecorded(MeterInstrument instrument, float floatValue, ReadOnlySpan<ValueTuple<string, string>> labels, object cookie)
-        {
-            MeasurementRecorded<float>(instrument, floatValue, labels, cookie);
-        }
-
-        internal protected virtual void MeasurementRecorded(MeterInstrument instrument, long longValue, ReadOnlySpan<ValueTuple<string, string>> labels, object cookie)
-        {
-            MeasurementRecorded<long>(instrument, longValue, labels, cookie);
-        }
-
-        internal protected virtual void MeasurementRecorded(MeterInstrument instrument, int intValue, ReadOnlySpan<ValueTuple<string, string>> labels, object cookie)
-        {
-            MeasurementRecorded<int>(instrument, intValue, labels, cookie);
-        }
-
-        internal protected virtual void MeasurementRecorded(MeterInstrument instrument, short shortValue, ReadOnlySpan<ValueTuple<string, string>> labels, object cookie)
-        {
-            MeasurementRecorded<short>(instrument, shortValue, labels, cookie);
-        }
-
-        internal protected virtual void MeasurementRecorded(MeterInstrument instrument, byte byteValue, ReadOnlySpan<ValueTuple<string, string>> labels, object cookie)
-        {
-            MeasurementRecorded<byte>(instrument, byteValue, labels, cookie);
+            _subscribedInstruments = null;
         }
     }
-
-    public class MeasurementObserver
-    {
-        internal MeasurementObserver(MeterInstrumentListener listener)
-        {
-            Listener = listener;
-        }
-        internal MeterInstrumentListener Listener { get; private set; }
-        internal MeterInstrument CurrentInstrument { get; set; }
-        internal object CurrentCookie { get; set; }
-
-        public void Observe(double value)
-        {
-            Listener.MeasurementRecorded(CurrentInstrument, value, Array.Empty<ValueTuple<string, string>>().AsSpan(), CurrentCookie);
-        }
-
-        public void Observe(double value, ValueTuple<string, string> label)
-        {
-            ReadOnlySpan<(string LabelName, string LabelValue)> labels = MemoryMarshal.CreateReadOnlySpan(ref label, 1);
-            Listener.MeasurementRecorded(CurrentInstrument, value, labels, CurrentCookie);
-        }
-
-        public void Observe(double value, ReadOnlySpan<ValueTuple<string, string>> labels)
-        {
-            Listener.MeasurementRecorded(CurrentInstrument, value, labels, CurrentCookie);
-        }
-    }
-
 }

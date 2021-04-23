@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Diagnostics.Metric
 {
-    public class Distribution<T> : UnboundMeterInstrument<T> where T: unmanaged
+    public class Distribution<T> : MeterInstrument<T> where T: unmanaged
     {
-        internal Distribution(Meter meter, string name) :
-            base(meter, name)
+        internal Distribution(Meter meter, string name, string? description, string? unit) : base(meter, name, description, unit)
         {
             Publish();
         }

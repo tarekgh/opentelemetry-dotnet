@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Diagnostics.Metric
 {
-    public class Counter<T> : UnboundMeterInstrument<T> where T: unmanaged
+    public class Counter<T> : MeterInstrument<T> where T: unmanaged
     {
-        internal Counter(Meter meter, string name) :
-            base(meter, name)
+        internal Counter(Meter meter, string name, string? description, string? unit) : base(meter, name, description, unit)
         {
             Publish();
         }

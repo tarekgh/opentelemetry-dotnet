@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Diagnostics.Metric
 {
-    public class Gauge<T> : UnboundMeterInstrument<T> where T: unmanaged
+    public class Gauge<T> : MeterInstrument<T> where T: unmanaged
     {
-        internal Gauge(Meter meter, string name) :
-            base(meter, name)
+        internal Gauge(Meter meter, string name, string? description, string? unit) : base(meter, name, description, unit)
         {
             Publish();
         }
