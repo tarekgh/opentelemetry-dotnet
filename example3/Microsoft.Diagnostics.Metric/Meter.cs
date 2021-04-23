@@ -49,10 +49,10 @@ namespace Microsoft.Diagnostics.Metric
             return new Counter<T>(this, name, description, unit);
         }
 
-        public CounterFunc<Int64> CreateInt64CounterFunc(string name, Func<IEnumerable<MeasurementObservaion<Int64>>> observeValue, string? description = null, string? unit = null) => CreateCounterFunc<Int64>(name, observeValue, description, unit);
-        public CounterFunc<double> CreateDoubleCounterFunc(string name, Func<IEnumerable<MeasurementObservaion<double>>> observeValue, string? description = null, string? unit = null) => CreateCounterFunc<double>(name, observeValue, description, unit);
+        public CounterFunc<Int64> CreateInt64CounterFunc(string name, Func<IEnumerable<MeasurementObservation<Int64>>> observeValue, string? description = null, string? unit = null) => CreateCounterFunc<Int64>(name, observeValue, description, unit);
+        public CounterFunc<double> CreateDoubleCounterFunc(string name, Func<IEnumerable<MeasurementObservation<double>>> observeValue, string? description = null, string? unit = null) => CreateCounterFunc<double>(name, observeValue, description, unit);
 
-        public CounterFunc<T> CreateCounterFunc<T>(string name, Func<IEnumerable<MeasurementObservaion<T>>> observeValue, string? description = null, string? unit = null) where T : unmanaged
+        public CounterFunc<T> CreateCounterFunc<T>(string name, Func<IEnumerable<MeasurementObservation<T>>> observeValue, string? description = null, string? unit = null) where T : unmanaged
         {
             return new CounterFunc<T>(this, name, observeValue, description, unit);
         }

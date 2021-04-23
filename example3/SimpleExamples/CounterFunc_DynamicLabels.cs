@@ -10,13 +10,13 @@ namespace SimpleExamples
     class CounterFunc_DynamicLabels_Example
     {
         static Meter hatCo = new Meter("HatCo");
-        CounterFunc<double> _hatsSoldCounter = hatCo.CreateCounterFunc<double>(
+        static (string, string)[] yellowLabel = new (string, string)[1] { ("Color", "Yellow") };
+        static (string, string)[] redLabel = new (string, string)[1] { ("Color", "Red") };
+
+        CounterFunc<long> _hatsSoldCounter = hatCo.CreateCounterFunc<long>(
             name: "HatCo.ColoredHatsSold",
-            observeValues: o =>
-            {
-                o.Observe(ColoredHatStoreData.GetTotalHatsSold("Yellow"), ("Color", "Yellow"));
-                o.Observe(ColoredHatStoreData.GetTotalHatsSold("Red"), ("Color", "Red"));
-            });
+            observeValue: () => new MeasurementObservation<long>[] { new MeasurementObservation<long>(yellowLabel, ColoredHatStoreData.GetTotalHatsSold("Yellow")), new MeasurementObservation<long>(redLabel, ColoredHatStoreData.GetTotalHatsSold("Red")) }
+        );
     }
 
     static class ColoredHatStoreData

@@ -52,12 +52,12 @@ namespace OpenTelemetry.Metric.Sdk
                 return;
             }
 
-            if (instrument is MeterInstrument<long> longInst)           { longInst.AddListener(longListener, cookie); return; }
-            else if (instrument is MeterInstrument<double> doubleInst)  { doubleInst.AddListener(doubleListener, cookie); return; }
-            else if (instrument is MeterInstrument<int> intInst)        { intInst.AddListener(intListener, cookie); return; }
-            else if (instrument is MeterInstrument<float> floatInst)    { floatInst.AddListener(floatListener, cookie); return; }
-            else if (instrument is MeterInstrument<short> shortInst)    { shortInst.AddListener(shortListener, cookie); return; }
-            else if (instrument is MeterInstrument<byte> byteInst)      { byteInst.AddListener(byteListener, cookie); return; }
+            if (instrument is MeterInstrument<long> longInst)           { longInst.AddListener(longListener, cookie); }
+            else if (instrument is MeterInstrument<double> doubleInst)  { doubleInst.AddListener(doubleListener, cookie); }
+            else if (instrument is MeterInstrument<int> intInst)        { intInst.AddListener(intListener, cookie); }
+            else if (instrument is MeterInstrument<float> floatInst)    { floatInst.AddListener(floatListener, cookie);  }
+            else if (instrument is MeterInstrument<short> shortInst)    { shortInst.AddListener(shortListener, cookie); }
+            else if (instrument is MeterInstrument<byte> byteInst)      { byteInst.AddListener(byteListener, cookie);  }
         }
 
         private void DisposeListeners()
@@ -354,7 +354,7 @@ namespace OpenTelemetry.Metric.Sdk
 
         private void CollectObservable<T>(MeterObservableInstrument<T> instrument, InstrumentState state, DateTimeOffset collectionTime, List<ExportItem> ret) where T : unmanaged
         {
-            foreach (MeasurementObservaion<T> observedValue in instrument.Observe())
+            foreach (MeasurementObservation<T> observedValue in instrument.Observe())
             {
                 state.Update((double)(object)observedValue.Value, observedValue.Labels is null ? Array.Empty<(string, string)>().AsSpan() : observedValue.Labels.AsSpan());
 

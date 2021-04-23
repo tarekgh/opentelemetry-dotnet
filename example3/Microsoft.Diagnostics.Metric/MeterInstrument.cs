@@ -49,9 +49,9 @@ namespace Microsoft.Diagnostics.Metric
         internal object Cookie { get; set; }
     }
 
-    public struct MeasurementObservaion<T> where T : unmanaged
+    public struct MeasurementObservation<T> where T : unmanaged
     {
-        public MeasurementObservaion((string, string)[]? labels, T value) 
+        public MeasurementObservation((string, string)[]? labels, T value)
         {
             Labels = labels;
             Value = value;
@@ -64,7 +64,7 @@ namespace Microsoft.Diagnostics.Metric
     public abstract class MeterObservableInstrument<T> : MeterInstrument where T : unmanaged
     {
         protected MeterObservableInstrument(Meter meter, string name, string? description, string? unit) : base(meter, name, description, unit) { }
-        public abstract IEnumerable<MeasurementObservaion<T>> Observe();
+        public abstract IEnumerable<MeasurementObservation<T>> Observe();
         public override bool IsObservable => true;
         public override bool Enabled => true;
     }

@@ -13,7 +13,7 @@ namespace NewExample
 
             //
             // Unrelated Metrics Stuff
-            // 
+            //
 
             Random random = new Random();
 
@@ -103,11 +103,11 @@ namespace NewExample
 
             CounterFunc<double> doubleObservableCounter = meter.CreateDoubleCounterFunc(
                                                                     "DoubleObseravbleCounter",
-                                                                    () => new MeasurementObservaion<double>[]
+                                                                    () => new MeasurementObservation<double>[]
                                                                           {
-                                                                              new MeasurementObservaion<double>(CreateLabels(1), random.NextDouble()),
-                                                                              new MeasurementObservaion<double>(CreateLabels(2), random.NextDouble()),
-                                                                              new MeasurementObservaion<double>(CreateLabels(3), random.NextDouble())
+                                                                              new MeasurementObservation<double>(CreateLabels(1), random.NextDouble()),
+                                                                              new MeasurementObservation<double>(CreateLabels(2), random.NextDouble()),
+                                                                              new MeasurementObservation<double>(CreateLabels(3), random.NextDouble())
                                                                           }
                                                                     );
 
@@ -116,8 +116,8 @@ namespace NewExample
 
             for (int i = 0; i < 5; i++)
             {
-                IEnumerable<MeasurementObservaion<double>> obsevedValues = encounteredInstrument.Observe();
-                foreach (MeasurementObservaion<double> value in obsevedValues)
+                IEnumerable<MeasurementObservation<double>> obsevedValues = encounteredInstrument.Observe();
+                foreach (MeasurementObservation<double> value in obsevedValues)
                 {
                     Console.Write($"{encounteredInstrument.Name} recorded the vale {value.Value} with the labels: [");
                     foreach ((string, string) label in value.Labels)

@@ -15,40 +15,43 @@ namespace UnitTest
         {
             using Meter m = new Meter("TestMeterA");
             Counter<double> c = m.CreateCounter<double>("C");
-            using TestListener listener = new TestListener("TestMeterA", false);
 
-            Assert.Null(listener.LastPublish);
-            listener.Start();
-            Assert.Equal(c, listener.LastPublish);
-        }
+            bool tested = false;
 
-        [Fact]
-        public void PublishMeterFirstLateCounter()
-        {
-            using Meter m = new Meter("TestMeterB");
-            using TestListener listener = new TestListener("TestMeterB", false);
+            MeterListener listener = new MeterListener()
+            {
+                ShouldListenTo = (meter) => meter.Name == m.Name,
+                InstrumentEncountered = (instrument) => { Assert.Same(c, instrument); tested = true; }
+            };
 
-            Assert.Null(listener.LastPublish);
-            listener.Start();
-            Assert.Null(listener.LastPublish);
-            Counter<double> c = m.CreateCounter<double>("C");
-            Assert.Equal(c, listener.LastPublish);
+            Assert.False(tested);
+            Meter.AddListener(listener);
+            Assert.True(tested);
         }
 
         [Fact]
         public void PublishListenerFirst()
         {
-            using TestListener listener = new TestListener("TestMeterC", false);
+            MeterInstrument c = null;
+            bool tested = false;
 
-            Assert.Null(listener.LastPublish);
-            listener.Start();
-            Assert.Null(listener.LastPublish);
-            using Meter m = new Meter("TestMeterC");
-            Assert.Null(listener.LastPublish);
-            Counter<double> c = m.CreateCounter<double>("C");
-            Assert.Equal(c, listener.LastPublish);
+            MeterListener listener = new MeterListener()
+            {
+                ShouldListenTo = (meter) => meter.Name == "TestMeterB",
+                InstrumentEncountered = (instrument) => { Assert.Same(c, instrument); tested = true; }
+            };
+
+            Meter.AddListener(listener);
+
+            using Meter m = new Meter("TestMeterB");
+
+            Assert.False(tested);
+
+            c = m.CreateCounter<double>("C");
+
+            Assert.True(tested);
         }
-
+/*
         [Fact]
         public void UnpublishOnMeterDispose()
         {
@@ -147,31 +150,6 @@ namespace UnitTest
             listener.Dispose();
             Assert.Null(listener.LastUnpublish);
         }
-    }
-
-    class TestListener : MeterInstrumentListener
-    {
-        public MeterInstrument LastPublish { get; set; }
-        public MeterInstrument LastUnpublish { get; set; }
-        bool _subscribe;
-
-        string _meterName;
-        public TestListener(string meterName, bool subscribe) { _meterName = meterName; _subscribe = subscribe; }
-        protected override void MeterInstrumentPublished(MeterInstrument instrument, MeterSubscribeOptions subscribeOptions)
-        {
-            if (instrument.Meter.Name != _meterName) return;
-
-            LastPublish = instrument;
-            if (_subscribe)
-            {
-                subscribeOptions.Subscribe();
-            }
-        }
-
-        protected override void MeterInstrumentUnpublished(MeterInstrument instrument, object cookie)
-        {
-            Assert.Equal(_meterName, instrument.Meter.Name);
-            LastUnpublish = instrument;
-        }
+*/
     }
 }
