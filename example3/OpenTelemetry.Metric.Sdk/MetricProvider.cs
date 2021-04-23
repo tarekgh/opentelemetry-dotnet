@@ -14,6 +14,7 @@ namespace OpenTelemetry.Metric.Sdk
     {
         private List<(Predicate<MeterInstrument>, Action<InstrumentBuilder>)> instrumentConfigFuncs = new();
         private ConcurrentDictionary<MeterInstrument, InstrumentState> _instrumentStates = new ConcurrentDictionary<MeterInstrument, InstrumentState>();
+        private ConcurrentDictionary<MeterInstrument, InstrumentState> _observableInstrumentStates = new ConcurrentDictionary<MeterInstrument, InstrumentState>();
 
         private string name;
         private int collectPeriod_ms = 2000;
@@ -27,12 +28,12 @@ namespace OpenTelemetry.Metric.Sdk
         private Task dequeueTask;
 
         // private MeterInstrumentListener listener;
-        private MeterInstrumentListener<double> doubleListner   = new MeterInstrumentListener<double>() { MeasurementRecorded = (instrument, value, labels, cookie) => ((InstrumentState)cookie).Update((double)value, labels) };
-        private MeterInstrumentListener<long>   longListner     = new MeterInstrumentListener<long>() { MeasurementRecorded = (instrument, value, labels, cookie) => ((InstrumentState)cookie).Update((double)value, labels) };
-        private MeterInstrumentListener<int>    intListner      = new MeterInstrumentListener<int>() { MeasurementRecorded = (instrument, value, labels, cookie) => ((InstrumentState)cookie).Update((double)value, labels) };
-        private MeterInstrumentListener<float>  floatListner    = new MeterInstrumentListener<float>() { MeasurementRecorded = (instrument, value, labels, cookie) => ((InstrumentState)cookie).Update((double)value, labels) };
-        private MeterInstrumentListener<short>  shortListner    = new MeterInstrumentListener<short>() { MeasurementRecorded = (instrument, value, labels, cookie) => ((InstrumentState)cookie).Update((double)value, labels) };
-        private MeterInstrumentListener<byte>   byteListner     = new MeterInstrumentListener<byte>() { MeasurementRecorded = (instrument, value, labels, cookie) => ((InstrumentState)cookie).Update((double)value, labels) };
+        private MeterInstrumentListener<double> doubleListener   = new MeterInstrumentListener<double>() { MeasurementRecorded = (instrument, value, labels, cookie) => ((InstrumentState)cookie).Update(value, labels) };
+        private MeterInstrumentListener<long>   longListener     = new MeterInstrumentListener<long>()   { MeasurementRecorded = (instrument, value, labels, cookie) => ((InstrumentState)cookie).Update((double)value, labels) };
+        private MeterInstrumentListener<int>    intListener      = new MeterInstrumentListener<int>()    { MeasurementRecorded = (instrument, value, labels, cookie) => ((InstrumentState)cookie).Update((double)value, labels) };
+        private MeterInstrumentListener<float>  floatListener    = new MeterInstrumentListener<float>()  { MeasurementRecorded = (instrument, value, labels, cookie) => ((InstrumentState)cookie).Update((double)value, labels) };
+        private MeterInstrumentListener<short>  shortListener    = new MeterInstrumentListener<short>()  { MeasurementRecorded = (instrument, value, labels, cookie) => ((InstrumentState)cookie).Update((double)value, labels) };
+        private MeterInstrumentListener<byte>   byteListener     = new MeterInstrumentListener<byte>()   { MeasurementRecorded = (instrument, value, labels, cookie) => ((InstrumentState)cookie).Update((double)value, labels) };
 
         private MeterListener meterListener;
 
@@ -41,13 +42,32 @@ namespace OpenTelemetry.Metric.Sdk
 
         private void EnableListener(MeterInstrument instrument, object cookie)
         {
-            if (instrument.IsObservable) { return; }
-            if (instrument is MeterInstrument<long> longInst) { longInst.AddListener(longListner, cookie); return; }
-            if (instrument is MeterInstrument<double> doubleInst) { doubleInst.AddListener(doubleListner, cookie); return; }
-            if (instrument is MeterInstrument<int> intInst) { intInst.AddListener(intListner, cookie); return; }
-            if (instrument is MeterInstrument<float> floatInst) { floatInst.AddListener(floatListner, cookie); return; }
-            if (instrument is MeterInstrument<short> shortInst) { shortInst.AddListener(shortListner, cookie); return; }
-            if (instrument is MeterInstrument<byte> byteInst) { byteInst.AddListener(byteListner, cookie); return; }
+            if (instrument.IsObservable)
+            {
+                if (instrument is MeterObservableInstrument<long> || instrument is MeterObservableInstrument<double> || instrument is MeterObservableInstrument<short> ||
+                    instrument is MeterObservableInstrument<int> || instrument is MeterObservableInstrument<byte> || instrument is MeterObservableInstrument<float>)
+                {
+                    _observableInstrumentStates.TryAdd(instrument, (InstrumentState)cookie);
+                }
+                return;
+            }
+
+            if (instrument is MeterInstrument<long> longInst)           { longInst.AddListener(longListener, cookie); return; }
+            else if (instrument is MeterInstrument<double> doubleInst)  { doubleInst.AddListener(doubleListener, cookie); return; }
+            else if (instrument is MeterInstrument<int> intInst)        { intInst.AddListener(intListener, cookie); return; }
+            else if (instrument is MeterInstrument<float> floatInst)    { floatInst.AddListener(floatListener, cookie); return; }
+            else if (instrument is MeterInstrument<short> shortInst)    { shortInst.AddListener(shortListener, cookie); return; }
+            else if (instrument is MeterInstrument<byte> byteInst)      { byteInst.AddListener(byteListener, cookie); return; }
+        }
+
+        private void DisposeListeners()
+        {
+            doubleListener.Dispose();
+            longListener.Dispose();
+            intListener.Dispose();
+            floatListener.Dispose();
+            shortListener.Dispose();
+            byteListener.Dispose();
         }
 
         //sealed class SdkInstrumentListener : MeterInstrumentListener
@@ -118,20 +138,19 @@ namespace OpenTelemetry.Metric.Sdk
 
         public MetricProvider()
         {
-            MetricProvider thisObject = this;
             // this.listener = new SdkInstrumentListener(this);
             meterListener = new MeterListener()
             {
                 ShouldListenTo = (meter) => true,
                 InstrumentEncountered = (instrument) =>
                 {
-                    InstrumentState state = thisObject.GetInstrumentState(instrument);
+                    InstrumentState state = GetInstrumentState(instrument);
                     if (state != null)
                     {
                         EnableListener(instrument, state);
                     }
                 },
-                InstrumentDisposed = (instrument) => RemoveInstrumentState(instrument, (InstrumentState)cookie);
+                InstrumentDisposed = (instrument) => RemoveInstrumentState(instrument)
             };
         }
 
@@ -243,7 +262,8 @@ namespace OpenTelemetry.Metric.Sdk
                 exporter.Start(token);
             }
 
-            listener.Start();
+            // listener.Start();
+            Meter.AddListener(meterListener);
             isBuilt = true;
 
             return this;
@@ -261,8 +281,9 @@ namespace OpenTelemetry.Metric.Sdk
             flushCollect = true;
             collectTask.Wait();
 
-            listener.Dispose();
-            
+            // listener.Dispose();
+            DisposeListeners();
+
             foreach (var exporter in exporters)
             {
                 exporter.BeginFlush();
@@ -274,9 +295,16 @@ namespace OpenTelemetry.Metric.Sdk
             }
         }
 
-        void RemoveInstrumentState(MeterInstrument instrument, InstrumentState state)
+        void RemoveInstrumentState(MeterInstrument instrument)
         {
-            _instrumentStates.TryRemove(KeyValuePair.Create(instrument, state));
+            if (instrument.IsObservable)
+            {
+                _observableInstrumentStates.TryRemove(instrument, out _);
+            }
+            else
+            {
+                _instrumentStates.TryRemove(instrument, out _);
+            }
         }
 
         internal InstrumentState GetInstrumentState(MeterInstrument instrument)
@@ -304,11 +332,33 @@ namespace OpenTelemetry.Metric.Sdk
 
         private void ProcessRecord(MeterInstrument instrument, double value, ReadOnlySpan<(string LabelName, string LabelValue)> labels, object cookie)
         {
-
             if (isBuilt)
             {
                 InstrumentState state = (InstrumentState)cookie;
                 state.Update(value, labels);
+            }
+        }
+
+        private void CollectState(MeterInstrument instrument, InstrumentState state, DateTimeOffset collectionTime, List<ExportItem> ret) =>
+            state.Collect(instrument, (LabeledAggregationStatistics labeledAggStats) =>
+            {
+                var item = new ExportItem();
+                item.dt = collectionTime;
+                item.Labels = new MetricLabelSet(labeledAggStats.Labels);
+                item.AggregationStatistics = labeledAggStats.AggregationStatistics;
+                item.MeterName = instrument.Meter.Name;
+                item.MeterVersion = instrument.Meter.Version;
+                item.InstrumentName = instrument.Name;
+                ret.Add(item);
+            });
+
+        private void CollectObservable<T>(MeterObservableInstrument<T> instrument, InstrumentState state, DateTimeOffset collectionTime, List<ExportItem> ret) where T : unmanaged
+        {
+            foreach (MeasurementObservaion<T> observedValue in instrument.Observe())
+            {
+                state.Update((double)(object)observedValue.Value, observedValue.Labels is null ? Array.Empty<(string, string)>().AsSpan() : observedValue.Labels.AsSpan());
+
+                CollectState(instrument, state, collectionTime, ret);
             }
         }
 
@@ -319,21 +369,22 @@ namespace OpenTelemetry.Metric.Sdk
             if (isBuilt)
             {
                 DateTimeOffset collectionTime = DateTimeOffset.UtcNow;
-                listener.RecordObservableMeters();
+                // listener.RecordObservableMeters();
+
+                foreach (KeyValuePair<MeterInstrument, InstrumentState> kv in _observableInstrumentStates)
+                {
+                    // We can assert here on the supported types (e.g. double, int, float,...etc.)
+                    if (kv.Key is MeterObservableInstrument<long> longInstrument) CollectObservable<long>(longInstrument, kv.Value, collectionTime, ret);
+                    else if (kv.Key is MeterObservableInstrument<double> doubleInstrument) CollectObservable<double>(doubleInstrument, kv.Value, collectionTime, ret);
+                    else if (kv.Key is MeterObservableInstrument<int> intInstrument) CollectObservable<int>(intInstrument, kv.Value, collectionTime, ret);
+                    else if (kv.Key is MeterObservableInstrument<short> shortInstrument) CollectObservable<short>(shortInstrument, kv.Value, collectionTime, ret);
+                    else if (kv.Key is MeterObservableInstrument<float> floatInstrument) CollectObservable<float>(floatInstrument, kv.Value, collectionTime, ret);
+                    else if (kv.Key is MeterObservableInstrument<byte> byteInstrument) CollectObservable<byte>(byteInstrument, kv.Value, collectionTime, ret);
+                }
 
                 foreach (KeyValuePair<MeterInstrument, InstrumentState> kv in _instrumentStates)
                 {
-                    kv.Value.Collect(kv.Key, (LabeledAggregationStatistics labeledAggStats) =>
-                    {
-                        var item = new ExportItem();
-                        item.dt = collectionTime;
-                        item.Labels = new MetricLabelSet(labeledAggStats.Labels);
-                        item.AggregationStatistics = labeledAggStats.AggregationStatistics;
-                        item.MeterName = kv.Key.Meter.Name;
-                        item.MeterVersion = kv.Key.Meter.Version;
-                        item.InstrumentName = kv.Key.Name;
-                        ret.Add(item);
-                    });
+                    CollectState(kv.Key, kv.Value, collectionTime, ret);
                 }
             }
 

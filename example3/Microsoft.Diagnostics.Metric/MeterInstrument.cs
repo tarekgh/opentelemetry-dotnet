@@ -49,22 +49,22 @@ namespace Microsoft.Diagnostics.Metric
         internal object Cookie { get; set; }
     }
 
-    public struct MeasurementObserver<T> where T : unmanaged // ** MeasurementObservaion
+    public struct MeasurementObservaion<T> where T : unmanaged
     {
-        public MeasurementObserver(IEnumerable<(string, string)>? labels, T value) 
+        public MeasurementObservaion((string, string)[]? labels, T value) 
         {
             Labels = labels;
             Value = value;
         }
 
-        public IEnumerable<(string, string)>? Labels { get; }
+        public (string, string)[] ? Labels { get; }
         public T Value { get; }
     }
 
     public abstract class MeterObservableInstrument<T> : MeterInstrument where T : unmanaged
     {
         protected MeterObservableInstrument(Meter meter, string name, string? description, string? unit) : base(meter, name, description, unit) { }
-        public abstract IEnumerable<MeasurementObserver<T>> Observe();
+        public abstract IEnumerable<MeasurementObservaion<T>> Observe();
         public override bool IsObservable => true;
         public override bool Enabled => true;
     }

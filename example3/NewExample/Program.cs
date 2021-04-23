@@ -17,7 +17,7 @@ namespace NewExample
 
             Random random = new Random();
 
-            static IEnumerable<(string, string)> CreateLabels(int dimension)
+            static (string, string)[] CreateLabels(int dimension)
             {
                 (string, string)[] labels = new (string, string)[dimension];
                 for (int i = 0; i < dimension; i++)
@@ -103,11 +103,11 @@ namespace NewExample
 
             CounterFunc<double> doubleObservableCounter = meter.CreateDoubleCounterFunc(
                                                                     "DoubleObseravbleCounter",
-                                                                    () => new MeasurementObserver<double>[]
+                                                                    () => new MeasurementObservaion<double>[]
                                                                           {
-                                                                              new MeasurementObserver<double>(CreateLabels(1), random.NextDouble()),
-                                                                              new MeasurementObserver<double>(CreateLabels(2), random.NextDouble()),
-                                                                              new MeasurementObserver<double>(CreateLabels(3), random.NextDouble())
+                                                                              new MeasurementObservaion<double>(CreateLabels(1), random.NextDouble()),
+                                                                              new MeasurementObservaion<double>(CreateLabels(2), random.NextDouble()),
+                                                                              new MeasurementObservaion<double>(CreateLabels(3), random.NextDouble())
                                                                           }
                                                                     );
 
@@ -116,8 +116,8 @@ namespace NewExample
 
             for (int i = 0; i < 5; i++)
             {
-                IEnumerable<MeasurementObserver<double>> obsevedValues = encounteredInstrument.Observe();
-                foreach (MeasurementObserver<double> value in obsevedValues)
+                IEnumerable<MeasurementObservaion<double>> obsevedValues = encounteredInstrument.Observe();
+                foreach (MeasurementObservaion<double> value in obsevedValues)
                 {
                     Console.Write($"{encounteredInstrument.Name} recorded the vale {value.Value} with the labels: [");
                     foreach ((string, string) label in value.Labels)

@@ -9,14 +9,14 @@ namespace Microsoft.Diagnostics.Metric
     public class CounterFunc<T> : MeterObservableInstrument<T> where T: unmanaged
     {
         // This is either a Func<double> or an Action<MeasurementObserver>
-        Func<IEnumerable<MeasurementObserver<T>>> _observeValueFunc;
+        Func<IEnumerable<MeasurementObservaion<T>>> _observeValueFunc;
 
-        public CounterFunc(Meter meter, string name, Func<IEnumerable<MeasurementObserver<T>>> observeValues, string? description, string? unit) : base(meter, name, description, unit)
+        public CounterFunc(Meter meter, string name, Func<IEnumerable<MeasurementObservaion<T>>> observeValues, string? description, string? unit) : base(meter, name, description, unit)
         {
             _observeValueFunc = observeValues;
             Publish();
         }
 
-        public override IEnumerable<MeasurementObserver<T>> Observe() => _observeValueFunc();
+        public override IEnumerable<MeasurementObservaion<T>> Observe() => _observeValueFunc();
     }
 }
